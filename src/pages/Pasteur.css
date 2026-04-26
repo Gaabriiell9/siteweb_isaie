@@ -1,0 +1,60 @@
+.pasteur-wrap { padding: 0 0 72px; }
+.pasteur-hero {
+  background: linear-gradient(160deg, var(--noir) 0%, var(--bordeaux-clair) 100%);
+  padding: 72px 24px 0; position: relative; overflow: hidden;
+}
+.pasteur-hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 70% 50% at 60% 40%, rgba(200,134,10,0.06), transparent);
+}
+.pasteur-hero-inner {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; position:relative;
+}
+@media(max-width:660px){ .pasteur-hero-inner { grid-template-columns:1fr; gap:32px; } }
+.pasteur-texte { padding-bottom: 48px; }
+.pasteur-texte .section-label { color:var(--or); }
+.pasteur-titre {
+  font-family: var(--font-display); font-size: clamp(40px,6vw,68px);
+  font-weight: 400; color: var(--creme); line-height: 1; margin-bottom: 6px;
+}
+.pasteur-titre em { font-style:italic; color:var(--or-clair); }
+.pasteur-role {
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  color:rgba(255,248,240,0.65); margin-bottom:24px; margin-top:4px;
+}
+.pasteur-devise {
+  font-family:var(--font-display); font-style:italic; font-size:18px;
+  color:rgba(255,248,240,0.78); line-height:1.6;
+  border-left:2px solid var(--or); padding-left:18px;
+}
+.pasteur-photo-col { position:relative; align-self:end; }
+.pasteur-photo-frame { border:1px solid rgba(200,134,10,0.3); padding:6px; }
+.pasteur-photo-img { width:100%; display:block; filter:sepia(15%) contrast(1.05); }
+.pasteur-photo-tag {
+  position:absolute; bottom:-1px; left:6px; right:6px;
+  background:var(--or); color:var(--bordeaux);
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  padding:8px 16px; text-align:center; font-weight:600; font-family:var(--font-ui);
+}
+.pasteur-body { padding: 56px 24px 0; }
+.pasteur-body-inner { max-width:900px; margin:0 auto; }
+.pasteur-vision {
+  display:grid; grid-template-columns:1fr 2fr; gap:40px; margin-bottom:40px;
+  padding-bottom:40px; border-bottom:1px solid rgba(200,134,10,0.12);
+}
+@media(max-width:600px){ .pasteur-vision { grid-template-columns:1fr; } }
+.pasteur-vision-label {
+  font-family:var(--font-display); font-style:italic; font-size:32px; font-weight:400;
+  color:var(--or-clair); line-height:1.1;
+}
+.pasteur-vision-texte { font-size:14px; color:var(--texte-doux); line-height:1.85; }
+.pasteur-vision-texte p + p { margin-top:14px; }
+.pasteur-contact { background:var(--bordeaux-clair); padding:32px 28px; text-align:center; }
+.pasteur-contact h3 { font-family:var(--font-display); font-size:28px; font-weight:400; font-style:italic; color:var(--creme); margin-bottom:18px; }
+.pasteur-contact-btn {
+  display:inline-block; border:1px solid rgba(200,134,10,0.4); color:var(--or-clair);
+  font-size:10px; letter-spacing:2.5px; text-transform:uppercase;
+  padding:12px 28px; transition: all var(--t); font-family:var(--font-ui);
+}
+.pasteur-contact-btn:hover { background:rgba(200,134,10,0.1); border-color:var(--or); }

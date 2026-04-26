@@ -1,0 +1,226 @@
+/* ============================================================
+   E-T-C Church — Design System Premium
+   Aesthetic: Luxury Sacred · Art Déco × Héritage Africain
+   Fonts: DM Serif Display (display/headings) · Satoshi (UI)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Palette */
+  --noir:           #0E0600;
+  --bordeaux:       #6B1A2E;
+  --bordeaux-clair: #8B2E44;
+  --rouge:          #C0392B;
+  --rouge-clair:    #E55A4A;
+  --bleu:           #1E3A5F;
+  --bleu-clair:     #2E5A8C;
+  --or:             #C8860A;
+  --or-clair:       #E8B84B;
+  --or-pale:        #FDF3DC;
+  --creme:          #FFFBF5;
+  --texte:          #2A1200;
+  --texte-doux:     #6B5540;
+  --blanc:          #FFFFFF;
+
+  /* Typographie */
+  --font-display:  'DM Serif Display', Georgia, serif;
+  --font-heading:  'DM Serif Display', Georgia, serif;
+  --font-sans:     'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-ui:       var(--font-sans);
+
+  /* Espacements */
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg: 14px;
+
+  /* Ombres */
+  --shadow-card: 0 4px 24px rgba(28,10,0,0.10);
+  --shadow-lift: 0 8px 40px rgba(28,10,0,0.16);
+
+  /* Transitions */
+  --t: 0.25s ease;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--creme);
+  color: var(--texte);
+  line-height: 1.6;
+  min-height: 100vh;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+h5 { font-family: var(--font-display); font-weight: 400; }
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--font-sans); }
+img { max-width: 100%; display: block; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--creme); }
+::-webkit-scrollbar-thumb { background: rgba(200,134,10,0.3); border-radius: 3px; }
+
+/* ══════════════════════════════════════════
+   COMPOSANTS GLOBAUX RÉUTILISABLES
+══════════════════════════════════════════ */
+
+/* Séparateur ornemental */
+.ornament-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 0 32px;
+}
+.ornament-line {
+  flex: 1;
+  max-width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,134,10,0.4));
+}
+.ornament-line.r { background: linear-gradient(90deg, rgba(200,134,10,0.4), transparent); }
+.ornament-diamond {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--or);
+  transform: rotate(45deg);
+  background: var(--or-pale);
+}
+
+/* Label de section */
+.section-label {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--or);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+/* Titre de section */
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.5vw, 48px);
+  font-weight: 400;
+  color: var(--bordeaux-clair);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.section-title em { font-style: italic; color: var(--or-clair); }
+.section-title.light { color: var(--creme); }
+
+/* Container */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* Bouton doré */
+.btn-or {
+  display: inline-block;
+  background: var(--or);
+  color: var(--bordeaux);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  border: none;
+  cursor: pointer;
+}
+.btn-or:hover { background: var(--or-clair); transform: translateY(-1px); }
+
+/* Bouton outline */
+.btn-outline {
+  display: inline-block;
+  background: transparent;
+  color: var(--or-clair);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 11px 26px;
+  border: 1px solid rgba(200,134,10,0.4);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+.btn-outline:hover { border-color: var(--or); color: var(--or); }
+
+/* Badge live */
+.live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(220,50,50,0.3);
+  color: #C0392B;
+  padding: 3px 10px;
+  font-weight: 400;
+}
+.dot-live {
+  width: 6px; height: 6px;
+  border-radius: 50%; background: #E83333;
+  animation: pulse 1.5s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Transitions de page ── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-transition {
+  animation: fadeSlideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Note/encart doré */
+.encart-or {
+  background: var(--or-pale);
+  border-left: 3px solid var(--or);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--texte-doux);
+  line-height: 1.7;
+  display: flex;
+  gap: 10px;
+}
+
+/* Carte blanche standard */
+.carte {
+  background: var(--blanc);
+  border: 1px solid rgba(200,134,10,0.12);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  position: relative;
+}
+.carte::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  opacity: 0;
+  transition: opacity var(--t);
+}
+.carte:hover { border-color: rgba(200,134,10,0.3); box-shadow: var(--shadow-card); }
+.carte:hover::before { opacity: 1; }

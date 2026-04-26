@@ -1,0 +1,316 @@
+###############################################################################
+#  Supabase Self-Hosted — Docker Compose
+#  Basé sur https://github.com/supabase/supabase/tree/master/docker
+#
+#  Démarrage : docker compose up -d
+#  API Gateway : http://localhost:8000
+#  Studio     : http://localhost:3001
+#  Inbucket   : http://localhost:9001  (mails locaux)
+###############################################################################
+
+version: "3.8"
+
+# ── Réseau interne ────────────────────────────────────────────────────────────
+networks:
+  supabase_network:
+    driver: bridge
+
+# ── Volumes persistants ───────────────────────────────────────────────────────
+volumes:
+  db_data:
+  storage_data:
+
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+
+  # ── 1. Base de données PostgreSQL ─────────────────────────────────────────
+  db:
+    image: supabase/postgres:15.6.1.143
+    container_name: supabase_db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP: ${JWT_EXPIRY:-3600}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      # Script exécuté au 1er démarrage (données vides) pour définir
+      # les mots de passe des rôles supabase_auth_admin, authenticator, etc.
+      - ./volumes/db/init/00-roles-passwords.sh:/docker-entrypoint-initdb.d/00-roles-passwords.sh:ro
+    networks:
+      - supabase_network
+    ports:
+      - "5433:5432"
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal
+
+  # ── 2. Inbucket (serveur mail local) ──────────────────────────────────────
+  inbucket:
+    image: inbucket/inbucket:stable
+    container_name: supabase_inbucket
+    restart: unless-stopped
+    environment:
+      INBUCKET_WEB_ADDR: 0.0.0.0:9000
+      INBUCKET_POP3_ADDR: 0.0.0.0:1100
+      INBUCKET_SMTP_ADDR: 0.0.0.0:2500
+    networks:
+      - supabase_network
+    ports:
+      - "9001:9000"   # Interface web
+      - "2501:2500"   # SMTP
+      - "1100:1100"   # POP3
+
+  # ── 3. Auth — GoTrue ──────────────────────────────────────────────────────
+  auth:
+    image: supabase/gotrue:v2.164.0
+    container_name: supabase_auth
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9999/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgresql://supabase_auth_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT:-5432}/postgres
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: "*"
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY:-3600}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP:-true}
+      GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: false
+      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM:-true}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
+      GOTRUE_SMTP_HOST: ${SMTP_HOST}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT:-2500}
+      GOTRUE_SMTP_USER: ${SMTP_USER}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS}
+      GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
+      GOTRUE_MAILER_URLPATHS_INVITE: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_RECOVERY: "/auth/v1/verify"
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: "/auth/v1/verify"
+    networks:
+      - supabase_network
+
+  # ── 4. REST — PostgREST ───────────────────────────────────────────────────
+  rest:
+    image: postgrest/postgrest:v12.2.0
+    container_name: supabase_rest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgresql://authenticator:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT:-5432}/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
+      PGRST_APP_SETTINGS_JWT_EXP: ${JWT_EXPIRY:-3600}
+    command: postgrest
+    networks:
+      - supabase_network
+
+  # ── 5. Realtime ───────────────────────────────────────────────────────────
+  realtime:
+    image: supabase/realtime:v2.30.22
+    container_name: supabase_realtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -sSfL --head -o /dev/null -H 'Authorization: Bearer ${SERVICE_ROLE_KEY}' http://localhost:4000/api/tenants/realtime-dev/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: postgres
+      # DB_AFTER_CONNECT_QUERY retiré : causait un échec de migration car le schéma
+      # _realtime n'existe pas encore lors de la connexion initiale du migrateur.
+      # Le schéma est créé par /app/bin/migrate puis utilisé par le serveur.
+      DB_ENC_KEY: ${DB_ENC_KEY:-supabaserealtime}
+      API_JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      ERL_AFLAGS: -proto_dist inet_tcp
+      ENABLE_TAILSCALE: "false"
+      DNS_NODES: "''"
+      FLY_ALLOC_ID: fly123
+      FLY_APP_NAME: realtime
+      RLIMIT_NOFILE: "10000"
+      APP_NAME: realtime
+      SEED_SELF_HOST: "true"
+    command: >
+      sh -c "/app/bin/migrate && /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' && /app/bin/server"
+    networks:
+      - supabase_network
+
+  # ── 6. imgproxy (transformations d'images) ────────────────────────────────
+  imgproxy:
+    image: darthsim/imgproxy:v3.8.0
+    container_name: supabase_imgproxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "imgproxy health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION:-true}
+    volumes:
+      - storage_data:/var/lib/storage:ro
+    networks:
+      - supabase_network
+
+  # ── 7. Storage API ────────────────────────────────────────────────────────
+  storage:
+    image: supabase/storage-api:v1.11.13
+    container_name: supabase_storage
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+      imgproxy:
+        condition: service_healthy
+    healthcheck:
+      # node est disponible dans le conteneur storage-api ; 127.0.0.1 force IPv4
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:5000/status',(r)=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql://supabase_storage_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT:-5432}/postgres
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-52428800}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-file}
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
+    volumes:
+      - storage_data:/var/lib/storage
+    networks:
+      - supabase_network
+
+  # ── 8. Postgres Meta (utilisé par Studio) ────────────────────────────────
+  meta:
+    image: supabase/postgres-meta:v0.84.2
+    container_name: supabase_meta
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PORT: ${POSTGRES_PORT:-5432}
+      PG_META_DB_NAME: postgres
+      PG_META_DB_USER: supabase_admin
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - supabase_network
+
+  # ── 9. Kong (API Gateway) ─────────────────────────────────────────────────
+  kong:
+    image: kong:2.8.1
+    container_name: supabase_kong
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: "off"
+      # Les clés sont directement dans kong.yml (plus de substitution bash)
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME:-admin}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-admin123}
+    volumes:
+      # Mount direct : les clés sont hardcodées dans kong.yml
+      - ./volumes/api/kong.yml:/home/kong/kong.yml:ro
+    networks:
+      - supabase_network
+    ports:
+      - "8000:8000"  # API publique
+      - "8443:8443"  # API (HTTPS)
+
+  # ── 10. Studio (Dashboard) ───────────────────────────────────────────────
+  studio:
+    image: supabase/studio:20241028-a265374
+    container_name: supabase_studio
+    restart: unless-stopped
+    depends_on:
+      kong:
+        condition: service_started
+      auth:
+        condition: service_healthy
+      meta:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/profile', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION:-Mon Organisation}
+      DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT:-Mon Projet}
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      AUTH_JWT_SECRET: ${JWT_SECRET}
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY:-}
+      NEXT_PUBLIC_ENABLE_LOGS: "false"
+      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
+    networks:
+      - supabase_network
+    ports:
+      - "3004:3000"  # Studio sur http://localhost:3004 (évite le conflit avec React:3000)

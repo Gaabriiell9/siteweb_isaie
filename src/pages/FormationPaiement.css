@@ -1,0 +1,197 @@
+/* ============================================================
+   FormationPaiement
+   ============================================================ */
+.fp-wrap {
+  min-height: 100vh;
+  background: var(--creme);
+  padding: 64px 16px 80px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.fp-container {
+  width: 100%;
+  max-width: 560px;
+}
+
+/* ── Stripe bandeau ── */
+.fp-stripe-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0f8f5;
+  border: 1px solid #b8ddd0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+  font-size: 0.82rem;
+  color: #1a5f4a;
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+.fp-stripe-icon { font-size: 1.1rem; flex-shrink: 0; }
+.fp-stripe-lock { margin-left: auto; font-size: 0.8rem; color: #1a5f4a; opacity: 0.7; }
+
+/* ── Card ── */
+.fp-card {
+  background: white;
+  border: 1px solid rgba(200, 134, 10, 0.12);
+  border-radius: 16px;
+  padding: 40px 36px 36px;
+  box-shadow: 0 8px 32px rgba(28, 10, 0, 0.08);
+  margin-bottom: 20px;
+}
+@media (max-width: 540px) {
+  .fp-card { padding: 28px 20px; }
+}
+
+.fp-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin-bottom: 6px;
+}
+.fp-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 400;
+  color: var(--bordeaux);
+  margin: 0 0 24px;
+  line-height: 1.2;
+}
+
+/* ── Recap ── */
+.fp-recap {
+  background: var(--or-pale);
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+.fp-recap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(200, 134, 10, 0.1);
+  font-size: 0.9rem;
+}
+.fp-recap-row:last-child { border-bottom: none; }
+.fp-recap-key {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+}
+.fp-recap-val {
+  color: var(--texte);
+  font-weight: 600;
+}
+.fp-recap-total {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bordeaux);
+}
+
+/* ── Notice ── */
+.fp-notice {
+  display: flex;
+  gap: 14px;
+  background: #fff8e8;
+  border: 1px solid rgba(200, 134, 10, 0.3);
+  border-left: 3px solid var(--or);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 28px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--texte);
+}
+.fp-notice-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+.fp-notice p { margin: 0; color: var(--texte-doux); }
+.fp-notice strong { display: block; color: var(--bordeaux); font-family: var(--font-ui); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+
+/* ── Bouton Stripe ── */
+.fp-btn-stripe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: #635bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
+}
+.fp-btn-stripe:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 91, 255, 0.3);
+}
+.fp-btn-stripe:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Bouton secondaire ── */
+.fp-btn-dashboard {
+  display: block;
+  text-align: center;
+  background: transparent;
+  color: var(--bordeaux-clair);
+  border: 1px solid rgba(107, 26, 46, 0.3);
+  border-radius: 8px;
+  padding: 13px 24px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fp-btn-dashboard:hover {
+  background: rgba(107, 26, 46, 0.04);
+  border-color: var(--bordeaux);
+  color: var(--bordeaux);
+}
+
+.fp-divider {
+  text-align: center;
+  color: var(--texte-doux);
+  font-size: 0.8rem;
+  margin: 12px 0;
+  position: relative;
+}
+.fp-divider::before, .fp-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: rgba(200, 134, 10, 0.15);
+}
+.fp-divider::before { left: 0; }
+.fp-divider::after { right: 0; }
+
+.fp-fine-print {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--texte-doux);
+  margin-top: 16px;
+  line-height: 1.5;
+}

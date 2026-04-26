@@ -1,0 +1,93 @@
+.form-wrap { padding: 56px 0 80px; }
+
+/* ── Séparateur ornemental ── */
+.form-sep {
+  display: flex; align-items: center; gap: 12px;
+  margin: 52px 0;
+}
+.form-sep-line { flex: 1; height: 1px; background: rgba(200,134,10,0.2); }
+.form-sep-diamond {
+  width: 7px; height: 7px;
+  border: 1px solid rgba(200,134,10,0.5); transform: rotate(45deg); flex-shrink: 0;
+}
+
+/* ── Titre de section ── */
+.form-section-titre {
+  font-family: var(--font-display); font-size: clamp(24px,3.5vw,34px);
+  font-weight: 400; color: var(--bordeaux-clair);
+  margin-bottom: 32px; line-height: 1.2;
+}
+.form-section-titre em { font-style: italic; color: var(--or-clair); }
+
+/* ── Boutons SectionHeader top-right ── */
+.fsh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  border-radius: 4px;
+  transition: all 0.22s ease;
+}
+.fsh-btn--outline {
+  color: rgba(255,248,240,0.75);
+  border: 1px solid rgba(200,134,10,0.35);
+  padding: 8px 16px;
+}
+.fsh-btn--outline:hover {
+  color: var(--or-clair);
+  border-color: rgba(200,134,10,0.7);
+  background: rgba(200,134,10,0.08);
+}
+.fsh-btn--primary {
+  background: var(--or);
+  color: var(--bordeaux);
+  padding: 8px 18px;
+}
+.fsh-btn--primary:hover {
+  background: var(--or-clair);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 560px) {
+  .fsh-btn span { display: none; }
+  .fsh-btn--outline { padding: 8px 12px; }
+  .fsh-btn--primary { padding: 8px 14px; }
+}
+
+/* ── Présentation ── */
+.form-pres-texte { max-width: 680px; }
+
+.form-pres-p {
+  font-family: var(--font-sans);
+  font-size: 15px; color: var(--texte-doux); line-height: 1.88;
+  margin-bottom: 16px;
+}
+.form-pres-p:last-child { margin-bottom: 0; }
+.form-pres-p strong { color: var(--bordeaux-clair); font-weight: 600; }
+
+/* ── FAQ ── */
+.form-faq { display: flex; flex-direction: column; }
+.form-faq-item { border-bottom: 1px solid rgba(200,134,10,0.1); }
+.form-faq-item:first-child { border-top: 1px solid rgba(200,134,10,0.1); }
+
+.form-faq-q {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: none; border: none; padding: 18px 0;
+  font-family: var(--font-sans); font-size: 15px; font-weight: 600;
+  color: var(--bordeaux-clair); text-align: left; cursor: pointer; transition: color 0.2s;
+}
+.form-faq-item.open .form-faq-q { color: var(--bordeaux); }
+.form-faq-q svg { color: var(--or); flex-shrink: 0; }
+
+.form-faq-a {
+  padding: 0 24px 18px 0;
+  font-family: var(--font-sans);
+  font-size: 14px; color: var(--texte-doux); line-height: 1.82; max-width: 680px;
+}
+
+.form-section--last { padding-bottom: 8px; }

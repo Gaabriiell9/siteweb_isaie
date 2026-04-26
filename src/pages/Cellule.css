@@ -1,0 +1,37 @@
+.cellule-wrap { padding: 56px 0 72px; }
+.cellule-tabs { display:flex; gap:0; margin-bottom:36px; border:1px solid rgba(200,134,10,0.15); background:var(--blanc); }
+.c-tab {
+  flex:1; padding:14px; background:none; border:none;
+  font-family:var(--font-ui); font-size:9px; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--texte-doux); cursor:pointer; transition: all var(--t);
+  border-bottom:2px solid transparent;
+}
+.c-tab.active { color:var(--or); border-bottom-color:var(--or); }
+.c-tab:hover:not(.active) { color:var(--bordeaux-clair); }
+.cellule-list { display:flex; flex-direction:column; gap:2px; margin-bottom:24px; }
+.cellule-row {
+  background:var(--blanc); display:flex; align-items:center; gap:20px;
+  padding:18px 20px;
+}
+.cellule-row.carte::before { border-radius:0; }
+.cellule-icon { font-size:22px; flex-shrink:0; color:var(--or); font-family:var(--font-display); }
+.cellule-info h4 { font-family:var(--font-heading); font-size:15px; color:var(--bordeaux-clair); margin-bottom:4px; }
+.cellule-meta { display:flex; flex-wrap:wrap; gap:10px; }
+.cellule-meta span { font-size:10px; color:var(--texte-doux); letter-spacing:.5px; }
+.prog-list { display:flex; flex-direction:column; gap:0; }
+.prog-item { display:flex; gap:16px; padding-bottom:24px; position:relative; }
+.prog-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:36px; width:1px; height:calc(100% - 12px); background:rgba(200,134,10,0.2); }
+.prog-num {
+  width:32px; height:32px; border:1px solid var(--or); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:14px; color:var(--or); font-weight:400;
+  background:var(--or-pale); position:relative; z-index:1;
+}
+.prog-body { flex:1; }
+.prog-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.prog-head h4 { font-family:var(--font-heading); font-size:15px; color:var(--bordeaux-clair); }
+.prog-duree {
+  font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--or); border:1px solid rgba(200,134,10,0.3); padding:2px 8px;
+}
+.prog-body p { font-size:13px; color:var(--texte-doux); line-height:1.6; font-family:var(--font-display); font-style:italic; }

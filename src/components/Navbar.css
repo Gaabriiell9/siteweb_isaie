@@ -1,0 +1,77 @@
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(14,6,0,0.92);
+  backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  border-bottom: 1px solid rgba(200,134,10,0.18);
+  transition: all 0.3s ease;
+}
+.navbar.scrolled {
+  background: rgba(14,6,0,0.98);
+  border-bottom-color: rgba(200,134,10,0.28);
+}
+
+.navbar-brand { display: flex; align-items: center; gap: 14px; }
+
+.navbar-monogram {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1.5px solid var(--or);
+  overflow: hidden;
+  flex-shrink: 0; text-decoration: none;
+  transition: all 0.2s;
+}
+.navbar-monogram img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.navbar-monogram:hover { border-color: var(--or-clair); }
+
+.navbar-name {
+  font-family: var(--font-sans);
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,248,240,0.7); font-weight: 500;
+}
+@media (max-width: 640px) { .navbar-name { display: none; } }
+
+.navbar-links {
+  display: flex; align-items: center; gap: 28px;
+}
+.nav-link {
+  font-family: var(--font-sans);
+  font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,248,240,0.7); font-weight: 500;
+  padding: 4px 0; position: relative; text-decoration: none;
+  transition: color 0.2s, opacity 0.2s;
+}
+.nav-link::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 0; height: 1px; background: var(--or); transition: width 0.3s;
+}
+.nav-link:hover { color: var(--or-clair); }
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.nav-link.active { color: var(--or-clair); }
+
+.burger {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; padding: 6px; cursor: pointer;
+}
+.burger span {
+  display: block; width: 20px; height: 1.5px;
+  background: rgba(255,248,240,0.7); transition: all 0.2s;
+}
+
+@media (max-width: 780px) {
+  .burger { display: flex; }
+  .navbar { padding: 0 20px; }
+  .navbar-links {
+    display: none; position: absolute;
+    top: 64px; left: 0; right: 0;
+    background: rgba(14,6,0,0.98);
+    flex-direction: column; align-items: flex-start;
+    padding: 16px 24px 20px; gap: 6px;
+    border-bottom: 1px solid rgba(200,134,10,0.2);
+  }
+  .navbar-links.open { display: flex; }
+  .nav-link { font-size: 11px; padding: 9px 0; width: 100%; border-bottom: 0.5px solid rgba(200,134,10,0.1); }
+  .nav-link:last-child { border-bottom: none; }
+}
