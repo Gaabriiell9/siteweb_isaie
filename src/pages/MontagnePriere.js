@@ -34,9 +34,8 @@ export default function MontagnePriere() {
             </div>
           )}
           {!loading && !today && (
-            <div className="mp-today">
-              <p className="mp-today-eyebrow">✦ Montagne de Prière ✦</p>
-              <p className="mp-today-contenu" style={{marginTop:12}}>Le message du jour sera publié bientôt.</p>
+            <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--texte-doux)', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '20px' }}>
+              Le message du jour sera publié bientôt.
             </div>
           )}
 
