@@ -449,7 +449,10 @@ function downloadCSV(csv, filename) {
 
 // ─── Auth admin ───────────────────────────────────────────────────
 export async function signIn(email, password) {
-  return supabase.auth.signInWithPassword({ email, password });
+  console.log('[AUTH] IS_MOCK:', IS_MOCK, '| URL:', process.env.REACT_APP_SUPABASE_URL?.slice(0, 40));
+  const result = await supabase.auth.signInWithPassword({ email, password });
+  console.log('[AUTH] Login result:', { error: result.error?.message, status: result.error?.status, user: result.data?.user?.email });
+  return result;
 }
 export async function signOut() {
   return supabase.auth.signOut();
