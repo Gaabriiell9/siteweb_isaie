@@ -12,7 +12,7 @@ export default function Pasteur() {
           <div className="pasteur-texte">
             <p className="section-label">Notre Église</p>
             <h1 className="pasteur-titre">Le couple<br /><em>pastoral</em></h1>
-            <p className="pasteur-role">Fondateurs · Église Temple de la Célébration</p>
+            <p className="pasteur-role">Fondateurs · Église Temple de la Célébration · Temple Béthel</p>
             <p className="pasteur-devise">
               « Dieu par l'adoration<br />et la louange »
             </p>
@@ -31,7 +31,7 @@ export default function Pasteur() {
           <div className="pasteur-vision">
             <div className="pasteur-vision-label">Notre<br />vision</div>
             <div className="pasteur-vision-texte">
-              <p>Portés par la conviction profonde de glorifier Dieu à travers l'adoration et la louange, le couple pastoral conduit l'Église Temple de la Célébration avec foi, amour et dévotion.</p>
+              <p>Portés par la conviction profonde de glorifier Dieu à travers l'adoration et la louange, le couple pastoral conduit l'Église Temple de la Célébration et le Temple Béthel avec foi, amour et dévotion.</p>
               <p>Chaque culte, chaque cellule, chaque moment de prière est une expression de cette vision : rapprocher chaque âme de la présence de Dieu et bâtir une communauté fondée sur Sa Parole.</p>
             </div>
           </div>

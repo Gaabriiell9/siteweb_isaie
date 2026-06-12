@@ -1,29 +1,36 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Cultes from './pages/Cultes';
-import MontagnePriere from './pages/MontagnePriere';
-import Predication from './pages/Predication';
-import Cellule from './pages/Cellule';
-import Formation from './pages/Formation';
-import FormationInscription from './pages/FormationInscription';
-import FormationInscriptionSuccess from './pages/FormationInscriptionSuccess';
-import Dons from './pages/Dons';
-import Pasteur from './pages/Pasteur';
-import Admin from './pages/Admin';
-import EleveLogin from './pages/EleveLogin';
-import EleveLayout from './pages/EleveLayout';
-import EleveDashboard from './pages/EleveDashboard';
-import EleveModules from './pages/EleveModules';
-import EleveEvaluations from './pages/EleveEvaluations';
-import ElevePaiements from './pages/ElevePaiements';
-import EleveProfil from './pages/EleveProfil';
-import EleveCours from './pages/EleveCours';
-import EleveMessages from './pages/EleveMessages';
-import FormationPaiement from './pages/FormationPaiement';
 import ProtectedRoute from './components/ProtectedRoute';
+
+const Home = lazy(() => import('./pages/Home'));
+const Cultes = lazy(() => import('./pages/Cultes'));
+const MontagnePriere = lazy(() => import('./pages/MontagnePriere'));
+const Predication = lazy(() => import('./pages/Predication'));
+const Cellule = lazy(() => import('./pages/Cellule'));
+const Formation = lazy(() => import('./pages/Formation'));
+const FormationInscription = lazy(() => import('./pages/FormationInscription'));
+const FormationInscriptionSuccess = lazy(() => import('./pages/FormationInscriptionSuccess'));
+const FormationPaiement = lazy(() => import('./pages/FormationPaiement'));
+const Dons = lazy(() => import('./pages/Dons'));
+const Pasteur = lazy(() => import('./pages/Pasteur'));
+const Admin = lazy(() => import('./pages/Admin'));
+const EleveLogin = lazy(() => import('./pages/EleveLogin'));
+const EleveLayout = lazy(() => import('./pages/EleveLayout'));
+const EleveDashboard = lazy(() => import('./pages/EleveDashboard'));
+const EleveModules = lazy(() => import('./pages/EleveModules'));
+const EleveEvaluations = lazy(() => import('./pages/EleveEvaluations'));
+const ElevePaiements = lazy(() => import('./pages/ElevePaiements'));
+const EleveProfil = lazy(() => import('./pages/EleveProfil'));
+const EleveCours = lazy(() => import('./pages/EleveCours'));
+const EleveMessages = lazy(() => import('./pages/EleveMessages'));
+
+const fallback = (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'var(--font-sans)', color: 'var(--or)' }}>
+    Chargement...
+  </div>
+);
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -49,34 +56,36 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Page admin — sans navbar/footer, sans animation */}
-        <Route path="/admin" element={<Admin />} />
+      <Suspense fallback={fallback}>
+        <Routes>
+          {/* Page admin — sans navbar/footer, sans animation */}
+          <Route path="/admin" element={<Admin />} />
 
-        {/* Espace élève — sans navbar/footer public */}
-        <Route path="/eleve/login" element={<EleveLogin />} />
-        <Route path="/eleve" element={<ProtectedRoute><EleveLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard"   element={<EleveDashboard />} />
-          <Route path="modules"     element={<EleveModules />} />
-          <Route path="evaluations" element={<EleveEvaluations />} />
-          <Route path="paiements"   element={<ElevePaiements />} />
-          <Route path="profil"      element={<EleveProfil />} />
-          <Route path="cours"      element={<EleveCours />} />
-          <Route path="messages"   element={<EleveMessages />} />
-        </Route>
+          {/* Espace élève — sans navbar/footer public */}
+          <Route path="/eleve/login" element={<EleveLogin />} />
+          <Route path="/eleve" element={<ProtectedRoute><EleveLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard"   element={<EleveDashboard />} />
+            <Route path="modules"     element={<EleveModules />} />
+            <Route path="evaluations" element={<EleveEvaluations />} />
+            <Route path="paiements"   element={<ElevePaiements />} />
+            <Route path="profil"      element={<EleveProfil />} />
+            <Route path="cours"      element={<EleveCours />} />
+            <Route path="messages"   element={<EleveMessages />} />
+          </Route>
 
-        {/* Site public */}
-        <Route path="/*" element={
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Navbar />
-            <main style={{ flex: 1 }}>
-              <AnimatedRoutes />
-            </main>
-            <Footer />
-          </div>
-        } />
-      </Routes>
+          {/* Site public */}
+          <Route path="/*" element={
+            <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <Navbar />
+              <main style={{ flex: 1 }}>
+                <AnimatedRoutes />
+              </main>
+              <Footer />
+            </div>
+          } />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

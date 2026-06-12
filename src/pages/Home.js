@@ -18,28 +18,18 @@ export default function Home() {
   return (
     <div className="home">
 
-      {/* ── HERO ── */}
-      <section className="hero">
-        <div className="hero-bg-text">ETC</div>
-        <div className="hero-inner">
-          <div className="hero-eyebrow">
-            <span className="hero-eyebrow-line" />
-            Dieu par l'adoration et la louange
-            <span className="hero-eyebrow-line" />
+      {/* ── HERO PASTEUR ── */}
+      <section className="hero-pasteur">
+        <img src="/pr_img.png" alt="Pasteur et Première Dame" className="hero-pasteur-img" />
+        <div className="hero-pasteur-overlay">
+          <div className="hero-pasteur-content">
+            <p className="hero-pasteur-label">PASTEURS PRINCIPAUX</p>
+            <h2 className="hero-pasteur-nom">Pasteur & Première Dame</h2>
+            <p className="hero-pasteur-devise">
+              "Instruments de Dieu pour transformer des vies"
+            </p>
+            <a href="/pasteur" className="hero-pasteur-btn">En savoir plus</a>
           </div>
-          <div className="hero-titles">
-            <p className="hero-pre">Bienvenue à l'</p>
-            <h1 className="hero-main">Église<br /><em>Temple</em></h1>
-            <p className="hero-sub">de la Célébration</p>
-          </div>
-          <div className="hero-ornament">
-            <span className="h-line" /><span className="h-diamond" /><span className="h-text">E · T · C</span><span className="h-diamond" /><span className="h-line" />
-          </div>
-          <div className="hero-live">
-            <span className="dot-live" />
-            Culte en ligne &nbsp;·&nbsp; Dimanche 10h – 11h30
-          </div>
-          <Link to="/cultes" className="hero-cta">Voir le programme</Link>
         </div>
       </section>
 

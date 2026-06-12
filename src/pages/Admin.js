@@ -21,7 +21,7 @@ import {
   broadcastMessage,
   supabase, IS_MOCK,
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
-  updateModuleFormation, swapModuleOrdre,
+  updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
   getSessionStatut,
 } from '../lib/supabase';
 import './Admin.css';
@@ -1738,6 +1738,10 @@ function SubTabRessources() {
   // Inline module edit: { id, field: 'titre'|'description', value } | null
   const [editingModule, setEditingModule] = useState(null);
   const [editSaving, setEditSaving] = useState(false);
+  // Create module modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({ titre: '', description: '' });
+  const [creating, setCreating] = useState(false);
 
   const TYPE_ICON_MAP = { pdf: 'file', video: 'video', lien: 'link', image: 'image', audio: 'audio' };
 
@@ -1750,7 +1754,10 @@ function SubTabRessources() {
     setRessourcesMap(map);
   };
 
-  const loadModules = () => getModulesFormation().then(mods => setModulesList(mods));
+  const loadModules = async () => {
+    const data = await getModulesFormation();
+    setModulesList(data);
+  };
 
   useEffect(() => {
     load();
@@ -1827,11 +1834,52 @@ function SubTabRessources() {
     load();
   };
 
+  const handleCreateModule = async (e) => {
+    e.preventDefault();
+    if (creating || !createForm.titre.trim()) return;
+    setCreating(true);
+    const nextNumero = modulesList.length > 0 ? Math.max(...modulesList.map(m => m.numero)) + 1 : 1;
+    const { error } = await createModuleFormation({
+      numero: nextNumero,
+      titre: createForm.titre.trim(),
+      description: createForm.description.trim() || null,
+    });
+    setCreating(false);
+    if (error) { showMsg('Erreur lors de la création du module'); return; }
+    setShowCreateModal(false);
+    setCreateForm({ titre: '', description: '' });
+    showMsg('Module créé ✓');
+    const mods = await getModulesFormation();
+    setModulesList(mods);
+  };
+
+  const handleDeleteModule = async (moduleId) => {
+    if (!window.confirm('Supprimer ce module et toutes ses ressources ?')) return;
+    const { error } = await deleteModuleFormation(moduleId);
+    if (error) {
+      alert('Erreur : ' + error.message);
+      return;
+    }
+    // Mettre à jour l'état local immédiatement : filtre + renumérotation affichage
+    setModulesList(prev => prev.filter(m => m.id !== moduleId).map((m, i) => ({ ...m, numero: i + 1 })));
+    showMsg('Module supprimé ✓');
+    load();
+  };
+
   const getRessourcesPourModule = (num) => ressourcesMap[num] || [];
 
   return (
     <div className="af-subtab">
       {msg && <div className="af-flash">{msg}</div>}
+
+      <div style={{display:'flex', justifyContent:'flex-end', marginBottom:12}}>
+        <button
+          className="af-btn af-btn--primary"
+          onClick={() => { setShowCreateModal(true); setCreateForm({ titre: '', description: '' }); }}
+        >
+          + Ajouter un module
+        </button>
+      </div>
 
       <div className="af-ressources-list">
         {modulesList.map((m, index) => {
@@ -1906,6 +1954,16 @@ function SubTabRessources() {
                 <span className="af-badge af-badge--bleu" style={{fontSize:'0.68rem', marginLeft:'auto', flexShrink:0}}>
                   {ressources.length} ressource{ressources.length !== 1 ? 's' : ''}
                 </span>
+                <button
+                  className="af-module-pencil-btn"
+                  style={{color:'#c0392b', marginLeft:6, flexShrink:0}}
+                  onClick={e => { e.stopPropagation(); handleDeleteModule(m.id); }}
+                  title="Supprimer ce module"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="2,4 12,4" /><path d="M5 4V2h4v2" /><rect x="2" y="4" width="10" height="9" rx="1" /><line x1="5" y1="7" x2="5" y2="10" /><line x1="9" y1="7" x2="9" y2="10" />
+                  </svg>
+                </button>
                 <span style={{color:'var(--texte-doux)', fontSize:'0.8rem', marginLeft:8, flexShrink:0}}>
                   <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} size={14} />
                 </span>
@@ -1940,6 +1998,52 @@ function SubTabRessources() {
           );
         })}
       </div>
+
+      {/* Modal création module */}
+      {showCreateModal && ReactDOM.createPortal(
+        <div className="af-modal-backdrop" onClick={() => setShowCreateModal(false)}>
+          <div className="af-modal" style={{maxWidth: 480}} onClick={e => e.stopPropagation()}>
+            <div className="af-modal-header">
+              <span>Ajouter un module</span>
+              <button type="button" className="af-modal-close" onClick={() => setShowCreateModal(false)}>
+                <Icon name="x" size={14} />
+              </button>
+            </div>
+            <div className="af-modal-body">
+              <form onSubmit={handleCreateModule} className="af-modal-form">
+                <label>Titre du module *</label>
+                <input
+                  required
+                  autoFocus
+                  placeholder="Ex : Introduction à la Bible"
+                  value={createForm.titre}
+                  onChange={e => setCreateForm(f => ({ ...f, titre: e.target.value }))}
+                />
+
+                <label>Description courte</label>
+                <textarea
+                  rows={2}
+                  placeholder="Description du module (optionnel)…"
+                  value={createForm.description}
+                  onChange={e => setCreateForm(f => ({ ...f, description: e.target.value }))}
+                />
+
+                <p style={{fontSize:'0.8rem', color:'var(--texte-doux)', margin:'4px 0 0'}}>
+                  Le numéro sera attribué automatiquement ({modulesList.length > 0 ? String(Math.max(...modulesList.map(m => m.numero)) + 1).padStart(2, '0') : '01'}).
+                </p>
+
+                <div className="af-modal-footer">
+                  <button type="button" className="af-btn" onClick={() => setShowCreateModal(false)}>Annuler</button>
+                  <button type="submit" className="af-btn af-btn--primary" disabled={creating || !createForm.titre.trim()}>
+                    {creating ? 'Création…' : 'Créer le module'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Modal ajout ressource */}
       {modalModule && ReactDOM.createPortal(

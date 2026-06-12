@@ -216,17 +216,21 @@ CREATE POLICY "Eleve voit sa progression"  ON progression_eleve FOR SELECT USING
 CREATE POLICY "Eleve voit ses evaluations" ON evaluations       FOR SELECT USING (eleve_id IN (SELECT id FROM eleves WHERE auth_user_id = auth.uid()));
 CREATE POLICY "Eleve voit ses paiements"   ON paiements         FOR SELECT USING (eleve_id IN (SELECT id FROM eleves WHERE auth_user_id = auth.uid()));
 CREATE POLICY "Lecture publique modules"   ON modules_formation FOR SELECT USING (true);
+CREATE POLICY "Admin gere modules_formation" ON modules_formation FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Admin gere tout eleves"     ON eleves            FOR ALL TO authenticated USING (true);
 
--- Seed 6 modules
-INSERT INTO modules_formation (numero, titre, description) VALUES
-(1, 'Introduction à la Bible',      'Canon, inspiration, interprétation biblique'),
-(2, 'Ancien Testament',             'Pentateuque, prophètes, écrits'),
-(3, 'Nouveau Testament',            'Évangiles, épîtres, Apocalypse'),
-(4, 'Théologie systématique',       'Doctrines fondamentales de la foi'),
-(5, 'Histoire de l''Église',        'Des apôtres à nos jours'),
-(6, 'Vie chrétienne et ministère',  'Spiritualité, éthique, service')
-ON CONFLICT (numero) DO NOTHING;
+-- Seed 6 modules (seulement si la table est vide — ne réinsère pas les modules supprimés)
+INSERT INTO modules_formation (numero, titre, description)
+SELECT v.numero, v.titre, v.description
+FROM (VALUES
+  (1, 'Introduction à la Bible',      'Canon, inspiration, interprétation biblique'),
+  (2, 'Ancien Testament',             'Pentateuque, prophètes, écrits'),
+  (3, 'Nouveau Testament',            'Évangiles, épîtres, Apocalypse'),
+  (4, 'Théologie systématique',       'Doctrines fondamentales de la foi'),
+  (5, 'Histoire de l''Église',        'Des apôtres à nos jours'),
+  (6, 'Vie chrétienne et ministère',  'Spiritualité, éthique, service')
+) AS v(numero, titre, description)
+WHERE NOT EXISTS (SELECT 1 FROM modules_formation);
 
 -- ============================================================
 -- MIGRATIONS v2 — Système d'inscription complet

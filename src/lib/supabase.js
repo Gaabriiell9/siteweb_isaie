@@ -156,12 +156,9 @@ export async function deleteCulte(id) {
 // ─── Auth élève ───────────────────────────────────────────────────
 export async function signInEleve(email, password) {
   if (IS_MOCK) {
-    if (email === 'eleve@etc.com' && password === 'formation2026') {
-      const session = { user: { id: 'mock-eleve-id', email } };
-      localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
-      return { data: session, error: null };
-    }
-    return { data: null, error: { message: 'Email ou mot de passe incorrect' } };
+    const session = { user: { id: 'mock-eleve-id', email } };
+    localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
+    return { data: session, error: null };
   }
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   return { data: data?.session ? data : { user: data?.user }, error };
@@ -196,9 +193,15 @@ export async function getEleveStatut(authUserId) {
 export async function getModulesAvecProgression(eleveId) {
   if (IS_MOCK) return MOCK_MODULES_PROGRESSION;
   const { data, error } = await supabase
-    .from('progression_eleve').select('*, module:modules_formation(*)').eq('eleve_id', eleveId);
+    .from('progression_eleve').select('*, modules_formation(*)').eq('eleve_id', eleveId);
   if (error) console.error(error);
-  return data || [];
+  return (data || []).map(p => ({
+    ...p,
+    titre: p.modules_formation?.titre,
+    numero: p.modules_formation?.numero,
+    description: p.modules_formation?.description,
+    duree_semaines: p.modules_formation?.duree_semaines,
+  }));
 }
 export async function getEvaluations(eleveId) {
   if (IS_MOCK) return MOCK_EVALUATIONS;
@@ -540,25 +543,37 @@ const MOCK_SESSIONS_LIVE = [
 ];
 
 export async function getModulesFormation() {
-  if (IS_MOCK) return [
-    { id: 'mock-m1', numero: 1, titre: 'Introduction à la Bible', description: '' },
-    { id: 'mock-m2', numero: 2, titre: 'Ancien Testament', description: '' },
-    { id: 'mock-m3', numero: 3, titre: 'Nouveau Testament', description: '' },
-    { id: 'mock-m4', numero: 4, titre: 'Théologie systématique', description: '' },
-    { id: 'mock-m5', numero: 5, titre: "Histoire de l'Église", description: '' },
-    { id: 'mock-m6', numero: 6, titre: 'Vie chrétienne et ministère', description: '' },
-  ];
-  const { data, error } = await supabase.from('modules_formation').select('id, numero, titre, description').order('numero');
-  if (error) console.error(error);
+  if (IS_MOCK) {
+    return [
+      { id: 'mock-1', numero: 1, titre: 'Introduction à la Bible', description: 'Canon, inspiration, interprétation biblique', duree_semaines: 8 },
+      { id: 'mock-2', numero: 2, titre: 'Ancien Testament', description: 'Pentateuque, prophètes, écrits', duree_semaines: 8 },
+      { id: 'mock-3', numero: 3, titre: 'Nouveau Testament', description: 'Évangiles, épîtres, Apocalypse', duree_semaines: 8 },
+      { id: 'mock-4', numero: 4, titre: 'Théologie systématique', description: 'Doctrines fondamentales de la foi', duree_semaines: 8 },
+      { id: 'mock-5', numero: 5, titre: "Histoire de l'Église", description: 'Des apôtres à nos jours', duree_semaines: 8 },
+      { id: 'mock-6', numero: 6, titre: 'Vie chrétienne et ministère', description: 'Spiritualité, éthique, service', duree_semaines: 8 },
+    ];
+  }
+
+  // MODE SUPABASE RÉEL — requête directe, aucun fallback mock
+  const { data, error } = await supabase
+    .from('modules_formation')
+    .select('*')
+    .order('numero', { ascending: true });
+
+  if (error) {
+    console.error('getModulesFormation error:', error);
+    return [];
+  }
+
   return data || [];
 }
 
 export async function updateModuleFormation(id, fields) {
   if (IS_MOCK) return { data: { id, ...fields }, error: null };
   const { data, error } = await supabase
-    .from('modules_formation').update(fields).eq('id', id).select().single();
+    .from('modules_formation').update(fields).eq('id', id).select();
   if (error) console.error('updateModuleFormation error:', error);
-  return { data, error };
+  return { data: data?.[0] || fields, error };
 }
 
 export async function swapModuleOrdre(idA, numeroA, idB, numeroB) {
@@ -568,6 +583,32 @@ export async function swapModuleOrdre(idA, numeroA, idB, numeroB) {
     supabase.from('modules_formation').update({ numero: numeroA }).eq('id', idB),
   ]);
   return { error: r1.error || r2.error || null };
+}
+
+export async function createModuleFormation(data) {
+  if (IS_MOCK) return { data: { id: Date.now().toString(), ...data }, error: null };
+  const { data: result, error } = await supabase
+    .from('modules_formation')
+    .insert({
+      numero: data.numero,
+      titre: data.titre,
+      description: data.description || null,
+      duree_semaines: data.duree_semaines || 8
+    })
+    .select()
+    .single();
+  if (error) console.error('createModuleFormation error:', error);
+  return { data: result, error };
+}
+
+export async function deleteModuleFormation(moduleId) {
+  if (IS_MOCK) return { error: null };
+  const { error } = await supabase
+    .from('modules_formation')
+    .delete()
+    .eq('id', moduleId);
+  if (error) console.error('deleteModuleFormation error:', error);
+  return { error: error ?? null };
 }
 
 export async function getSessionsLive(filters = {}) {
