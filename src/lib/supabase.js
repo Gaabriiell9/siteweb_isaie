@@ -266,32 +266,31 @@ export async function finalizeInscription(data) {
   });
 
   // Gérer les erreurs d'envoi d'email de confirmation
-  // Le user peut être créé même si l'email échoue
+  // Supabase peut créer le user mais échouer à envoyer l'email
   if (authError) {
     const msg = authError.message?.toLowerCase() || '';
     const isEmailError = msg.includes('email') || msg.includes('sending') || msg.includes('confirmation');
 
-    if (isEmailError && authData?.user?.id) {
-      // User créé malgré l'erreur email → continuer
-      console.warn('[finalizeInscription] Email error ignorée, user créé:', authData.user.id);
-    } else {
-      // Vraie erreur → abandonner
+    if (!isEmailError) {
+      // Vraie erreur (pas liée à l'email) → abandonner
       console.error('[finalizeInscription] signUp error', authError);
       return { error: authError };
     }
+    // Erreur d'email → on ignore et on continue pour vérifier si le user existe
+    console.warn('[finalizeInscription] Erreur email ignorée:', authError.message);
   }
 
-  // Vérifier que le user a bien été créé
-  if (!authData?.user?.id) {
-    return { error: { message: 'Erreur lors de la création du compte' } };
+  // Vérifier si le user a été créé (peut être dans authData ou dans la session)
+  const userId = authData?.user?.id;
+  if (userId) {
+    console.log('[finalizeInscription] signUp OK', { userId, email: authData.user.email });
+    return { error: null };
   }
 
-  console.log('[finalizeInscription] signUp OK', {
-    userId: authData.user.id,
-    email: authData.user.email,
-  });
-
-  return { error: null };
+  // Pas de user dans la réponse — vérifier si le compte existe déjà via une tentative de session
+  // Si on arrive ici avec une erreur email, c'est que le user n'a pas été créé
+  console.error('[finalizeInscription] User non créé, authData:', authData);
+  return { error: { message: 'Erreur lors de la création du compte. Veuillez réessayer.' } };
 }
 
 // ─── Helpers admin formation ──────────────────────────────────────
