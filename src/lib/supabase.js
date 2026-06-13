@@ -243,7 +243,7 @@ export async function finalizeInscription(data) {
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
-    options: { emailRedirectTo: null },
+    options: { emailRedirectTo: `${window.location.origin}/eleve/login` },
   });
   if (authError) return { error: authError };
   const authUserId = authData.user?.id;
