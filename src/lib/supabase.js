@@ -238,7 +238,7 @@ export async function createInscriptionAutoSave(data) {
 export async function finalizeInscription(data) {
   if (IS_MOCK) {
     await new Promise(r => setTimeout(r, 1500));
-    return { error: null };
+    return { success: true, user: { id: 'mock-id', email: data.email } };
   }
 
   // Passer toutes les données d'inscription via user_metadata
@@ -249,48 +249,56 @@ export async function finalizeInscription(data) {
     options: {
       data: {
         inscription_type: 'formation',
-        prenom: data.prenom,
-        nom: data.nom,
-        telephone: data.telephone,
-        date_naissance: data.date_naissance,
-        pays: data.pays,
-        ville: data.ville,
-        eglise: data.eglise,
-        pasteur_referent: data.pasteur_referent,
-        niveau_biblique: data.niveau_biblique,
-        motivation: data.motivation,
-        formule: data.formule,
+        prenom: data.prenom || '',
+        nom: data.nom || 'Inconnu',
+        telephone: data.telephone || null,
+        date_naissance: data.date_naissance || null,
+        pays: data.pays || null,
+        ville: data.ville || null,
+        eglise: data.eglise || null,
+        pasteur_referent: data.pasteur_referent || null,
+        niveau_biblique: data.niveau_biblique || null,
+        motivation: data.motivation || null,
+        formule: data.formule || 'echelonne',
         communications_ok: data.communications_ok || false,
       },
     },
   });
 
-  // Gérer les erreurs d'envoi d'email de confirmation
-  // Supabase peut créer le user mais échouer à envoyer l'email
+  console.log('[finalizeInscription] signUp response:', {
+    user: authData?.user?.id,
+    error: authError?.message
+  });
+
+  // Vérifier d'abord si le user a été créé
+  if (authData?.user?.id) {
+    console.log('[finalizeInscription] SUCCESS - user créé:', authData.user.id);
+    return { success: true, user: authData.user };
+  }
+
+  // Si pas de user, regarder l'erreur
   if (authError) {
     const msg = authError.message?.toLowerCase() || '';
-    const isEmailError = msg.includes('email') || msg.includes('sending') || msg.includes('confirmation');
 
-    if (!isEmailError) {
-      // Vraie erreur (pas liée à l'email) → abandonner
-      console.error('[finalizeInscription] signUp error', authError);
-      return { error: authError };
+    // Erreurs connues à transformer en messages clairs
+    if (msg.includes('already registered') || msg.includes('already been registered')) {
+      return { success: false, error: { code: 'EMAIL_EXISTS', message: 'Un compte existe déjà avec cet email.' } };
     }
-    // Erreur d'email → on ignore et on continue pour vérifier si le user existe
-    console.warn('[finalizeInscription] Erreur email ignorée:', authError.message);
+
+    // Erreurs d'email de confirmation — on ne peut rien faire sans user.id
+    if (msg.includes('email') || msg.includes('sending') || msg.includes('confirmation')) {
+      console.error('[finalizeInscription] Email error sans user créé:', authError);
+      return { success: false, error: { code: 'EMAIL_ERROR', message: 'Erreur de configuration email. Contactez l\'administration.' } };
+    }
+
+    // Autres erreurs
+    console.error('[finalizeInscription] Error:', authError);
+    return { success: false, error: authError };
   }
 
-  // Vérifier si le user a été créé (peut être dans authData ou dans la session)
-  const userId = authData?.user?.id;
-  if (userId) {
-    console.log('[finalizeInscription] signUp OK', { userId, email: authData.user.email });
-    return { error: null };
-  }
-
-  // Pas de user dans la réponse — vérifier si le compte existe déjà via une tentative de session
-  // Si on arrive ici avec une erreur email, c'est que le user n'a pas été créé
-  console.error('[finalizeInscription] User non créé, authData:', authData);
-  return { error: { message: 'Erreur lors de la création du compte. Veuillez réessayer.' } };
+  // Cas bizarre : pas d'erreur mais pas de user non plus
+  console.error('[finalizeInscription] No user, no error - authData:', authData);
+  return { success: false, error: { message: 'Erreur inattendue. Veuillez réessayer.' } };
 }
 
 // ─── Helpers admin formation ──────────────────────────────────────

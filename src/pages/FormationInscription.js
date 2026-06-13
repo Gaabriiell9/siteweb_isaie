@@ -600,7 +600,7 @@ export default function FormationInscription() {
       ? `${formData.phone_code} ${formData.telephone}`
       : null;
 
-    const { error } = await finalizeInscription({
+    const result = await finalizeInscription({
       prenom: formData.prenom,
       nom: formData.nom,
       email: formData.email,
@@ -618,20 +618,18 @@ export default function FormationInscription() {
     });
 
     setSubmitting(false);
-    if (error) {
-      const msg = error.message || '';
-      if (
-        msg.toLowerCase().includes('already registered') ||
-        msg.toLowerCase().includes('already been registered') ||
-        msg.toLowerCase().includes('email address is already') ||
-        msg.toLowerCase().includes('user already')
-      ) {
+
+    if (!result.success) {
+      const error = result.error || {};
+      if (error.code === 'EMAIL_EXISTS') {
         setSubmitError('EMAIL_EXISTS');
       } else {
-        setSubmitError(msg || 'Une erreur est survenue. Veuillez réessayer.');
+        setSubmitError(error.message || 'Une erreur est survenue. Veuillez réessayer.');
       }
       return;
     }
+
+    // Succès !
     localStorage.removeItem(DRAFT_KEY);
     localStorage.setItem('etc_inscription_success', JSON.stringify({
       email: formData.email,
