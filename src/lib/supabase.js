@@ -247,7 +247,6 @@ export async function finalizeInscription(data) {
     email: data.email,
     password: data.password,
     options: {
-      emailRedirectTo: `${window.location.origin}/eleve/login`,
       data: {
         inscription_type: 'formation',
         prenom: data.prenom,
@@ -266,14 +265,30 @@ export async function finalizeInscription(data) {
     },
   });
 
+  // Gérer les erreurs d'envoi d'email de confirmation
+  // Le user peut être créé même si l'email échoue
   if (authError) {
-    console.error('[finalizeInscription] signUp error', authError);
-    return { error: authError };
+    const msg = authError.message?.toLowerCase() || '';
+    const isEmailError = msg.includes('email') || msg.includes('sending') || msg.includes('confirmation');
+
+    if (isEmailError && authData?.user?.id) {
+      // User créé malgré l'erreur email → continuer
+      console.warn('[finalizeInscription] Email error ignorée, user créé:', authData.user.id);
+    } else {
+      // Vraie erreur → abandonner
+      console.error('[finalizeInscription] signUp error', authError);
+      return { error: authError };
+    }
+  }
+
+  // Vérifier que le user a bien été créé
+  if (!authData?.user?.id) {
+    return { error: { message: 'Erreur lors de la création du compte' } };
   }
 
   console.log('[finalizeInscription] signUp OK', {
-    userId: authData.user?.id,
-    email: authData.user?.email,
+    userId: authData.user.id,
+    email: authData.user.email,
   });
 
   return { error: null };
