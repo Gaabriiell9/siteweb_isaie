@@ -319,15 +319,20 @@ export async function getInscriptionsRecentes(days = 30) {
 
 export async function getAllElevesAvecStats() {
   if (IS_MOCK) return MOCK_ELEVES_STATS;
-  const { data, error } = await supabase
-    .from('eleves').select(`
+  const [elevesRes, confirmRes] = await Promise.all([
+    supabase.from('eleves').select(`
       *,
       paiements(montant, statut, date_paiement),
       progression_eleve(complete)
-    `).order('date_inscription', { ascending: false });
-  if (error) console.error(error);
-  return (data || []).map(e => ({
+    `).order('date_inscription', { ascending: false }),
+    supabase.rpc('get_eleves_email_confirmed'),
+  ]);
+  if (elevesRes.error) console.error(elevesRes.error);
+  const confirmMap = {};
+  (confirmRes.data || []).forEach(r => { confirmMap[r.eleve_auth_id] = r.email_confirmed_at; });
+  return (elevesRes.data || []).map(e => ({
     ...e,
+    email_confirmed_at: confirmMap[e.auth_user_id] ?? null,
     total_paye: (e.paiements || [])
       .filter(p => p.statut === 'reussi')
       .reduce((s, p) => s + Number(p.montant), 0),
@@ -471,9 +476,9 @@ const MOCK_INSCRIPTIONS_RECENTES = [
   { id: 'mock-3', prenom: 'Sophie', nom: 'Martin', email: 'sophie@exemple.com', telephone: '+33 7 98 76 54 32', pays: 'Belgique', ville: 'Bruxelles', formule: 'integral', created_at: new Date(Date.now() - 8*24*3600*1000).toISOString() },
 ];
 const MOCK_ELEVES_STATS = [
-  { id: 'eleve-1', prenom: 'Marie', nom: 'Dupont', email: 'marie@exemple.com', pays: 'France', ville: 'Paris', formule: 'integral', statut: 'actif', progression_pct: 33, derniere_connexion: new Date(Date.now() - 1*24*3600*1000).toISOString(), total_paye: 450, modules_completes: 2 },
-  { id: 'eleve-2', prenom: 'Jean', nom: 'Kabila', email: 'jean@exemple.com', pays: 'Congo (RDC)', ville: 'Kinshasa', formule: 'echelonne', statut: 'actif', progression_pct: 17, derniere_connexion: new Date(Date.now() - 3*24*3600*1000).toISOString(), total_paye: 150, modules_completes: 1 },
-  { id: 'eleve-3', prenom: 'Sophie', nom: 'Martin', email: 'sophie@exemple.com', pays: 'Belgique', ville: 'Bruxelles', formule: 'integral', statut: 'suspendu', progression_pct: 0, derniere_connexion: new Date(Date.now() - 14*24*3600*1000).toISOString(), total_paye: 0, modules_completes: 0 },
+  { id: 'eleve-1', prenom: 'Marie', nom: 'Dupont', email: 'marie@exemple.com', pays: 'France', ville: 'Paris', formule: 'integral', statut: 'actif', progression_pct: 33, derniere_connexion: new Date(Date.now() - 1*24*3600*1000).toISOString(), total_paye: 450, modules_completes: 2, email_confirmed_at: new Date(Date.now() - 2*24*3600*1000).toISOString() },
+  { id: 'eleve-2', prenom: 'Jean', nom: 'Kabila', email: 'jean@exemple.com', pays: 'Congo (RDC)', ville: 'Kinshasa', formule: 'echelonne', statut: 'actif', progression_pct: 17, derniere_connexion: new Date(Date.now() - 3*24*3600*1000).toISOString(), total_paye: 150, modules_completes: 1, email_confirmed_at: null },
+  { id: 'eleve-3', prenom: 'Sophie', nom: 'Martin', email: 'sophie@exemple.com', pays: 'Belgique', ville: 'Bruxelles', formule: 'integral', statut: 'suspendu', progression_pct: 0, derniere_connexion: new Date(Date.now() - 14*24*3600*1000).toISOString(), total_paye: 0, modules_completes: 0, email_confirmed_at: new Date(Date.now() - 15*24*3600*1000).toISOString() },
 ];
 const MOCK_ELEVES_PAR_PAYS = [
   { pays: 'France', count: 12 },

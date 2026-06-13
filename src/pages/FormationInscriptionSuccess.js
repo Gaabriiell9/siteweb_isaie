@@ -60,6 +60,15 @@ export default function FormationInscriptionSuccess() {
           </div>
         </div>
 
+        {/* Email confirmation warning */}
+        <div className="fis-email-warning">
+          <div className="fis-email-warning-icon">📧</div>
+          <div>
+            <strong>Confirmez votre adresse email</strong>
+            <p>Un email de confirmation a été envoyé à <em>{info.email}</em>. Vous devez cliquer sur le lien dans cet email <strong>AVANT</strong> de pouvoir vous connecter à votre Espace Élève.</p>
+          </div>
+        </div>
+
         {/* Info paiement */}
         <div className="fis-payment-notice">
           <div className="fis-payment-icon"><Icon name="envelope" size={32} /></div>

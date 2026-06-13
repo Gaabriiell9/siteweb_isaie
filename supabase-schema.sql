@@ -253,6 +253,18 @@ ALTER TABLE eleves
 -- notes_admin était déjà dans le schema initial, mais au cas où
 ALTER TABLE eleves ADD COLUMN IF NOT EXISTS notes_admin text;
 
+-- Fonction admin : récupérer le statut de confirmation email de chaque élève
+-- Nécessite SECURITY DEFINER pour accéder à auth.users
+CREATE OR REPLACE FUNCTION public.get_eleves_email_confirmed()
+RETURNS TABLE(eleve_auth_id uuid, email_confirmed_at timestamptz)
+SECURITY DEFINER
+SET search_path = public, auth
+LANGUAGE sql AS $$
+  SELECT u.id AS eleve_auth_id, u.email_confirmed_at
+  FROM auth.users u
+  WHERE u.id IN (SELECT auth_user_id FROM public.eleves WHERE auth_user_id IS NOT NULL);
+$$;
+
 -- Trigger pour mettre à jour derniere_connexion à chaque login
 CREATE OR REPLACE FUNCTION update_last_login()
 RETURNS trigger AS $$

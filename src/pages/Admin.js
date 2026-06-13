@@ -443,6 +443,11 @@ function BadgeStatut({ statut }) {
     </span>
   );
 }
+function BadgeEmail({ confirmedAt }) {
+  return confirmedAt
+    ? <span className="af-badge af-badge--vert" title={`Confirmé le ${new Date(confirmedAt).toLocaleDateString('fr-FR')}`}>✓ Email confirmé</span>
+    : <span className="af-badge af-badge--rouge">✗ Email non confirmé</span>;
+}
 
 /* ── Drawer élève ── */
 function EleveDrawer({ eleve, onClose, onUpdate }) {
@@ -549,7 +554,10 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           <div className="af-drawer-info">
             <div className="af-drawer-name">{eleve.prenom} {eleve.nom}</div>
             <div className="af-drawer-meta">{eleve.email}</div>
-            <BadgeStatut statut={eleve.statut} />
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+              <BadgeStatut statut={eleve.statut} />
+              <BadgeEmail confirmedAt={eleve.email_confirmed_at} />
+            </div>
           </div>
           <div className="af-drawer-actions-top">
             {eleve.statut === 'actif'
@@ -808,7 +816,12 @@ function SubTabEleves({ filterPays, onClearFilter }) {
                       <span>{e.prenom} {e.nom}</span>
                     </div>
                   </td>
-                  <td className="af-table-email">{e.email}</td>
+                  <td className="af-table-email">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span>{e.email}</span>
+                      <BadgeEmail confirmedAt={e.email_confirmed_at} />
+                    </div>
+                  </td>
                   <td>{e.pays || '—'}</td>
                   <td><BadgeFormule formule={e.formule} /></td>
                   <td>
