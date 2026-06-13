@@ -266,16 +266,18 @@ LANGUAGE sql AS $$
 $$;
 
 -- Trigger pour mettre à jour derniere_connexion à chaque login
+-- SECURITY DEFINER : s'exécute avec les droits du propriétaire (postgres),
+-- pas ceux de l'appelant (anon) — évite l'échec RLS au signup
 CREATE OR REPLACE FUNCTION update_last_login()
 RETURNS trigger AS $$
 BEGIN
   UPDATE eleves SET derniere_connexion = NOW()
-  WHERE auth_user_id = NEW.user_id;
+  WHERE auth_user_id = NEW.user_id
+    AND EXISTS (SELECT 1 FROM eleves WHERE auth_user_id = NEW.user_id);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Attacher le trigger sur auth.sessions (si disponible)
 DROP TRIGGER IF EXISTS on_auth_login ON auth.sessions;
 CREATE TRIGGER on_auth_login
   AFTER INSERT ON auth.sessions
