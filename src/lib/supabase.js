@@ -233,74 +233,48 @@ export async function createInscriptionAutoSave(data) {
 }
 
 // ─── Inscription finale — création compte ────────────────────────
+// Les données sont passées via user_metadata et un trigger côté Supabase
+// crée automatiquement inscription + eleve + progression (SECURITY DEFINER)
 export async function finalizeInscription(data) {
   if (IS_MOCK) {
     await new Promise(r => setTimeout(r, 1500));
     return { error: null };
   }
 
-  // 1. Créer compte Supabase Auth
+  // Passer toutes les données d'inscription via user_metadata
+  // Le trigger handle_new_user_inscription() côté Supabase les utilisera
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
-    options: { emailRedirectTo: `${window.location.origin}/eleve/login` },
+    options: {
+      emailRedirectTo: `${window.location.origin}/eleve/login`,
+      data: {
+        inscription_type: 'formation',
+        prenom: data.prenom,
+        nom: data.nom,
+        telephone: data.telephone,
+        date_naissance: data.date_naissance,
+        pays: data.pays,
+        ville: data.ville,
+        eglise: data.eglise,
+        pasteur_referent: data.pasteur_referent,
+        niveau_biblique: data.niveau_biblique,
+        motivation: data.motivation,
+        formule: data.formule,
+        communications_ok: data.communications_ok || false,
+      },
+    },
   });
-  if (authError) return { error: authError };
-  const authUserId = authData.user?.id;
 
-  // 2. Insérer dans inscriptions_formation
-  const { data: inscData, error: inscError } = await supabase
-    .from('inscriptions_formation').insert([{
-      prenom: data.prenom,
-      nom: data.nom,
-      email: data.email,
-      telephone: data.telephone,
-      date_naissance: data.date_naissance,
-      pays: data.pays,
-      ville: data.ville,
-      eglise: data.eglise,
-      pasteur_referent: data.pasteur_referent,
-      niveau_biblique: data.niveau_biblique,
-      motivation: data.motivation,
-      formule: data.formule,
-      communications_ok: data.communications_ok || false,
-      statut: 'actif',
-      draft: false,
-    }]).select('id').single();
-  if (inscError) return { error: inscError };
-
-  // 3. Insérer dans eleves
-  const { data: eleveData, error: eleveError } = await supabase
-    .from('eleves').insert([{
-      auth_user_id: authUserId,
-      inscription_id: inscData.id,
-      prenom: data.prenom,
-      nom: data.nom,
-      email: data.email,
-      telephone: data.telephone,
-      date_naissance: data.date_naissance,
-      pays: data.pays,
-      ville: data.ville,
-      eglise: data.eglise,
-      formule: data.formule,
-      statut: 'actif',
-      progression_pct: 0,
-    }]).select('id').single();
-  if (eleveError) return { error: eleveError };
-
-  // 4. Créer lignes progression_eleve (6 modules)
-  const { data: modules } = await supabase
-    .from('modules_formation').select('id, numero').order('numero');
-  if (modules && modules.length > 0) {
-    const rows = modules.map(m => ({
-      eleve_id: eleveData.id,
-      module_id: m.id,
-      debloque: data.formule === 'integral' ? true : m.numero === 1,
-      complete: false,
-      date_debloque: (data.formule === 'integral' || m.numero === 1) ? new Date().toISOString() : null,
-    }));
-    await supabase.from('progression_eleve').insert(rows);
+  if (authError) {
+    console.error('[finalizeInscription] signUp error', authError);
+    return { error: authError };
   }
+
+  console.log('[finalizeInscription] signUp OK', {
+    userId: authData.user?.id,
+    email: authData.user?.email,
+  });
 
   return { error: null };
 }
