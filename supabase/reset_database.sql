@@ -549,6 +549,9 @@ CREATE TRIGGER on_auth_login
 -- 6b. TRIGGER INSCRIPTION AUTOMATIQUE
 --     Crée inscription + eleve + progression lors du signUp
 --     Les données sont passées via raw_user_meta_data
+--
+--     IMPORTANT: Le bloc EXCEPTION garantit que le signUp réussit
+--     même si le trigger échoue (contrainte, RLS, etc.)
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user_inscription()
@@ -579,8 +582,8 @@ BEGIN
     pays, ville, eglise, pasteur_referent, niveau_biblique,
     motivation, formule, communications_ok, statut, draft, auth_user_id
   ) VALUES (
-    v_meta->>'prenom',
-    v_meta->>'nom',
+    COALESCE(v_meta->>'prenom', ''),
+    COALESCE(v_meta->>'nom', 'Inconnu'),
     NEW.email,
     v_meta->>'telephone',
     NULLIF(v_meta->>'date_naissance', '')::date,
@@ -606,8 +609,8 @@ BEGIN
   ) VALUES (
     NEW.id,
     v_inscription_id,
-    v_meta->>'prenom',
-    v_meta->>'nom',
+    COALESCE(v_meta->>'prenom', ''),
+    COALESCE(v_meta->>'nom', 'Inconnu'),
     NEW.email,
     v_meta->>'telephone',
     NULLIF(v_meta->>'date_naissance', '')::date,
@@ -628,13 +631,18 @@ BEGIN
     VALUES (
       v_eleve_id,
       v_module.id,
-      -- Débloquer module 1 toujours, ou tous si formule intégrale
       v_formule = 'integral' OR v_module.numero = 1,
       false,
       CASE WHEN v_formule = 'integral' OR v_module.numero = 1 THEN NOW() ELSE NULL END
     );
   END LOOP;
 
+  RETURN NEW;
+
+EXCEPTION WHEN OTHERS THEN
+  -- Ne JAMAIS faire échouer le signUp si le trigger plante
+  -- L'admin pourra créer manuellement l'élève si nécessaire
+  RAISE WARNING 'handle_new_user_inscription failed for user %: %', NEW.id, SQLERRM;
   RETURN NEW;
 END;
 $$;

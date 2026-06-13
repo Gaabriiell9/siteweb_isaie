@@ -101,6 +101,9 @@ CREATE POLICY "Admin update progression"
 -- ÉTAPE 3 : Fonction trigger SECURITY DEFINER
 --           Crée inscription + eleve + progression automatiquement
 --           après création du user dans auth.users
+--
+--           IMPORTANT: Le bloc EXCEPTION garantit que le signUp
+--           réussit même si le trigger échoue
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user_inscription()
@@ -131,11 +134,11 @@ BEGIN
     pays, ville, eglise, pasteur_referent, niveau_biblique,
     motivation, formule, communications_ok, statut, draft, auth_user_id
   ) VALUES (
-    v_meta->>'prenom',
-    v_meta->>'nom',
+    COALESCE(v_meta->>'prenom', ''),
+    COALESCE(v_meta->>'nom', 'Inconnu'),
     NEW.email,
     v_meta->>'telephone',
-    (v_meta->>'date_naissance')::date,
+    NULLIF(v_meta->>'date_naissance', '')::date,
     v_meta->>'pays',
     v_meta->>'ville',
     v_meta->>'eglise',
@@ -158,11 +161,11 @@ BEGIN
   ) VALUES (
     NEW.id,
     v_inscription_id,
-    v_meta->>'prenom',
-    v_meta->>'nom',
+    COALESCE(v_meta->>'prenom', ''),
+    COALESCE(v_meta->>'nom', 'Inconnu'),
     NEW.email,
     v_meta->>'telephone',
-    (v_meta->>'date_naissance')::date,
+    NULLIF(v_meta->>'date_naissance', '')::date,
     v_meta->>'pays',
     v_meta->>'ville',
     v_meta->>'eglise',
@@ -180,13 +183,17 @@ BEGIN
     VALUES (
       v_eleve_id,
       v_module.id,
-      -- Débloquer module 1 toujours, ou tous si formule intégrale
       v_formule = 'integral' OR v_module.numero = 1,
       false,
       CASE WHEN v_formule = 'integral' OR v_module.numero = 1 THEN NOW() ELSE NULL END
     );
   END LOOP;
 
+  RETURN NEW;
+
+EXCEPTION WHEN OTHERS THEN
+  -- Ne JAMAIS faire échouer le signUp si le trigger plante
+  RAISE WARNING 'handle_new_user_inscription failed for user %: %', NEW.id, SQLERRM;
   RETURN NEW;
 END;
 $$;
