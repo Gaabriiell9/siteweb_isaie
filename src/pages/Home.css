@@ -18,20 +18,17 @@
 .hero-pasteur-overlay {
   position: absolute;
   inset: 0;
-  /* Dégradé allégé : moins opaque, dégradé plus serré côté texte */
-  background: linear-gradient(
-    to right,
-    rgba(10, 5, 0, 0.55) 0%,
-    rgba(10, 5, 0, 0.25) 35%,
-    rgba(10, 5, 0, 0.03) 60%,
-    transparent 100%
-  );
+  /* AUCUN dégradé sur l'image — photo brute à 100% */
+  background: none;
   display: flex;
   align-items: center;
+  pointer-events: none;
 }
 .hero-pasteur-content {
   padding: 0 72px;
   max-width: 520px;
+  pointer-events: auto;
+  /* AUCUN fond — texte directement sur la photo */
 }
 .hero-pasteur-label {
   font-family: var(--font-sans);
@@ -41,6 +38,7 @@
   text-transform: uppercase;
   color: var(--or);
   margin-bottom: 12px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 .hero-pasteur-nom {
   font-family: var(--font-display);
@@ -49,14 +47,16 @@
   color: #FFFBF5;
   line-height: 1.15;
   margin-bottom: 16px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85), 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 .hero-pasteur-devise {
   font-family: var(--font-display);
   font-style: italic;
   font-size: clamp(14px, 1.8vw, 18px);
-  color: rgba(255, 248, 240, 0.75);
+  color: #FFFBF5;
   line-height: 1.6;
   margin-bottom: 28px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 .hero-pasteur-btn {
   display: inline-block;
@@ -95,19 +95,14 @@
     background-color: transparent;
   }
   .hero-pasteur-content {
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 20px;
     max-width: 100%;
+    margin: 16px;
+    /* AUCUN fond sur mobile non plus */
   }
   .hero-pasteur-overlay {
-    /* Dégradé allégé pour mobile */
-    background: linear-gradient(
-      to bottom,
-      rgba(10, 5, 0, 0.55) 0%,
-      rgba(10, 5, 0, 0.2) 35%,
-      transparent 70%
-    );
+    /* AUCUN dégradé — photo brute */
+    background: none;
     justify-content: flex-start;
     align-items: flex-start;
   }
