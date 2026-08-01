@@ -127,7 +127,7 @@
 }
 .ec-badge--module { background: rgba(200, 134, 10, 0.1); color: var(--or); border: 1px solid rgba(200, 134, 10, 0.25); }
 .ec-badge--live { background: rgba(220, 50, 50, 0.1); color: #dc3232; border: 1px solid rgba(220, 50, 50, 0.25); }
-.ec-badge--coming { background: rgba(107, 26, 46, 0.08); color: var(--bordeaux); border: 1px solid rgba(107, 26, 46, 0.2); }
+.ec-badge--coming { background: rgba(139, 74, 80, 0.08); color: var(--bordeaux); border: 1px solid rgba(139, 74, 80, 0.2); }
 .ec-badge--done { background: rgba(39, 80, 10, 0.08); color: #1a5f1a; border: 1px solid rgba(39, 80, 10, 0.2); }
 
 /* Actions */

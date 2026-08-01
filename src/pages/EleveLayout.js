@@ -34,9 +34,19 @@ export default function EleveLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getEleveSession().then(session => {
+    getEleveSession().then(async session => {
+      console.log('[EleveLayout] Session:', session?.user?.id);
       if (!session) { navigate('/eleve/login'); return; }
-      getEleveProfil(session.user?.id).then(setEleve);
+
+      const profil = await getEleveProfil(session.user?.id);
+      console.log('[EleveLayout] Profil élève:', profil?.id ? 'trouvé' : 'introuvable');
+
+      if (!profil) {
+        console.error('[EleveLayout] Profil élève introuvable pour auth_user_id:', session.user?.id);
+        setEleve({ nom: 'Compte incomplet', prenom: '', error: true });
+        return;
+      }
+      setEleve(profil);
     });
   }, [navigate]);
 

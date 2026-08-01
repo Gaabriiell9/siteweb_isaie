@@ -70,7 +70,7 @@
 .fi2-progress-circle--active {
   background: var(--bordeaux); border-color: var(--bordeaux); color: white;
   transform: scale(1.15);
-  box-shadow: 0 4px 16px rgba(107, 26, 46, 0.3);
+  box-shadow: 0 4px 16px rgba(139, 74, 80, 0.3);
 }
 .fi2-progress-label {
   font-family: 'Satoshi', -apple-system, sans-serif;
@@ -118,7 +118,7 @@
 }
 .fi2-formule-card--active {
   border-color: var(--bordeaux); background: white;
-  box-shadow: 0 6px 24px rgba(107, 26, 46, 0.12);
+  box-shadow: 0 6px 24px rgba(139, 74, 80, 0.12);
 }
 .fi2-formule-badge-recommande {
   position: absolute; top: -1px; right: 16px;
@@ -188,7 +188,7 @@
 .fi2-field textarea:focus,
 .fi2-field select:focus {
   border-color: var(--bordeaux);
-  box-shadow: 0 0 0 3px rgba(107, 26, 46, 0.08);
+  box-shadow: 0 0 0 3px rgba(139, 74, 80, 0.08);
 }
 .fi2-input--error { border-color: #e74c3c !important; }
 .fi2-error { font-size: 0.78rem; color: #e74c3c; }
@@ -396,7 +396,7 @@
 }
 .fi2-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 .fi2-btn--primary { background: var(--bordeaux); color: white; }
-.fi2-btn--primary:not(:disabled):hover { background: var(--bordeaux-clair); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(107, 26, 46, 0.25); }
+.fi2-btn--primary:not(:disabled):hover { background: var(--bordeaux-clair); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(139, 74, 80, 0.25); }
 .fi2-btn--secondary { background: transparent; color: var(--texte-doux); border: 1.5px solid #d0c8bc; }
 .fi2-btn--secondary:not(:disabled):hover { border-color: var(--bordeaux); color: var(--bordeaux); }
 .fi2-btn--full { width: 100%; justify-content: center; }

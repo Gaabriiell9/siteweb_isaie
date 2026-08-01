@@ -61,7 +61,7 @@
   position: relative;
 }
 .em-conv-item:hover { background: var(--or-pale); }
-.em-conv-item.active { background: rgba(107, 26, 46, 0.06); }
+.em-conv-item.active { background: rgba(139, 74, 80, 0.06); }
 .em-conv-item.active::before {
   content: '';
   position: absolute;

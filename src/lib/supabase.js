@@ -201,16 +201,35 @@ export async function getEleveSession() {
 // ─── Profil & données élève ───────────────────────────────────────
 export async function getEleveProfil(authUserId) {
   if (IS_MOCK) return MOCK_ELEVE;
-  const { data, error } = await supabase
-    .from('eleves').select('*').eq('auth_user_id', authUserId).single();
-  if (error) console.error(error);
-  return data;
+  try {
+    const { data, error } = await supabase
+      .from('eleves').select('*').eq('auth_user_id', authUserId).maybeSingle();
+    if (error) {
+      console.error('[getEleveProfil] Error:', error);
+      return null;
+    }
+    console.log('[getEleveProfil] Profil trouvé:', data?.id ? 'oui' : 'non');
+    return data;
+  } catch (err) {
+    console.error('[getEleveProfil] Exception:', err);
+    return null;
+  }
 }
 export async function getEleveStatut(authUserId) {
   if (IS_MOCK) return 'actif';
-  const { data } = await supabase
-    .from('eleves').select('statut').eq('auth_user_id', authUserId).single();
-  return data?.statut || 'actif';
+  try {
+    const { data, error } = await supabase
+      .from('eleves').select('statut').eq('auth_user_id', authUserId).maybeSingle();
+    if (error) {
+      console.error('[getEleveStatut] Error:', error);
+      return 'actif';
+    }
+    console.log('[getEleveStatut] Résultat pour', authUserId, ':', data);
+    return data?.statut || 'actif';
+  } catch (err) {
+    console.error('[getEleveStatut] Exception:', err);
+    return 'actif';
+  }
 }
 export async function getModulesAvecProgression(eleveId) {
   if (IS_MOCK) return MOCK_MODULES_PROGRESSION;

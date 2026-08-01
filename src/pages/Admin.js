@@ -900,7 +900,7 @@ function SubTabCarte({ onSelectPays }) {
     if (!count) return '#e8e0d4';
     if (count <= 5) return '#F5D98A';
     if (count <= 15) return '#C8860A';
-    return '#6B1A2E';
+    return '#8B4A50';
   };
 
   const top5 = elevesParPays.slice(0, 5);
@@ -956,7 +956,7 @@ function SubTabCarte({ onSelectPays }) {
             <span style={{background:'#e8e0d4'}}>0</span>
             <span style={{background:'#F5D98A'}}>1–5</span>
             <span style={{background:'#C8860A', color:'white'}}>6–15</span>
-            <span style={{background:'#6B1A2E', color:'white'}}>15+</span>
+            <span style={{background:'#8B4A50', color:'white'}}>15+</span>
           </div>
         </>
       )}
@@ -1086,7 +1086,7 @@ function SubTabStats() {
                 <XAxis dataKey="name" tick={{fontSize:11}} />
                 <YAxis tick={{fontSize:11}} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#6B1A2E" radius={[4,4,0,0]} />
+                <Bar dataKey="value" fill="#8B4A50" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

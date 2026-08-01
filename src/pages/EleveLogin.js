@@ -17,21 +17,34 @@ export default function EleveLogin() {
     setErrorType('');
     setLoading(true);
 
-    const { data, error: err } = await signInEleve(email, password);
-    if (err) {
-      setLoading(false);
-      setError(err.message);
-      setErrorType('error');
-      return;
-    }
+    console.log('[EleveLogin] 1. Début connexion pour:', email);
 
-    // Vérifier le statut de l'élève
-    const userId = data?.user?.id;
-    if (userId) {
+    try {
+      const { data, error: err } = await signInEleve(email, password);
+      console.log('[EleveLogin] 2. signInEleve result:', { userId: data?.user?.id, error: err?.message });
+
+      if (err) {
+        setLoading(false);
+        setError(err.message);
+        setErrorType('error');
+        return;
+      }
+
+      // Vérifier le statut de l'élève
+      const userId = data?.user?.id;
+      if (!userId) {
+        console.log('[EleveLogin] 3. Pas de userId — redirection directe');
+        setLoading(false);
+        navigate('/eleve/dashboard');
+        return;
+      }
+
+      console.log('[EleveLogin] 3. userId obtenu:', userId);
       const statut = await getEleveStatut(userId);
-      setLoading(false);
+      console.log('[EleveLogin] 4. Statut élève:', statut);
 
       if (statut === 'suspendu') {
+        setLoading(false);
         setErrorType('suspendu');
         setError(
           'Votre compte a été suspendu. Contactez le responsable de la formation pour plus d\'informations.'
@@ -43,15 +56,17 @@ export default function EleveLogin() {
         setError(
           'Vous avez complété la formation. Votre accès reste disponible en lecture seule.'
         );
-        // Toujours rediriger — l'espace élève gère le mode archive
-        navigate('/eleve/dashboard');
-        return;
       }
-    } else {
-      setLoading(false);
-    }
 
-    navigate('/eleve/dashboard');
+      console.log('[EleveLogin] 5. Redirection vers dashboard');
+      setLoading(false);
+      navigate('/eleve/dashboard');
+    } catch (error) {
+      console.error('[EleveLogin] ERREUR:', error);
+      setLoading(false);
+      setError('Une erreur est survenue. Veuillez réessayer.');
+      setErrorType('error');
+    }
   };
 
   return (
