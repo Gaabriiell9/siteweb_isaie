@@ -161,6 +161,28 @@ export async function signInEleve(email, password) {
     return { data: session, error: null };
   }
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    const msg = error.message?.toLowerCase() || '';
+    if (msg.includes('email not confirmed')) {
+      return {
+        data: null,
+        error: { message: 'Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.' }
+      };
+    }
+    if (msg.includes('invalid login credentials')) {
+      return {
+        data: null,
+        error: { message: 'Email ou mot de passe incorrect.' }
+      };
+    }
+  }
+
+  // Mettre à jour derniere_connexion via RPC (fire-and-forget)
+  if (data?.user) {
+    supabase.rpc('update_ma_derniere_connexion').catch(() => {});
+  }
+
   return { data: data?.session ? data : { user: data?.user }, error };
 }
 export async function signOutEleve() {
@@ -781,17 +803,25 @@ export async function envoyerMessageEleve(contenu) {
   }
   const session = await supabase.auth.getSession();
   const userId = session.data?.session?.user?.id;
+  console.log('[envoyerMessageEleve] userId (auth.uid):', userId);
   if (!userId) return { data: null, error: { message: 'Non connecté' } };
-  const { data: eleve } = await supabase.from('eleves').select('id').eq('auth_user_id', userId).single();
+
+  const { data: eleve, error: eleveError } = await supabase.from('eleves').select('id').eq('auth_user_id', userId).single();
+  console.log('[envoyerMessageEleve] eleve.id:', eleve?.id, 'error:', eleveError);
   if (!eleve) return { data: null, error: { message: 'Profil élève introuvable' } };
-  const { data, error } = await supabase.from('messages').insert([{
+
+  const insertPayload = {
     expediteur_id: userId,
     expediteur_type: 'eleve',
     destinataire_id: eleve.id,
     destinataire_type: 'admin',
     contenu,
     lu: false,
-  }]).select().single();
+  };
+  console.log('[envoyerMessageEleve] INSERT payload:', insertPayload);
+
+  const { data, error } = await supabase.from('messages').insert([insertPayload]).select().single();
+  console.log('[envoyerMessageEleve] INSERT result:', { data, error });
   return { data, error };
 }
 

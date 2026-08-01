@@ -33,30 +33,30 @@ const PAYS = [
 ];
 
 const PHONE_CODES = [
-  { code: '+33',  country: 'FR 🇫🇷' },
-  { code: '+32',  country: 'BE 🇧🇪' },
-  { code: '+41',  country: 'CH 🇨🇭' },
-  { code: '+1',   country: 'US/CA 🇺🇸' },
-  { code: '+44',  country: 'GB 🇬🇧' },
-  { code: '+49',  country: 'DE 🇩🇪' },
-  { code: '+34',  country: 'ES 🇪🇸' },
-  { code: '+39',  country: 'IT 🇮🇹' },
-  { code: '+351', country: 'PT 🇵🇹' },
-  { code: '+237', country: 'CM 🇨🇲' },
-  { code: '+243', country: 'CD 🇨🇩' },
-  { code: '+242', country: 'CG 🇨🇬' },
-  { code: '+225', country: "CI 🇨🇮" },
-  { code: '+221', country: 'SN 🇸🇳' },
-  { code: '+229', country: 'BJ 🇧🇯' },
-  { code: '+223', country: 'ML 🇲🇱' },
-  { code: '+228', country: 'TG 🇹🇬' },
-  { code: '+234', country: 'NG 🇳🇬' },
-  { code: '+254', country: 'KE 🇰🇪' },
-  { code: '+27',  country: 'ZA 🇿🇦' },
-  { code: '+250', country: 'RW 🇷🇼' },
-  { code: '+509', country: 'HT 🇭🇹' },
-  { code: '+55',  country: 'BR 🇧🇷' },
-  { code: '+57',  country: 'CO 🇨🇴' },
+  { code: '+33',  flag: '🇫🇷', label: 'France' },
+  { code: '+32',  flag: '🇧🇪', label: 'Belgique' },
+  { code: '+41',  flag: '🇨🇭', label: 'Suisse' },
+  { code: '+1',   flag: '🇺🇸', label: 'USA/Canada' },
+  { code: '+44',  flag: '🇬🇧', label: 'Royaume-Uni' },
+  { code: '+49',  flag: '🇩🇪', label: 'Allemagne' },
+  { code: '+34',  flag: '🇪🇸', label: 'Espagne' },
+  { code: '+39',  flag: '🇮🇹', label: 'Italie' },
+  { code: '+351', flag: '🇵🇹', label: 'Portugal' },
+  { code: '+237', flag: '🇨🇲', label: 'Cameroun' },
+  { code: '+243', flag: '🇨🇩', label: 'RD Congo' },
+  { code: '+242', flag: '🇨🇬', label: 'Congo' },
+  { code: '+225', flag: '🇨🇮', label: "Côte d'Ivoire" },
+  { code: '+221', flag: '🇸🇳', label: 'Sénégal' },
+  { code: '+229', flag: '🇧🇯', label: 'Bénin' },
+  { code: '+223', flag: '🇲🇱', label: 'Mali' },
+  { code: '+228', flag: '🇹🇬', label: 'Togo' },
+  { code: '+234', flag: '🇳🇬', label: 'Nigeria' },
+  { code: '+254', flag: '🇰🇪', label: 'Kenya' },
+  { code: '+27',  flag: '🇿🇦', label: 'Afrique du Sud' },
+  { code: '+250', flag: '🇷🇼', label: 'Rwanda' },
+  { code: '+509', flag: '🇭🇹', label: 'Haïti' },
+  { code: '+55',  flag: '🇧🇷', label: 'Brésil' },
+  { code: '+57',  flag: '🇨🇴', label: 'Colombie' },
 ];
 
 const EMPTY_FORM = {
@@ -317,7 +317,7 @@ function Step2({ formData, setFormData, onNext, onBack }) {
             <select className="fi2-phone-code" value={formData.phone_code}
               onChange={e => set('phone_code')(e.target.value)}>
               {PHONE_CODES.map(p => (
-                <option key={p.code} value={p.code}>{p.code} {p.country}</option>
+                <option key={p.code} value={p.code}>{p.flag} {p.code}</option>
               ))}
             </select>
             <input className="fi2-phone-input" type="tel" value={formData.telephone}
