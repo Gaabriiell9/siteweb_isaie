@@ -7,20 +7,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette — Tons plus clairs et chaleureux */
+  /* Palette */
   --noir:           #0E0600;
-  --bordeaux:       #8B4A50;       /* était #6B1A2E — bordeaux rosé plus lumineux */
-  --bordeaux-clair: #A86B6B;       /* était #8B2E44 — terracotta doux */
+  --bordeaux:       #6B1A2E;
+  --bordeaux-clair: #8B2E44;
   --rouge:          #C0392B;
   --rouge-clair:    #E55A4A;
   --bleu:           #1E3A5F;
   --bleu-clair:     #2E5A8C;
-  --or:             #D4940F;       /* était #C8860A — or légèrement plus lumineux */
-  --or-clair:       #F0C85C;       /* était #E8B84B — or plus vif */
-  --or-pale:        #FEF6E6;       /* était #FDF3DC — crème dorée plus lumineuse */
-  --creme:          #FFFDF8;       /* était #FFFBF5 — fond légèrement plus blanc */
-  --texte:          #3D2010;       /* était #2A1200 — texte moins contrasté */
-  --texte-doux:     #7D6550;       /* était #6B5540 — texte doux plus clair */
+  --or:             #C8860A;
+  --or-clair:       #E8B84B;
+  --or-pale:        #FDF3DC;
+  --creme:          #FFFBF5;
+  --texte:          #2A1200;
+  --texte-doux:     #6B5540;
   --blanc:          #FFFFFF;
 
   /* Typographie */

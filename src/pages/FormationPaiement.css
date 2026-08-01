@@ -151,7 +151,7 @@
   text-align: center;
   background: transparent;
   color: var(--bordeaux-clair);
-  border: 1px solid rgba(139, 74, 80, 0.3);
+  border: 1px solid rgba(107, 26, 46, 0.3);
   border-radius: 8px;
   padding: 13px 24px;
   font-family: var(--font-ui);
@@ -165,7 +165,7 @@
   box-sizing: border-box;
 }
 .fp-btn-dashboard:hover {
-  background: rgba(139, 74, 80, 0.04);
+  background: rgba(107, 26, 46, 0.04);
   border-color: var(--bordeaux);
   color: var(--bordeaux);
 }
