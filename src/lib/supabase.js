@@ -179,8 +179,11 @@ export async function signInEleve(email, password) {
   }
 
   // Mettre à jour derniere_connexion via RPC (fire-and-forget)
+  // Note: supabase.rpc() n'expose pas .catch() directement, on utilise .then()
   if (data?.user) {
-    supabase.rpc('update_ma_derniere_connexion').catch(() => {});
+    supabase.rpc('update_ma_derniere_connexion').then(({ error }) => {
+      if (error) console.log('[signInEleve] RPC update_ma_derniere_connexion ignoré:', error.message);
+    });
   }
 
   return { data: data?.session ? data : { user: data?.user }, error };
