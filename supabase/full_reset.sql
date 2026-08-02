@@ -769,11 +769,13 @@ CREATE POLICY "messages_admin_all" ON public.messages
   FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- ──────────────────────────────────────────────────────────────
--- 6.11 ADMINS (seuls les admins voient la table admins)
+-- 6.11 ADMINS (lecture par tout utilisateur authentifié)
+-- Note: La table admins doit être lisible pour que is_admin() fonctionne.
+-- Elle ne contient que auth_user_id, nom, email — pas de données sensibles.
 -- ──────────────────────────────────────────────────────────────
 
-CREATE POLICY "admins_admin_read" ON public.admins
-  FOR SELECT USING (public.is_admin());
+CREATE POLICY "admins_authenticated_read" ON public.admins
+  FOR SELECT USING (auth.role() = 'authenticated');
 
 -- ════════════════════════════════════════════════════════════
 -- PARTIE 7 : DONNÉES DE SEED
