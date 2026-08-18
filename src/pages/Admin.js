@@ -9,7 +9,7 @@ import {
   getAllElevesAvecStats,
   suspendreEleve, reactiverEleve,
   ajouterEvaluation,
-  getEvaluations, getPaiements,
+  getEvaluations, getPaiements, ajouterPaiement,
   updateProgressionModule, updateNotesAdmin,
   getStatistiquesFormation, getElevesParPays,
   exportElevesCSV,
@@ -22,7 +22,7 @@ import {
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
   updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
   getSessionStatut,
-  getFormulesPaiement, createFormulePaiement, updateFormulePaiement,
+  getFormulesPaiement, createFormulePaiement, updateFormulePaiement, getFormulePaiementById, getFormulePaiementByType,
 } from '../lib/supabase';
 import './Admin.css';
 import Icon from '../components/Icon';
@@ -405,17 +405,164 @@ function BadgeEmail({ confirmedAt }) {
     : <span className="af-badge af-badge--rouge">✗ Email non confirmé</span>;
 }
 
+/* ── Section Paiements dans le drawer ── */
+function PaiementsSection({ eleve, formuleData, paiements, onPaiementAdded }) {
+  const [saving, setSaving] = useState(null);
+
+  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
+  const prixTotalCents = formuleData?.prix_total || (isEchelonne ? 50000 : 45000);
+  const montantEcheanceCents = formuleData?.montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
+  const nombreEcheances = formuleData?.nombre_echeances || (isEchelonne ? 10 : 1);
+  const montantEcheanceEuros = montantEcheanceCents / 100;
+  const prixTotalEuros = prixTotalCents / 100;
+
+  const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
+  const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
+  const restantDuEuros = Math.max(0, prixTotalEuros - totalPayeEuros);
+
+  // Générer le planning des échéances
+  const planning = (() => {
+    const dateDebut = eleve?.date_inscription ? new Date(eleve.date_inscription) : new Date();
+    return Array.from({ length: nombreEcheances }, (_, i) => {
+      const dateEcheance = new Date(dateDebut);
+      dateEcheance.setMonth(dateEcheance.getMonth() + i);
+
+      // Chercher si un paiement existe pour cette échéance (par numéro ou date)
+      const paiementCorrespondant = paiements.find(p => {
+        if (p.echeance_numero === i + 1) return true;
+        const dp = new Date(p.date_paiement);
+        return dp.getMonth() === dateEcheance.getMonth() &&
+               dp.getFullYear() === dateEcheance.getFullYear();
+      });
+
+      return {
+        num: i + 1,
+        date: dateEcheance,
+        montant: montantEcheanceEuros,
+        paiement: paiementCorrespondant,
+        isPaye: paiementCorrespondant && (paiementCorrespondant.statut === 'reussi' || paiementCorrespondant.statut === 'paye'),
+      };
+    });
+  })();
+
+  const handleMarquerPaye = async (echeance) => {
+    if (echeance.isPaye) return;
+    setSaving(echeance.num);
+    try {
+      await ajouterPaiement(eleve.id, {
+        montant: echeance.montant,
+        devise: 'EUR',
+        type_paiement: isEchelonne ? 'mensualite' : 'integral',
+        methode: 'Manuel (admin)',
+        date_paiement: new Date().toISOString(),
+        echeance_numero: echeance.num,
+        reference: `ETC-${new Date().getFullYear()}-${String(echeance.num).padStart(3, '0')}`,
+      });
+      await onPaiementAdded();
+    } catch (err) {
+      console.error('Erreur ajout paiement:', err);
+    }
+    setSaving(null);
+  };
+
+  const formuleLabel = formuleData
+    ? `${formuleData.nom} · ${isEchelonne ? `${montantEcheanceEuros} €/mois × ${nombreEcheances}` : `${prixTotalEuros} €`}`
+    : (isEchelonne ? `Échelonné · ${montantEcheanceEuros} €/mois × ${nombreEcheances}` : `Intégral · ${prixTotalEuros} €`);
+
+  return (
+    <div className="af-drawer-section">
+      {/* Résumé */}
+      <div className="af-pay-summary">
+        <div className="af-pay-summary-row">
+          <span>Formule</span>
+          <strong>{formuleLabel}</strong>
+        </div>
+        <div className="af-pay-summary-row">
+          <span>Total payé</span>
+          <strong style={{ color: totalPayeEuros >= prixTotalEuros ? '#27ae60' : 'inherit' }}>
+            {totalPayeEuros} € / {prixTotalEuros} €
+          </strong>
+        </div>
+        <div className="af-pay-summary-row">
+          <span>Restant dû</span>
+          <strong style={{ color: restantDuEuros > 0 ? '#e74c3c' : '#27ae60' }}>
+            {restantDuEuros} €
+          </strong>
+        </div>
+        <div className="af-pay-summary-row">
+          <span>Versements</span>
+          <strong>{paiementsReussis.length} / {nombreEcheances}</strong>
+        </div>
+      </div>
+
+      {/* Planning des échéances */}
+      <div className="af-pay-planning-title">
+        {isEchelonne ? `Planning des ${nombreEcheances} échéances` : 'Paiement'}
+      </div>
+      <div className="af-pay-planning">
+        {planning.map(ech => (
+          <div className={`af-pay-echeance ${ech.isPaye ? 'af-pay-echeance--paye' : ''}`} key={ech.num}>
+            <span className="af-pay-echeance-num">{String(ech.num).padStart(2, '0')}</span>
+            <div className="af-pay-echeance-info">
+              <span className="af-pay-echeance-date">
+                {ech.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+              <span className="af-pay-echeance-montant">{ech.montant} €</span>
+            </div>
+            {ech.isPaye ? (
+              <span className="af-badge af-badge--vert">
+                Payé {ech.paiement?.date_paiement
+                  ? `le ${new Date(ech.paiement.date_paiement).toLocaleDateString('fr-FR')}`
+                  : ''}
+              </span>
+            ) : (
+              <button
+                className="af-btn af-btn--sm af-btn--primary"
+                onClick={() => handleMarquerPaye(ech)}
+                disabled={saving === ech.num}
+              >
+                {saving === ech.num ? '…' : 'Marquer payé'}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Historique des paiements */}
+      {paiements.length > 0 && (
+        <>
+          <div className="af-pay-planning-title" style={{ marginTop: 24 }}>Historique des versements</div>
+          {paiements.map(p => (
+            <div className="af-pay-row" key={p.id}>
+              <div className="af-pay-montant">{p.montant} €</div>
+              <div>
+                <div className="af-pay-type">{p.type_paiement} · {p.methode || '—'}</div>
+                <div className="af-pay-date">
+                  {new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </div>
+              </div>
+              <BadgeStatut statut={p.statut} />
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ── Drawer élève ── */
 function EleveDrawer({ eleve, onClose, onUpdate }) {
   const [tab, setTab] = useState('profil');
   const [modules, setModules] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [paiements, setPaiements] = useState([]);
+  const [formuleData, setFormuleData] = useState(null);
   const [notes, setNotes] = useState(eleve?.notes_admin || '');
   const [notesSaving, setNotesSaving] = useState(false);
   const [modalEval, setModalEval] = useState(false);
   const [evalForm, setEvalForm] = useState({ module_id: '', type: 'partiel', titre: '', note: '', commentaire: '' });
   const [msg, setMsg] = useState('');
+  const [savingPaiement, setSavingPaiement] = useState(null);
 
   useEffect(() => {
     if (!eleve) return;
@@ -434,12 +581,13 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
       return;
     }
     // Chargement réel depuis Supabase
-    Promise.all([
-      getEvaluations(eleve.id),
-      getPaiements(eleve.id),
-      supabase.from('progressions_module').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(ordre)'),
-      supabase.from('modules_formation').select('*').order('ordre'),
-    ]).then(([evals, paies, progRes, modsRes]) => {
+    const loadData = async () => {
+      const [evals, paies, progRes, modsRes] = await Promise.all([
+        getEvaluations(eleve.id),
+        getPaiements(eleve.id),
+        supabase.from('progressions_module').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(ordre)'),
+        supabase.from('modules_formation').select('*').order('ordre'),
+      ]);
       setEvaluations(evals || []);
       setPaiements(paies || []);
       const mods = modsRes.data || [];
@@ -456,7 +604,18 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           date_complete: prog.date_complete || null,
         };
       }));
-    }).catch(console.error);
+
+      // Charger la formule de paiement
+      let formule = null;
+      if (eleve.formule_id) {
+        formule = await getFormulePaiementById(eleve.formule_id);
+      }
+      if (!formule && eleve.formule) {
+        formule = await getFormulePaiementByType(eleve.formule);
+      }
+      setFormuleData(formule);
+    };
+    loadData().catch(console.error);
   }, [eleve]);
 
   const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
@@ -629,26 +788,16 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
 
           {/* PAIEMENTS */}
           {tab === 'paiements' && (
-            <div className="af-drawer-section">
-              <div className="af-stripe-notice">
-                <span className="af-stripe-notice-icon"><Icon name="credit-card" size={20} /></span>
-                <div>
-                  <strong>Paiements gérés via Stripe</strong>
-                  <p>Les paiements sont traités automatiquement. L'historique ci-dessous est synchronisé depuis Stripe.</p>
-                </div>
-              </div>
-              {paiements.length === 0 && <p className="admin-empty" style={{marginTop:16}}>Aucun paiement enregistré.</p>}
-              {paiements.map(p => (
-                <div className="af-pay-row" key={p.id}>
-                  <div className="af-pay-montant">{p.montant} €</div>
-                  <div>
-                    <div className="af-pay-type">{p.type_paiement} · {p.methode}</div>
-                    <div className="af-pay-date">{formatRelative(p.date_paiement)}</div>
-                  </div>
-                  <BadgeStatut statut={p.statut} />
-                </div>
-              ))}
-            </div>
+            <PaiementsSection
+              eleve={eleve}
+              formuleData={formuleData}
+              paiements={paiements}
+              onPaiementAdded={async () => {
+                const newPaiements = await getPaiements(eleve.id);
+                setPaiements(newPaiements || []);
+                onUpdate();
+              }}
+            />
           )}
 
           {/* NOTES ADMIN */}

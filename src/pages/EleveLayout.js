@@ -33,6 +33,20 @@ export default function EleveLayout() {
   const [badges, setBadges] = useState({ messages: 0, cours: 0 });
   const navigate = useNavigate();
 
+  const refreshBadges = React.useCallback(async () => {
+    if (!eleve) return;
+    const [msgs, sessions] = await Promise.all([
+      getMessagesNonLus(eleve.id),
+      getMesSessionsLive(eleve.id),
+    ]);
+    const now = Date.now();
+    const coursProches = sessions.filter(s => {
+      const d = new Date(s.date_session).getTime();
+      return s.statut === 'programme' && d > now && d - now < 24 * 3600 * 1000;
+    }).length;
+    setBadges({ messages: msgs.length, cours: coursProches });
+  }, [eleve]);
+
   useEffect(() => {
     getEleveSession().then(async session => {
       if (!session) { navigate('/eleve/login'); return; }
@@ -48,32 +62,19 @@ export default function EleveLayout() {
 
   useEffect(() => {
     if (!eleve) return;
-    // Charger les badges
-    const loadBadges = async () => {
-      const [msgs, sessions] = await Promise.all([
-        getMessagesNonLus(eleve.id),
-        getMesSessionsLive(eleve.id),
-      ]);
-      const now = Date.now();
-      const coursProches = sessions.filter(s => {
-        const d = new Date(s.date_session).getTime();
-        return s.statut === 'programme' && d > now && d - now < 24 * 3600 * 1000;
-      }).length;
-      setBadges({ messages: msgs.length, cours: coursProches });
-    };
-    loadBadges();
+    refreshBadges();
 
-    // Realtime pour les messages
+    // Realtime pour les messages (INSERT et UPDATE pour détecter les marquages lus)
     if (IS_MOCK) return;
     const channel = supabase
       .channel(`layout_messages_${eleve.id}`)
       .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'messages',
+        event: '*', schema: 'public', table: 'messages',
         filter: `destinataire_id=eq.${eleve.id}`,
-      }, () => loadBadges())
+      }, () => refreshBadges())
       .subscribe();
     return () => supabase.removeChannel(channel);
-  }, [eleve]);
+  }, [eleve, refreshBadges]);
 
   const handleLogout = async () => {
     await signOutEleve();
@@ -83,7 +84,7 @@ export default function EleveLayout() {
   const prenom = eleve?.prenom || eleve?.nom?.split(' ')[0] || 'Étudiant';
 
   return (
-    <EleveContext.Provider value={{ eleve, setEleve }}>
+    <EleveContext.Provider value={{ eleve, setEleve, refreshBadges }}>
       <div className="eleve-layout">
 
         {/* ── Sidebar ── */}

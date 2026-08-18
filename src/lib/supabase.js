@@ -1172,6 +1172,17 @@ export async function getFormulePaiementById(id) {
   return data;
 }
 
+export async function getFormulePaiementByType(type) {
+  const formuleType = type === 'integral' ? 'unique' : type;
+  if (IS_MOCK) {
+    return MOCK_FORMULES_PAIEMENT.find(f => f.type === formuleType) || null;
+  }
+  const { data, error } = await supabase
+    .from('formules_paiement').select('*').eq('type', formuleType).eq('actif', true).single();
+  if (error) console.error('getFormulePaiementByType error:', error);
+  return data;
+}
+
 export async function createFormulePaiement(formule) {
   if (IS_MOCK) {
     return { data: { id: `formule-${Date.now()}`, ...formule }, error: null };

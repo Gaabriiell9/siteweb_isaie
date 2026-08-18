@@ -779,7 +779,40 @@
 .af-eval-titre { font-size: 13px; font-weight: 600; color: var(--texte); }
 .af-eval-meta { font-size: 11px; color: var(--texte-doux); }
 
-/* Paiements */
+/* Paiements - Résumé */
+.af-pay-summary {
+  background: #faf8f5; border-radius: 8px; padding: 14px 16px;
+  margin-bottom: 20px; border: 1px solid #f0e8de;
+}
+.af-pay-summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 13px;
+}
+.af-pay-summary-row span { color: var(--texte-doux); }
+.af-pay-summary-row strong { color: var(--texte); }
+
+/* Paiements - Planning */
+.af-pay-planning-title {
+  font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--or);
+  margin-bottom: 12px;
+}
+.af-pay-planning { display: flex; flex-direction: column; gap: 8px; }
+.af-pay-echeance {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border: 1px solid #f0e8de; border-radius: 8px;
+  background: white; transition: all 0.15s;
+}
+.af-pay-echeance--paye { background: #f0faf0; border-color: #c8e6c9; }
+.af-pay-echeance-num {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 700;
+  color: var(--or); min-width: 24px;
+}
+.af-pay-echeance-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.af-pay-echeance-date { font-size: 13px; color: var(--texte); }
+.af-pay-echeance-montant { font-size: 12px; color: var(--texte-doux); font-weight: 600; }
+
+/* Paiements - Historique */
 .af-pay-row {
   display: flex; align-items: center; gap: 14px;
   padding: 12px 0; border-bottom: 1px solid #f5ede4;

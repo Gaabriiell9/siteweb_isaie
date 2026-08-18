@@ -22,7 +22,7 @@ function formatTime(dateStr) {
 }
 
 export default function EleveMessages() {
-  const { eleve } = useEleve();
+  const { eleve, refreshBadges } = useEleve();
   const [conversations, setConversations] = useState([]);
   const [selected, setSelected] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -50,15 +50,20 @@ export default function EleveMessages() {
     await loadMessages();
     await marquerMessagesLus(eleve.id);
     loadConversations();
+    if (refreshBadges) refreshBadges();
   };
 
-  // Auto-ouvrir la conversation admin au montage
+  // Auto-ouvrir la conversation admin au montage et marquer comme lu
   useEffect(() => {
     if (!eleve) return;
     const adminConv = { partner_id: 'admin', partner_name: 'Administration E·T·C' };
     setSelected(adminConv);
-    loadMessages();
-  }, [eleve, loadMessages]);
+    loadMessages().then(() => {
+      marquerMessagesLus(eleve.id).then(() => {
+        if (refreshBadges) refreshBadges();
+      });
+    });
+  }, [eleve, loadMessages, refreshBadges]);
 
   // Auto-scroll to bottom
   useEffect(() => {

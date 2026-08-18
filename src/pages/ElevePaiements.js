@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getPaiements, getFormulePaiementById } from '../lib/supabase';
+import { getPaiements, getFormulePaiementById, getFormulePaiementByType } from '../lib/supabase';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -38,14 +38,23 @@ export default function ElevePaiements() {
   useEffect(() => {
     if (!eleve) return;
 
-    Promise.all([
-      getPaiements(eleve.id),
-      eleve.formule_id ? getFormulePaiementById(eleve.formule_id) : Promise.resolve(null)
-    ]).then(([paiementsData, formule]) => {
+    const loadData = async () => {
+      const paiementsData = await getPaiements(eleve.id);
       setPaiements(paiementsData || []);
+
+      // Essayer de récupérer la formule par ID, sinon par type
+      let formule = null;
+      if (eleve.formule_id) {
+        formule = await getFormulePaiementById(eleve.formule_id);
+      }
+      if (!formule && eleve.formule) {
+        formule = await getFormulePaiementByType(eleve.formule);
+      }
       setFormuleData(formule);
       setLoading(false);
-    });
+    };
+
+    loadData();
   }, [eleve]);
 
   // Déterminer le type de formule
