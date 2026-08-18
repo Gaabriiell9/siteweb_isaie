@@ -22,6 +22,7 @@ import {
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
   updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
   getSessionStatut,
+  getFormulesPaiement, createFormulePaiement, updateFormulePaiement,
 } from '../lib/supabase';
 import './Admin.css';
 import Icon from '../components/Icon';
@@ -2073,18 +2074,295 @@ function SubTabRessources() {
   );
 }
 
+/* ── Sous-tab h) Formules de paiement ── */
+function SubTabFormules() {
+  const [formules, setFormules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: 1
+  });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    const data = await getFormulesPaiement(true);
+    setFormules(data);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
+
+  const formatEuros = (cents) => {
+    if (!cents && cents !== 0) return '—';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+  };
+
+  const startEdit = (f) => {
+    setEditingId(f.id);
+    setEditForm({
+      nom: f.nom,
+      type: f.type,
+      prix_total: f.prix_total / 100,
+      nombre_echeances: f.nombre_echeances,
+      montant_echeance: f.montant_echeance / 100,
+      description: f.description || '',
+      actif: f.actif,
+      ordre_affichage: f.ordre_affichage,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const saveEdit = async () => {
+    if (saving) return;
+    setSaving(true);
+    const { error } = await updateFormulePaiement(editingId, {
+      nom: editForm.nom,
+      type: editForm.type,
+      prix_total: Math.round(parseFloat(editForm.prix_total) * 100),
+      nombre_echeances: parseInt(editForm.nombre_echeances),
+      montant_echeance: Math.round(parseFloat(editForm.montant_echeance) * 100),
+      description: editForm.description || null,
+      actif: editForm.actif,
+      ordre_affichage: parseInt(editForm.ordre_affichage),
+    });
+    setSaving(false);
+    if (error) {
+      showMsg('Erreur lors de la sauvegarde');
+      return;
+    }
+    setEditingId(null);
+    showMsg('Formule mise à jour ✓');
+    load();
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    const { error } = await createFormulePaiement({
+      nom: createForm.nom,
+      type: createForm.type,
+      prix_total: Math.round(parseFloat(createForm.prix_total) * 100),
+      nombre_echeances: parseInt(createForm.nombre_echeances),
+      montant_echeance: Math.round(parseFloat(createForm.montant_echeance) * 100),
+      description: createForm.description || null,
+      actif: true,
+      ordre_affichage: parseInt(createForm.ordre_affichage),
+    });
+    setSaving(false);
+    if (error) {
+      showMsg('Erreur lors de la création');
+      return;
+    }
+    setShowCreate(false);
+    setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: formules.length + 1 });
+    showMsg('Formule créée ✓');
+    load();
+  };
+
+  const toggleActif = async (f) => {
+    await updateFormulePaiement(f.id, { actif: !f.actif });
+    showMsg(f.actif ? 'Formule désactivée' : 'Formule activée');
+    load();
+  };
+
+  return (
+    <div className="af-subtab">
+      {msg && <div className="af-flash">{msg}</div>}
+
+      <div className="af-toolbar">
+        <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.8rem', color: 'var(--texte-doux)' }}>
+          {formules.length} formule{formules.length !== 1 ? 's' : ''} de paiement
+        </span>
+        <button className="af-btn af-btn--primary" onClick={() => {
+          setShowCreate(true);
+          setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: formules.length + 1 });
+        }}>+ Nouvelle formule</button>
+      </div>
+
+      {loading ? <p className="admin-empty">Chargement…</p> : (
+        <div className="af-formules-list">
+          {formules.map(f => (
+            <div key={f.id} className={`af-formule-card ${!f.actif ? 'af-formule-card--inactive' : ''}`}>
+              {editingId === f.id ? (
+                <div className="af-formule-edit">
+                  <div className="af-formule-edit-grid">
+                    <div>
+                      <label>Nom</label>
+                      <input value={editForm.nom} onChange={e => setEditForm({...editForm, nom: e.target.value})} />
+                    </div>
+                    <div>
+                      <label>Type</label>
+                      <select value={editForm.type} onChange={e => setEditForm({...editForm, type: e.target.value})}>
+                        <option value="unique">Paiement unique</option>
+                        <option value="echelonne">Paiement échelonné</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>Prix total (€)</label>
+                      <input type="number" step="0.01" min="0" value={editForm.prix_total}
+                        onChange={e => setEditForm({...editForm, prix_total: e.target.value})} />
+                    </div>
+                    <div>
+                      <label>Nb échéances</label>
+                      <input type="number" min="1" value={editForm.nombre_echeances}
+                        onChange={e => setEditForm({...editForm, nombre_echeances: e.target.value})} />
+                    </div>
+                    <div>
+                      <label>Montant/échéance (€)</label>
+                      <input type="number" step="0.01" min="0" value={editForm.montant_echeance}
+                        onChange={e => setEditForm({...editForm, montant_echeance: e.target.value})} />
+                    </div>
+                    <div>
+                      <label>Ordre</label>
+                      <input type="number" min="1" value={editForm.ordre_affichage}
+                        onChange={e => setEditForm({...editForm, ordre_affichage: e.target.value})} />
+                    </div>
+                    <div style={{gridColumn: '1 / -1'}}>
+                      <label>Description</label>
+                      <input value={editForm.description}
+                        onChange={e => setEditForm({...editForm, description: e.target.value})}
+                        placeholder="Ex: Accès immédiat à tous les modules" />
+                    </div>
+                    <div style={{gridColumn: '1 / -1'}}>
+                      <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
+                        <input type="checkbox" checked={editForm.actif}
+                          onChange={e => setEditForm({...editForm, actif: e.target.checked})} />
+                        Formule active (visible publiquement)
+                      </label>
+                    </div>
+                  </div>
+                  <div className="af-formule-edit-actions">
+                    <button className="af-btn" onClick={cancelEdit}>Annuler</button>
+                    <button className="af-btn af-btn--primary" onClick={saveEdit} disabled={saving}>
+                      {saving ? 'Sauvegarde…' : 'Enregistrer'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="af-formule-header">
+                    <div className="af-formule-name">{f.nom}</div>
+                    <div className="af-formule-badges">
+                      <span className={`af-badge af-badge--${f.type === 'unique' ? 'or' : 'bleu'}`}>
+                        {f.type === 'unique' ? 'Unique' : 'Échelonné'}
+                      </span>
+                      {!f.actif && <span className="af-badge af-badge--gris">Inactif</span>}
+                    </div>
+                  </div>
+                  <div className="af-formule-pricing">
+                    <div className="af-formule-price-main">{formatEuros(f.prix_total)}</div>
+                    {f.type === 'echelonne' && (
+                      <div className="af-formule-price-detail">
+                        {f.nombre_echeances} × {formatEuros(f.montant_echeance)}
+                      </div>
+                    )}
+                  </div>
+                  {f.description && <div className="af-formule-desc">{f.description}</div>}
+                  <div className="af-formule-actions">
+                    <button className="af-btn af-btn--sm" onClick={() => startEdit(f)}>
+                      <Icon name="pencil" size={14} /> Modifier
+                    </button>
+                    <button className={`af-btn af-btn--sm ${f.actif ? 'af-btn--danger' : 'af-btn--success'}`}
+                      onClick={() => toggleActif(f)}>
+                      {f.actif ? 'Désactiver' : 'Activer'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+          {formules.length === 0 && <p className="admin-empty">Aucune formule de paiement.</p>}
+        </div>
+      )}
+
+      {/* Modal création */}
+      {showCreate && ReactDOM.createPortal(
+        <div className="af-modal-backdrop" onClick={() => setShowCreate(false)}>
+          <div className="af-modal" style={{maxWidth: 520}} onClick={e => e.stopPropagation()}>
+            <div className="af-modal-header">
+              <span>Nouvelle formule de paiement</span>
+              <button type="button" className="af-modal-close" onClick={() => setShowCreate(false)}>
+                <Icon name="x" size={14} />
+              </button>
+            </div>
+            <div className="af-modal-body">
+              <form onSubmit={handleCreate} className="af-modal-form">
+                <label>Nom *</label>
+                <input required placeholder="Ex: Paiement intégral" value={createForm.nom}
+                  onChange={e => setCreateForm({...createForm, nom: e.target.value})} />
+
+                <label>Type *</label>
+                <select value={createForm.type} onChange={e => setCreateForm({...createForm, type: e.target.value})}>
+                  <option value="unique">Paiement unique</option>
+                  <option value="echelonne">Paiement échelonné</option>
+                </select>
+
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12}}>
+                  <div>
+                    <label>Prix total (€) *</label>
+                    <input required type="number" step="0.01" min="0" placeholder="450" value={createForm.prix_total}
+                      onChange={e => setCreateForm({...createForm, prix_total: e.target.value})} />
+                  </div>
+                  <div>
+                    <label>Nb échéances *</label>
+                    <input required type="number" min="1" placeholder="1" value={createForm.nombre_echeances}
+                      onChange={e => setCreateForm({...createForm, nombre_echeances: e.target.value})} />
+                  </div>
+                  <div>
+                    <label>Montant/éch. (€) *</label>
+                    <input required type="number" step="0.01" min="0" placeholder="50" value={createForm.montant_echeance}
+                      onChange={e => setCreateForm({...createForm, montant_echeance: e.target.value})} />
+                  </div>
+                </div>
+
+                <label>Description</label>
+                <input placeholder="Ex: Accès immédiat à tous les modules" value={createForm.description}
+                  onChange={e => setCreateForm({...createForm, description: e.target.value})} />
+
+                <label>Ordre d'affichage</label>
+                <input type="number" min="1" value={createForm.ordre_affichage}
+                  onChange={e => setCreateForm({...createForm, ordre_affichage: e.target.value})} />
+
+                <div className="af-modal-footer">
+                  <button type="button" className="af-btn" onClick={() => setShowCreate(false)}>Annuler</button>
+                  <button type="submit" className="af-btn af-btn--primary" disabled={saving}>
+                    {saving ? 'Création…' : 'Créer la formule'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
+
 /* ── TabFormation principal ── */
 function TabFormation() {
   const [subTab, setSubTab] = useState('eleves');
   const [filterPays, setFilterPays] = useState('');
 
   const SUBTABS = [
-    { id: 'eleves', label: 'Tous les élèves' },
-    { id: 'cours', label: 'Cours en live', icon: 'calendar' },
+    { id: 'eleves', label: 'Élèves' },
+    { id: 'formules', label: 'Formules', icon: 'credit-card' },
+    { id: 'cours', label: 'Cours', icon: 'calendar' },
     { id: 'messages', label: 'Messages', icon: 'message' },
     { id: 'ressources', label: 'Ressources', icon: 'books' },
-    { id: 'carte', label: 'Carte du monde' },
-    { id: 'stats', label: 'Statistiques' },
+    { id: 'carte', label: 'Carte' },
+    { id: 'stats', label: 'Stats' },
   ];
 
   const handleSelectPays = (pays) => {
@@ -2107,6 +2385,7 @@ function TabFormation() {
 
       <div className="af-subtab-content">
         {subTab === 'eleves' && <SubTabEleves filterPays={filterPays} onClearFilter={() => setFilterPays('')} />}
+        {subTab === 'formules' && <SubTabFormules />}
         {subTab === 'cours' && <SubTabCours />}
         {subTab === 'messages' && <SubTabMessages />}
         {subTab === 'ressources' && <SubTabRessources />}

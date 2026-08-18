@@ -1108,3 +1108,63 @@ export async function getRessourcesEleve(eleveId) {
   if (error) console.error(error);
   return data || [];
 }
+
+// ─── Formules de paiement ─────────────────────────────────────
+
+const MOCK_FORMULES_PAIEMENT = [
+  { id: 'formule-integral', nom: 'Intégral', type: 'unique', prix_total: 45000, nombre_echeances: 1, montant_echeance: 45000, description: 'Accès immédiat à tous les modules · Économisez 10%', actif: true, ordre_affichage: 1 },
+  { id: 'formule-echelonne', nom: 'Échelonné', type: 'echelonne', prix_total: 50000, nombre_echeances: 10, montant_echeance: 5000, description: 'Paiement en 10 mensualités de 50€', actif: true, ordre_affichage: 2 },
+];
+
+export async function getFormulesPaiement(includeInactive = false) {
+  if (IS_MOCK) {
+    return includeInactive ? MOCK_FORMULES_PAIEMENT : MOCK_FORMULES_PAIEMENT.filter(f => f.actif);
+  }
+  let query = supabase.from('formules_paiement').select('*').order('ordre_affichage');
+  if (!includeInactive) {
+    query = query.eq('actif', true);
+  }
+  const { data, error } = await query;
+  if (error) console.error('getFormulesPaiement error:', error);
+  return data || [];
+}
+
+export async function getFormulePaiementById(id) {
+  if (IS_MOCK) {
+    return MOCK_FORMULES_PAIEMENT.find(f => f.id === id) || null;
+  }
+  const { data, error } = await supabase
+    .from('formules_paiement').select('*').eq('id', id).single();
+  if (error) console.error('getFormulePaiementById error:', error);
+  return data;
+}
+
+export async function createFormulePaiement(formule) {
+  if (IS_MOCK) {
+    return { data: { id: `formule-${Date.now()}`, ...formule }, error: null };
+  }
+  const { data, error } = await supabase
+    .from('formules_paiement').insert([formule]).select().single();
+  if (error) console.error('createFormulePaiement error:', error);
+  return { data, error };
+}
+
+export async function updateFormulePaiement(id, updates) {
+  if (IS_MOCK) {
+    return { error: null };
+  }
+  const { error } = await supabase
+    .from('formules_paiement').update(updates).eq('id', id);
+  if (error) console.error('updateFormulePaiement error:', error);
+  return { error };
+}
+
+export async function deleteFormulePaiement(id) {
+  if (IS_MOCK) {
+    return { error: null };
+  }
+  const { error } = await supabase
+    .from('formules_paiement').delete().eq('id', id);
+  if (error) console.error('deleteFormulePaiement error:', error);
+  return { error };
+}

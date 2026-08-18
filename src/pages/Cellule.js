@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { getCultes, parseDateParis, formatDateParis } from '../lib/supabase';
+import { getEventEtat } from '../lib/dateUtils';
 import './Cellule.css';
 
 function extractYtId(url) {
@@ -48,6 +49,8 @@ export default function Cellule() {
                 const ytId = hasLive ? extractYtId(c.lien_live) : null;
                 const isZoom = hasLive && isZoomUrl(c.lien_live);
                 const dateParis = parseDateParis(c.date_culte, '12:00');
+                const etat = getEventEtat(c);
+                const showLiveBtn = hasLive && (etat === 'a_venir' || etat === 'en_cours');
                 return (
                   <div className="cellule-row carte" key={c.id}>
                     <div className="cellule-icon">◇</div>
@@ -58,16 +61,18 @@ export default function Cellule() {
                         <span>◈ {c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)}</span>
                         {c.groupe && <span>◈ {c.groupe}</span>}
                       </div>
-                      {hasLive && (
+                      {showLiveBtn && (
                         <a
                           href={isZoom ? c.lien_live : (ytId ? `https://www.youtube.com/watch?v=${ytId}` : c.lien_live)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="cellule-live-btn"
                         >
-                          {isZoom ? '📹 Rejoindre Zoom' : '▶ Voir le live'}
+                          {etat === 'en_cours' && <span className="cellule-live-dot" />}
+                          {isZoom ? 'Rejoindre Zoom' : (etat === 'en_cours' ? 'En direct' : 'Voir le live')}
                         </a>
                       )}
+                      {etat === 'termine' && <span className="cellule-termine-badge">Terminé</span>}
                     </div>
                   </div>
                 );

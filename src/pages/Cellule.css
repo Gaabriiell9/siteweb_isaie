@@ -21,16 +21,41 @@
 .cellule-live-btn {
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: 10px; padding: 8px 14px;
-  font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: #fff; background: var(--or);
-  border: none; border-radius: 2px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-ink); background: var(--color-gold);
+  border: none; border-radius: var(--r-sm);
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(200, 155, 74, 0.25);
 }
 .cellule-live-btn:hover {
-  background: var(--or-clair);
-  transform: translateY(-1px);
+  background: #D4AD5C;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200, 155, 74, 0.35);
+}
+.cellule-live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  animation: cellule-pulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes cellule-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.cellule-termine-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-sm);
 }
 .prog-list { display:flex; flex-direction:column; gap:0; }
 .prog-item { display:flex; gap:16px; padding-bottom:24px; position:relative; }

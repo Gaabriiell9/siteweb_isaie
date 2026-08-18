@@ -1,45 +1,53 @@
 /* ============================================================
-   E-T-C Church — Design System Premium
-   Aesthetic: Luxury Sacred · Art Déco × Héritage Africain
-   Fonts: DM Serif Display (display/headings) · Satoshi (UI)
+   E-T-C Church — Design System Modern
+   Aesthetic: Refined Sacred · Ink & Gold
+   Fonts: Fraunces (display/headings) · Inter (body) · IBM Plex Mono (labels)
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette */
-  --noir:           #0E0600;
-  --bordeaux:       #6B1A2E;
-  --bordeaux-clair: #8B2E44;
-  --rouge:          #C0392B;
-  --rouge-clair:    #E55A4A;
-  --bleu:           #1E3A5F;
-  --bleu-clair:     #2E5A8C;
-  --or:             #C8860A;
-  --or-clair:       #E8B84B;
-  --or-pale:        #FDF3DC;
-  --creme:          #FFFBF5;
-  --texte:          #2A1200;
-  --texte-doux:     #6B5540;
+  /* Nouvelle Palette */
+  --color-ink:       #14110E;
+  --color-parchment: #FAF7F1;
+  --color-gold:      #C89B4A;
+  --color-emerald:   #1E4D46;
+  --color-text:      #262220;
+  --color-border:    #E4DAC8;
+
+  /* Aliases pour compatibilité (transition progressive) */
+  --noir:           var(--color-ink);
+  --bordeaux:       var(--color-ink);
+  --bordeaux-clair: var(--color-emerald);
+  --or:             var(--color-gold);
+  --or-clair:       #D4AD5C;
+  --or-pale:        rgba(200, 155, 74, 0.12);
+  --creme:          var(--color-parchment);
+  --texte:          var(--color-text);
+  --texte-doux:     #5C5450;
   --blanc:          #FFFFFF;
 
   /* Typographie */
-  --font-display:  'DM Serif Display', Georgia, serif;
-  --font-heading:  'DM Serif Display', Georgia, serif;
-  --font-sans:     'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display:  'Fraunces', Georgia, serif;
+  --font-heading:  'Fraunces', Georgia, serif;
+  --font-sans:     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:     'IBM Plex Mono', 'Consolas', monospace;
   --font-ui:       var(--font-sans);
 
-  /* Espacements */
-  --r-sm:  4px;
-  --r-md:  8px;
-  --r-lg: 14px;
+  /* Espacements / Rayons */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  14px;
 
-  /* Ombres */
-  --shadow-card: 0 4px 24px rgba(28,10,0,0.10);
-  --shadow-lift: 0 8px 40px rgba(28,10,0,0.16);
+  /* Ombres douces */
+  --shadow-card: 0 2px 12px rgba(20, 17, 14, 0.06), 0 4px 24px rgba(20, 17, 14, 0.08);
+  --shadow-lift: 0 8px 32px rgba(20, 17, 14, 0.12), 0 2px 8px rgba(20, 17, 14, 0.06);
 
   /* Transitions */
   --t: 0.25s ease;
+
+  /* Halo radial (signature visuelle) */
+  --halo-gold: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200, 155, 74, 0.15) 0%, transparent 70%);
 }
 
 html { scroll-behavior: smooth; }
@@ -58,20 +66,22 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
 h5 { font-family: var(--font-display); font-weight: 400; }
+h1 { font-weight: 900; }
 
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: var(--font-sans); }
 img { max-width: 100%; display: block; }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--creme); }
-::-webkit-scrollbar-thumb { background: rgba(200,134,10,0.3); border-radius: 3px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-parchment); }
+::-webkit-scrollbar-thumb { background: rgba(200, 155, 74, 0.35); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
 
 /* ══════════════════════════════════════════
    COMPOSANTS GLOBAUX RÉUTILISABLES
@@ -89,25 +99,25 @@ img { max-width: 100%; display: block; }
   flex: 1;
   max-width: 100px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200,134,10,0.4));
+  background: linear-gradient(90deg, transparent, rgba(200, 155, 74, 0.5));
 }
-.ornament-line.r { background: linear-gradient(90deg, rgba(200,134,10,0.4), transparent); }
+.ornament-line.r { background: linear-gradient(90deg, rgba(200, 155, 74, 0.5), transparent); }
 .ornament-diamond {
   width: 7px;
   height: 7px;
-  border: 1px solid var(--or);
+  border: 1px solid var(--color-gold);
   transform: rotate(45deg);
-  background: var(--or-pale);
+  background: rgba(200, 155, 74, 0.15);
 }
 
 /* Label de section */
 .section-label {
-  font-family: var(--font-sans);
-  font-size: 9px;
-  letter-spacing: 0.18em;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--or);
-  font-weight: 500;
+  color: var(--color-gold);
+  font-weight: 400;
   margin-bottom: 10px;
 }
 
@@ -115,71 +125,117 @@ img { max-width: 100%; display: block; }
 .section-title {
   font-family: var(--font-display);
   font-size: clamp(30px, 4.5vw, 48px);
-  font-weight: 400;
-  color: var(--bordeaux-clair);
+  font-weight: 600;
+  color: var(--color-emerald);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
-.section-title em { font-style: italic; color: var(--or-clair); }
-.section-title.light { color: var(--creme); }
+.section-title em { font-style: italic; color: var(--color-gold); }
+.section-title.light { color: var(--color-parchment); }
 
 /* Container */
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 
-/* Bouton doré */
+/* Bouton principal (doré) */
 .btn-or {
   display: inline-block;
-  background: var(--or);
-  color: var(--bordeaux);
+  background: var(--color-gold);
+  color: var(--color-ink);
   font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 12px 28px;
+  padding: 14px 32px;
+  border-radius: var(--r-md);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(200, 155, 74, 0.25);
+}
+.btn-or:hover {
+  background: #D4AD5C;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(200, 155, 74, 0.35);
+}
+
+/* Bouton secondaire (émeraude) */
+.btn-emerald {
+  display: inline-block;
+  background: var(--color-emerald);
+  color: var(--color-parchment);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border-radius: var(--r-md);
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   border: none;
   cursor: pointer;
 }
-.btn-or:hover { background: var(--or-clair); transform: translateY(-1px); }
+.btn-emerald:hover {
+  background: #256B61;
+  transform: translateY(-2px);
+}
 
 /* Bouton outline */
 .btn-outline {
   display: inline-block;
   background: transparent;
-  color: var(--or-clair);
+  color: var(--color-gold);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 11px 26px;
-  border: 1px solid rgba(200,134,10,0.4);
+  padding: 13px 30px;
+  border: 1.5px solid var(--color-gold);
+  border-radius: var(--r-md);
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
 }
-.btn-outline:hover { border-color: var(--or); color: var(--or); }
+.btn-outline:hover {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
 
-/* Badge live */
+/* Badge live avec halo */
 .live-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 9px;
-  letter-spacing: 2px;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  border: 1px solid rgba(220,50,50,0.3);
-  color: #C0392B;
-  padding: 3px 10px;
+  background: rgba(200, 155, 74, 0.1);
+  border: 1px solid rgba(200, 155, 74, 0.4);
+  color: var(--color-gold);
+  padding: 5px 12px;
+  border-radius: var(--r-sm);
   font-weight: 400;
+  position: relative;
+}
+.live-chip::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  background: var(--halo-gold);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.8;
 }
 .dot-live {
   width: 6px; height: 6px;
-  border-radius: 50%; background: #E83333;
+  border-radius: 50%;
+  background: var(--color-gold);
   animation: pulse 1.5s infinite;
   flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(200, 155, 74, 0.6);
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes pulse { 0%,100%{opacity:1; transform: scale(1);} 50%{opacity:.5; transform: scale(0.9);} }
 
 /* ── Transitions de page ── */
 @keyframes fadeSlideIn {
@@ -196,31 +252,39 @@ img { max-width: 100%; display: block; }
 
 /* Note/encart doré */
 .encart-or {
-  background: var(--or-pale);
-  border-left: 3px solid var(--or);
-  padding: 14px 18px;
-  font-size: 13px;
+  background: rgba(200, 155, 74, 0.08);
+  border-left: 3px solid var(--color-gold);
+  padding: 16px 20px;
+  font-size: 14px;
   color: var(--texte-doux);
   line-height: 1.7;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
 }
 
 /* Carte blanche standard */
 .carte {
   background: var(--blanc);
-  border: 1px solid rgba(200,134,10,0.12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
   position: relative;
+  overflow: hidden;
 }
 .carte::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-emerald));
   opacity: 0;
   transition: opacity var(--t);
 }
-.carte:hover { border-color: rgba(200,134,10,0.3); box-shadow: var(--shadow-card); }
+.carte:hover {
+  border-color: rgba(200, 155, 74, 0.4);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
 .carte:hover::before { opacity: 1; }

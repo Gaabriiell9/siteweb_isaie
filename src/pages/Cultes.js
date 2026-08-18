@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis } from '../lib/supabase';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../lib/youtube';
+import { getEventEtat } from '../lib/dateUtils';
 import './Cultes.css';
 import Icon from '../components/Icon';
 
@@ -40,27 +41,6 @@ function calcCd() {
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
-/**
- * Calcule l'état d'un culte par rapport à l'heure actuelle (Europe/Paris)
- * @returns {'a_venir' | 'en_cours' | 'termine'}
- */
-function getCulteEtat(culte) {
-  const now = new Date();
-  const heureDeb = culte.heure_debut || '10:00';
-  const heureFin = culte.heure_fin || '11:30';
-
-  // Construire les timestamps en UTC pour comparaison correcte
-  const debut = parseDateParis(culte.date_culte, heureDeb);
-  const fin = parseDateParis(culte.date_culte, heureFin);
-
-  // Marge : 15 min avant le début, 30 min après la fin
-  const debutAvecMarge = new Date(debut.getTime() - 15 * 60 * 1000);
-  const finAvecMarge = new Date(fin.getTime() + 30 * 60 * 1000);
-
-  if (now < debutAvecMarge) return 'a_venir';
-  if (now > finAvecMarge) return 'termine';
-  return 'en_cours';
-}
 
 export default function Cultes() {
   const [cultes,        setCultes]        = useState([]);
@@ -176,7 +156,7 @@ export default function Cultes() {
                 const [year, month, day] = c.date_culte.split('-').map(Number);
                 const heure = `${(c.heure_debut || '10:00').slice(0,5)} — ${(c.heure_fin || '11:30').slice(0,5)}`;
                 const hasLive = c.lien_live && c.lien_live.trim();
-                const etat = getCulteEtat(c);
+                const etat = getEventEtat(c);
                 const embedUrl = hasLive ? getYoutubeEmbedUrl(c.lien_live) : null;
 
                 return (

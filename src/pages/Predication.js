@@ -6,6 +6,16 @@ import Icon from '../components/Icon';
 
 function getYtId(url) { const m=url.match(/(?:youtube\.com\/(?:watch\?v=|live\/)|youtu\.be\/)([^?&\s]+)/); return m?m[1]:null; }
 
+function YtThumbnail({ ytId, alt }) {
+  const [src, setSrc] = React.useState(`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`);
+  const handleError = () => {
+    if (src.includes('maxresdefault')) {
+      setSrc(`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`);
+    }
+  };
+  return <img src={src} alt={alt} onError={handleError} />;
+}
+
 export default function Predication() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +26,7 @@ export default function Predication() {
     <div>
       <SectionHeader label="Parole" title="Chaîne de" titleEm="Prédication" subtitle="Vidéos partagées par le service de communication" />
       <div className="pred-wrap">
-        <div className="container">
+        <div className="pred-container">
           {loading && <p style={{color:'var(--texte-doux)'}}>Chargement…</p>}
           {!loading && videos.length===0 && (
             <div style={{textAlign:'center',padding:'60px 0',color:'var(--texte-doux)'}}>
@@ -41,7 +51,7 @@ export default function Predication() {
                       />
                     ) : (
                       <>
-                        {ytId && <img src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} alt={v.titre} />}
+                        {ytId && <YtThumbnail ytId={ytId} alt={v.titre} />}
                         <div className="pred-play">
                           <button className="pred-play-btn" onClick={() => setSelectedVideo(v.id)}><Icon name="play" size={18} /></button>
                         </div>
@@ -65,7 +75,7 @@ export default function Predication() {
             <span>✦</span>
             Les vidéos sont publiées par le service de communication de l'Église Temple de la Célébration.
           </div>
-        </div>
+                </div>
       </div>
     </div>
   );
