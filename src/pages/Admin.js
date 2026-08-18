@@ -22,7 +22,7 @@ import {
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
   updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
   getSessionStatut,
-  getFormulesPaiement, createFormulePaiement, updateFormulePaiement, getFormulePaiementById, getFormulePaiementByType,
+  getFormulesPaiement, createFormulePaiement, updateFormulePaiement,
 } from '../lib/supabase';
 import './Admin.css';
 import Icon from '../components/Icon';
@@ -406,13 +406,15 @@ function BadgeEmail({ confirmedAt }) {
 }
 
 /* ── Section Paiements dans le drawer ── */
-function PaiementsSection({ eleve, formuleData, paiements, onPaiementAdded }) {
+function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   const [saving, setSaving] = useState(null);
 
-  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
-  const prixTotalCents = formuleData?.prix_total || (isEchelonne ? 50000 : 45000);
-  const montantEcheanceCents = formuleData?.montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
-  const nombreEcheances = formuleData?.nombre_echeances || (isEchelonne ? 10 : 1);
+  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
+  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
+  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
+  const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
   const montantEcheanceEuros = montantEcheanceCents / 100;
   const prixTotalEuros = prixTotalCents / 100;
 
@@ -465,9 +467,7 @@ function PaiementsSection({ eleve, formuleData, paiements, onPaiementAdded }) {
     setSaving(null);
   };
 
-  const formuleLabel = formuleData
-    ? `${formuleData.nom} · ${isEchelonne ? `${montantEcheanceEuros} €/mois × ${nombreEcheances}` : `${prixTotalEuros} €`}`
-    : (isEchelonne ? `Échelonné · ${montantEcheanceEuros} €/mois × ${nombreEcheances}` : `Intégral · ${prixTotalEuros} €`);
+  const formuleLabel = `${formuleNom} · ${isEchelonne ? `${montantEcheanceEuros} €/mois × ${nombreEcheances}` : `${prixTotalEuros} €`}`;
 
   return (
     <div className="af-drawer-section">
@@ -556,13 +556,11 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
   const [modules, setModules] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [paiements, setPaiements] = useState([]);
-  const [formuleData, setFormuleData] = useState(null);
   const [notes, setNotes] = useState(eleve?.notes_admin || '');
   const [notesSaving, setNotesSaving] = useState(false);
   const [modalEval, setModalEval] = useState(false);
   const [evalForm, setEvalForm] = useState({ module_id: '', type: 'partiel', titre: '', note: '', commentaire: '' });
   const [msg, setMsg] = useState('');
-  const [savingPaiement, setSavingPaiement] = useState(null);
 
   useEffect(() => {
     if (!eleve) return;
@@ -604,16 +602,6 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           date_complete: prog.date_complete || null,
         };
       }));
-
-      // Charger la formule de paiement
-      let formule = null;
-      if (eleve.formule_id) {
-        formule = await getFormulePaiementById(eleve.formule_id);
-      }
-      if (!formule && eleve.formule) {
-        formule = await getFormulePaiementByType(eleve.formule);
-      }
-      setFormuleData(formule);
     };
     loadData().catch(console.error);
   }, [eleve]);
@@ -790,7 +778,6 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           {tab === 'paiements' && (
             <PaiementsSection
               eleve={eleve}
-              formuleData={formuleData}
               paiements={paiements}
               onPaiementAdded={async () => {
                 const newPaiements = await getPaiements(eleve.id);

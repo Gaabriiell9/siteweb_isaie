@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEleve } from './EleveLayout';
-import { updateEleveProfil, supabase, IS_MOCK, getFormulePaiementById } from '../lib/supabase';
+import { updateEleveProfil, supabase, IS_MOCK } from '../lib/supabase';
 
 export default function EleveProfil() {
   const { eleve, setEleve } = useEleve();
@@ -10,14 +10,10 @@ export default function EleveProfil() {
   const [savingPwd, setSavingPwd] = useState(false);
   const [msgProfil, setMsgProfil] = useState('');
   const [msgPwd, setMsgPwd] = useState('');
-  const [formuleData, setFormuleData] = useState(null);
 
   useEffect(() => {
     if (eleve) {
       setForm({ nom: eleve.nom || '', email: eleve.email || '', telephone: eleve.telephone || '', pays: eleve.pays || '', ville: eleve.ville || '' });
-      if (eleve.formule_id) {
-        getFormulePaiementById(eleve.formule_id).then(setFormuleData);
-      }
     }
   }, [eleve]);
 
@@ -64,16 +60,18 @@ export default function EleveProfil() {
     return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
   };
 
+  // Utiliser les données FIGÉES sur l'élève
   const getFormuleLabel = () => {
-    if (formuleData) {
-      if (formuleData.type === 'echelonne') {
-        return `${formuleData.nom} (${formatEuros(formuleData.montant_echeance)}/mois × ${formuleData.nombre_echeances})`;
+    const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+    const nom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
+
+    if (eleve?.formule_prix_total) {
+      if (isEchelonne && eleve?.formule_montant_echeance) {
+        return `${nom} (${formatEuros(eleve.formule_montant_echeance)}/mois × ${eleve.formule_nombre_echeances || 1})`;
       }
-      return `${formuleData.nom} (${formatEuros(formuleData.prix_total)})`;
+      return `${nom} (${formatEuros(eleve.formule_prix_total)})`;
     }
-    if (eleve?.formule === 'echelonne') return 'Paiement échelonné';
-    if (eleve?.formule === 'integral') return 'Paiement intégral';
-    return eleve?.formule || '—';
+    return nom;
   };
 
   return (

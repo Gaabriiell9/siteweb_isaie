@@ -238,12 +238,20 @@ export async function getEleveSession() {
 // ─── Profil & données élève ───────────────────────────────────────
 export async function getEleveProfil(authUserId) {
   if (IS_MOCK) return MOCK_ELEVE;
+  if (!authUserId) {
+    console.error('[getEleveProfil] No authUserId provided');
+    return null;
+  }
   try {
-    const { data, error } = await supabase
+    console.log('[getEleveProfil] Loading profile for:', authUserId);
+    const { data, error, status } = await supabase
       .from('eleves').select('*').eq('auth_user_id', authUserId).maybeSingle();
     if (error) {
-      console.error('[getEleveProfil] Error:', error);
+      console.error('[getEleveProfil] Error:', error, 'Status:', status);
       return null;
+    }
+    if (!data) {
+      console.warn('[getEleveProfil] No profile found for:', authUserId);
     }
     return data;
   } catch (err) {
@@ -336,6 +344,14 @@ export async function finalizeInscription(data) {
         niveau_biblique: data.niveau_biblique || null,
         motivation: data.motivation || null,
         formule: data.formule || 'echelonne',
+        formule_id: data.formule_id || null,
+        // Données de formule figées au moment de l'inscription
+        formule_nom: data.formule_nom || null,
+        formule_type: data.formule_type || null,
+        formule_prix_total: data.formule_prix_total || null,
+        formule_nombre_echeances: data.formule_nombre_echeances || null,
+        formule_montant_echeance: data.formule_montant_echeance || null,
+        formule_avantages: data.formule_avantages || [],
         communications_ok: data.communications_ok || false,
       },
     },

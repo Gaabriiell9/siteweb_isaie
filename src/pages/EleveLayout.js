@@ -34,17 +34,21 @@ export default function EleveLayout() {
   const navigate = useNavigate();
 
   const refreshBadges = React.useCallback(async () => {
-    if (!eleve) return;
-    const [msgs, sessions] = await Promise.all([
-      getMessagesNonLus(eleve.id),
-      getMesSessionsLive(eleve.id),
-    ]);
-    const now = Date.now();
-    const coursProches = sessions.filter(s => {
-      const d = new Date(s.date_session).getTime();
-      return s.statut === 'programme' && d > now && d - now < 24 * 3600 * 1000;
-    }).length;
-    setBadges({ messages: msgs.length, cours: coursProches });
+    if (!eleve || !eleve.id) return;
+    try {
+      const [msgs, sessions] = await Promise.all([
+        getMessagesNonLus(eleve.id),
+        getMesSessionsLive(eleve.id),
+      ]);
+      const now = Date.now();
+      const coursProches = (sessions || []).filter(s => {
+        const d = new Date(s.date_session).getTime();
+        return s.statut === 'programme' && d > now && d - now < 24 * 3600 * 1000;
+      }).length;
+      setBadges({ messages: (msgs || []).length, cours: coursProches });
+    } catch (err) {
+      console.error('[refreshBadges] Error:', err);
+    }
   }, [eleve]);
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export default function EleveLayout() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id || eleve.error) return;
     refreshBadges();
 
     // Realtime pour les messages (INSERT et UPDATE pour détecter les marquages lus)

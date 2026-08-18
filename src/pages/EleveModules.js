@@ -30,7 +30,7 @@ export default function EleveModules() {
   const [modulesCount, setModulesCount] = useState(null);
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     getModulesAvecProgression(eleve.id).then(setModules);
     getRessourcesEleve(eleve.id).then(data => {
       const map = {};

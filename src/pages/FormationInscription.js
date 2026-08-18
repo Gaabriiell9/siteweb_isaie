@@ -287,10 +287,21 @@ function Step1({ formData, setFormData, onNext }) {
   }, []);
 
   const choose = (formule) => {
-    setFormData(d => ({ ...d, formule: formule.type, formule_id: formule.id }));
+    // Stocker tous les détails de la formule pour les figer à l'inscription
+    const formuleDetails = {
+      formule: formule.type,
+      formule_id: formule.id,
+      formule_nom: formule.nom,
+      formule_type: formule.type,
+      formule_prix_total: formule.prix_total,
+      formule_nombre_echeances: formule.nombre_echeances,
+      formule_montant_echeance: formule.montant_echeance,
+      formule_avantages: Array.isArray(formule.avantages) ? formule.avantages : [],
+    };
+    setFormData(d => ({ ...d, ...formuleDetails }));
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, formule: formule.type, formule_id: formule.id }));
-    // Sauvegarder les détails complets de la formule pour le récapitulatif
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, ...formuleDetails }));
+    // Sauvegarder aussi pour le récapitulatif
     localStorage.setItem('etc_formule_selectionnee', JSON.stringify({
       id: formule.id,
       type: formule.type,
@@ -298,6 +309,7 @@ function Step1({ formData, setFormData, onNext }) {
       prix_total: formule.prix_total,
       montant_echeance: formule.montant_echeance,
       nombre_echeances: formule.nombre_echeances,
+      avantages: formule.avantages || [],
     }));
   };
 
@@ -722,6 +734,13 @@ export default function FormationInscription() {
       motivation: formData.motivation || null,
       formule: formData.formule,
       formule_id: formData.formule_id || null,
+      // Données de formule figées au moment de l'inscription
+      formule_nom: formData.formule_nom || null,
+      formule_type: formData.formule_type || null,
+      formule_prix_total: formData.formule_prix_total || null,
+      formule_nombre_echeances: formData.formule_nombre_echeances || null,
+      formule_montant_echeance: formData.formule_montant_echeance || null,
+      formule_avantages: formData.formule_avantages || [],
       communications_ok: formData.communications_ok,
       password: formData.password,
     });
@@ -744,6 +763,12 @@ export default function FormationInscription() {
       email: formData.email,
       formule: formData.formule,
       prenom: formData.prenom,
+      // Données figées pour affichage immédiat
+      formule_nom: formData.formule_nom,
+      formule_type: formData.formule_type,
+      formule_prix_total: formData.formule_prix_total,
+      formule_nombre_echeances: formData.formule_nombre_echeances,
+      formule_montant_echeance: formData.formule_montant_echeance,
     }));
     navigate('/formation/paiement');
   };

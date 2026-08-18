@@ -17,7 +17,7 @@ export default function EleveEvaluations() {
   const [evals, setEvals] = useState([]);
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     getEvaluations(eleve.id).then(setEvals);
   }, [eleve]);
 

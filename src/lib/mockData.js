@@ -404,6 +404,13 @@ export const MOCK_ELEVE = {
   eglise: 'Église Temple de la Célébration',
   formule: 'echelonne',
   formule_id: 'formule-echelonne',
+  // Données de formule figées au moment de l'inscription
+  formule_nom: 'Échelonné',
+  formule_type: 'echelonne',
+  formule_prix_total: 50000,
+  formule_nombre_echeances: 10,
+  formule_montant_echeance: 5000,
+  formule_avantages: ['Paiement en plusieurs fois', 'Déblocage progressif des modules', 'Budget maîtrisé'],
   statut: 'actif',
   progression_pct: 33,
   date_inscription: '2026-01-15T00:00:00Z',

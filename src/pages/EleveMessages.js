@@ -32,7 +32,7 @@ export default function EleveMessages() {
   const messagesEndRef = useRef(null);
 
   const loadConversations = useCallback(async () => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     const data = await getConversations(eleve.id);
     setConversations(data);
   }, [eleve]);
@@ -40,7 +40,7 @@ export default function EleveMessages() {
   useEffect(() => { loadConversations(); }, [loadConversations]);
 
   const loadMessages = useCallback(async () => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     const msgs = await getMessagesWithEleve(eleve.id);
     setMessages(msgs);
   }, [eleve]);
@@ -55,7 +55,7 @@ export default function EleveMessages() {
 
   // Auto-ouvrir la conversation admin au montage et marquer comme lu
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     const adminConv = { partner_id: 'admin', partner_name: 'Administration E·T·C' };
     setSelected(adminConv);
     loadMessages().then(() => {

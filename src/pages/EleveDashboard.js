@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis, getFormulePaiementById } from '../lib/supabase';
+import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon';
 
@@ -75,19 +75,15 @@ export default function EleveDashboard() {
   const [modules, setModules] = useState([]);
   const [evals, setEvals] = useState([]);
   const [paiements, setPaiements] = useState([]);
-  const [formuleData, setFormuleData] = useState(null);
   const [prochainCours, setProchainCours] = useState(null);
   const [messagesNonLus, setMessagesNonLus] = useState(0);
   const [, setTick] = useState(0); // force re-render toutes les 60s pour statut live
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     getModulesAvecProgression(eleve.id).then(setModules);
     getEvaluations(eleve.id).then(setEvals);
     getPaiements(eleve.id).then(setPaiements);
-    if (eleve.formule_id) {
-      getFormulePaiementById(eleve.formule_id).then(setFormuleData);
-    }
     getMesSessionsLive(eleve.id).then(sessions => {
       const prochain = sessions.find(s => {
         const st = getSessionStatut(s);
@@ -114,11 +110,12 @@ export default function EleveDashboard() {
   const prochainModule = modules.find(m => m.debloque && !m.complete)
     || modules.find(m => !m.debloque);
 
-  // Logique paiement dynamique
-  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
-  const montantEcheanceCents = formuleData?.montant_echeance || (isEchelonne ? 5000 : formuleData?.prix_total || 45000);
-  const nombreEcheances = formuleData?.nombre_echeances || (isEchelonne ? 10 : 1);
-  const prixTotalCents = formuleData?.prix_total || (isEchelonne ? 50000 : 45000);
+  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
+  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : eleve?.formule_prix_total || 45000);
+  const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
+  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
 
   // Trouver le prochain paiement en attente (depuis la DB) ou calculer la prochaine échéance
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
@@ -235,7 +232,7 @@ export default function EleveDashboard() {
           ) : (
             <div style={{ marginTop: 8 }}>
               <span className="eleve-badge eleve-badge--gold">
-                {formuleData?.nom || (isEchelonne ? 'Échelonné' : 'Intégral')}
+                {formuleNom}
               </span>
             </div>
           )}

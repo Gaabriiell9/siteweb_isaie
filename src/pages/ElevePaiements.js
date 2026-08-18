@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getPaiements, getFormulePaiementById, getFormulePaiementByType } from '../lib/supabase';
+import { getPaiements } from '../lib/supabase';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -32,41 +32,27 @@ const formatEuros = (cents) => {
 export default function ElevePaiements() {
   const { eleve } = useEleve();
   const [paiements, setPaiements] = useState([]);
-  const [formuleData, setFormuleData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
 
-    const loadData = async () => {
-      const paiementsData = await getPaiements(eleve.id);
-      setPaiements(paiementsData || []);
-
-      // Essayer de récupérer la formule par ID, sinon par type
-      let formule = null;
-      if (eleve.formule_id) {
-        formule = await getFormulePaiementById(eleve.formule_id);
-      }
-      if (!formule && eleve.formule) {
-        formule = await getFormulePaiementByType(eleve.formule);
-      }
-      setFormuleData(formule);
+    getPaiements(eleve.id).then(data => {
+      setPaiements(data || []);
       setLoading(false);
-    };
-
-    loadData();
+    });
   }, [eleve]);
 
-  // Déterminer le type de formule
-  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
+  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
+  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
 
-  // Montants en centimes (depuis formuleData) ou fallback en centimes
-  const prixTotalCents = formuleData?.prix_total || (isEchelonne ? 50000 : 45000);
-  const montantEcheanceCents = formuleData?.montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
-  const nombreEcheances = formuleData?.nombre_echeances || (isEchelonne ? 10 : 1);
+  // Montants figés en centimes (depuis eleve.formule_*) ou fallback
+  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
+  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
+  const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
 
-  // Total payé : on suppose que les paiements en base sont en euros (pas en centimes)
-  // Si c'était en centimes, il faudrait diviser par 100
+  // Total payé (paiements en euros)
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
   const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
 
@@ -86,6 +72,7 @@ export default function ElevePaiements() {
 
       // Chercher si un paiement existe pour cette échéance
       const paiementCorrespondant = paiements.find(p => {
+        if (p.echeance_numero === i + 1) return true;
         const dp = new Date(p.date_paiement);
         return dp.getMonth() === dateEcheance.getMonth() &&
                dp.getFullYear() === dateEcheance.getFullYear();
@@ -116,20 +103,13 @@ export default function ElevePaiements() {
   // Statut du paiement intégral
   const statutIntegral = paiementsReussis.length > 0 && totalPayeEuros >= prixTotalEuros
     ? 'paye'
-    : totalPayeEuros > 0
-      ? 'en_attente'
-      : 'en_attente';
+    : 'en_attente';
 
   const getFormuleLabel = () => {
-    if (formuleData) {
-      if (isEchelonne) {
-        return `${formuleData.nom} · ${formatEuros(montantEcheanceCents)}/mois × ${nombreEcheances}`;
-      }
-      return `${formuleData.nom} · ${formatEuros(prixTotalCents)}`;
+    if (isEchelonne) {
+      return `${formuleNom} · ${formatEuros(montantEcheanceCents)}/mois × ${nombreEcheances}`;
     }
-    return isEchelonne
-      ? `Formule échelonnée · ${montantEcheanceEuros} €/mois × ${nombreEcheances}`
-      : `Formule intégrale · ${prixTotalEuros} €`;
+    return `${formuleNom} · ${formatEuros(prixTotalCents)}`;
   };
 
   if (loading) {

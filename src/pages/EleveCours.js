@@ -104,7 +104,7 @@ export default function EleveCours() {
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    if (!eleve) return;
+    if (!eleve || !eleve.id) return;
     getMesSessionsLive(eleve.id).then(data => {
       setSessions(data);
       setLoading(false);
