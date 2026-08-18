@@ -732,6 +732,23 @@
 }
 .af-profil-val { font-size: 13px; color: var(--texte); text-align: right; }
 
+.af-profil-section-title {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--or);
+  margin-top: 20px; margin-bottom: 8px; padding-bottom: 6px;
+  border-bottom: 2px solid var(--or);
+}
+
+.af-profil-motivation {
+  margin-top: 12px; padding: 12px; background: #faf8f5; border-radius: 8px;
+  border: 1px solid #f0e8de;
+}
+.af-profil-motivation .af-profil-key { margin-bottom: 8px; }
+.af-profil-motivation-text {
+  font-size: 13px; color: var(--texte); line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 /* Modules progression */
 .af-modules-list { display: flex; flex-direction: column; gap: 8px; }
 .af-module-row {

@@ -193,35 +193,79 @@
 .fi2-input--error { border-color: #e74c3c !important; }
 .fi2-error { font-size: 0.78rem; color: #e74c3c; }
 
-/* ── Phone ── */
+/* ── Phone with flag dropdown ── */
 .fi2-phone-wrap {
   display: flex;
   gap: 8px;
   align-items: stretch;
+  position: relative;
 }
-.fi2-phone-code {
+.fi2-phone-code-btn {
   flex: 0 0 auto;
-  min-width: 110px;
-  max-width: 140px;
-  padding: 11px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+  padding: 10px 12px;
   border: 1.5px solid #e0d8ce;
   border-radius: 8px;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
+  font-family: inherit;
   background: white;
   color: var(--texte);
-  outline: none;
   cursor: pointer;
-  transition: border-color 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23a89a8a' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 24px;
-  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.fi2-phone-code:focus { border-color: var(--bordeaux); }
+.fi2-phone-code-btn:hover {
+  border-color: var(--or);
+}
+.fi2-phone-code-btn:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(200, 155, 74, 0.15);
+}
+.fi2-phone-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  min-width: 240px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e0d8ce;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.fi2-phone-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: var(--texte);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.fi2-phone-option:hover {
+  background: rgba(200, 155, 74, 0.08);
+}
+.fi2-phone-option--active {
+  background: rgba(200, 155, 74, 0.12);
+}
+.fi2-phone-option-label {
+  flex: 1;
+}
+.fi2-phone-option-code {
+  color: var(--texte-doux);
+  font-size: 0.82rem;
+}
 .fi2-phone-input {
   flex: 1;
   min-width: 0;
@@ -234,19 +278,23 @@
   transition: border-color 0.2s;
   box-sizing: border-box;
 }
-.fi2-phone-input:focus { border-color: var(--bordeaux); }
+.fi2-phone-input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(200, 155, 74, 0.15);
+}
 
 /* Mobile phone field */
 @media (max-width: 520px) {
   .fi2-phone-wrap {
     flex-direction: row;
   }
-  .fi2-phone-code {
-    min-width: 95px;
-    max-width: 110px;
-    font-size: 0.78rem;
-    padding: 11px 6px;
-    padding-right: 20px;
+  .fi2-phone-code-btn {
+    min-width: 90px;
+    padding: 10px 8px;
+    font-size: 0.82rem;
+  }
+  .fi2-phone-dropdown {
+    min-width: 200px;
   }
 }
 

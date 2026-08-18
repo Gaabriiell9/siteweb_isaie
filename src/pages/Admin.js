@@ -541,9 +541,8 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
                   ['Prénom', eleve.prenom], ['Nom', eleve.nom],
                   ['Email', eleve.email], ['Téléphone', eleve.telephone || '—'],
                   ['Pays', eleve.pays || '—'], ['Ville', eleve.ville || '—'],
-                  ['Formule', eleve.formule === 'integral' ? 'Paiement intégral (450€)' : 'Échelonné (50€/mois)'],
+                  ['Formule', eleve.formule === 'integral' ? 'Paiement intégral' : 'Échelonné'],
                   ['Inscription', eleve.date_inscription ? new Date(eleve.date_inscription).toLocaleDateString('fr-FR') : '—'],
-                  ['Église', eleve.eglise || '—'],
                 ].map(([k, v]) => (
                   <div className="af-profil-row" key={k}>
                     <span className="af-profil-key">{k}</span>
@@ -551,6 +550,31 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
                   </div>
                 ))}
               </div>
+
+              {/* Parcours spirituel */}
+              <div className="af-profil-section-title">Parcours spirituel</div>
+              <div className="af-profil-grid">
+                {[
+                  ['Église actuelle', eleve.eglise || '—'],
+                  ['Pasteur référent', eleve.pasteur_referent || '—'],
+                  ['Niveau biblique', eleve.niveau_biblique ? {
+                    'debutant': 'Débutant',
+                    'intermediaire': 'Intermédiaire',
+                    'avance': 'Avancé'
+                  }[eleve.niveau_biblique] || eleve.niveau_biblique : '—'],
+                ].map(([k, v]) => (
+                  <div className="af-profil-row" key={k}>
+                    <span className="af-profil-key">{k}</span>
+                    <span className="af-profil-val">{v}</span>
+                  </div>
+                ))}
+              </div>
+              {eleve.motivation && (
+                <div className="af-profil-motivation">
+                  <div className="af-profil-key">Motivation</div>
+                  <div className="af-profil-motivation-text">{eleve.motivation}</div>
+                </div>
+              )}
             </div>
           )}
 

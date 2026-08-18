@@ -8,6 +8,7 @@ import {
 } from '../lib/supabase';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
+import 'flag-icons/css/flag-icons.min.css';
 
 // ─── Données ────────────────────────────────────────────────────────────────
 
@@ -34,31 +35,102 @@ const PAYS = [
 ];
 
 const PHONE_CODES = [
-  { code: '+33',  flag: '🇫🇷', label: 'France' },
-  { code: '+32',  flag: '🇧🇪', label: 'Belgique' },
-  { code: '+41',  flag: '🇨🇭', label: 'Suisse' },
-  { code: '+1',   flag: '🇺🇸', label: 'USA/Canada' },
-  { code: '+44',  flag: '🇬🇧', label: 'Royaume-Uni' },
-  { code: '+49',  flag: '🇩🇪', label: 'Allemagne' },
-  { code: '+34',  flag: '🇪🇸', label: 'Espagne' },
-  { code: '+39',  flag: '🇮🇹', label: 'Italie' },
-  { code: '+351', flag: '🇵🇹', label: 'Portugal' },
-  { code: '+237', flag: '🇨🇲', label: 'Cameroun' },
-  { code: '+243', flag: '🇨🇩', label: 'RD Congo' },
-  { code: '+242', flag: '🇨🇬', label: 'Congo' },
-  { code: '+225', flag: '🇨🇮', label: "Côte d'Ivoire" },
-  { code: '+221', flag: '🇸🇳', label: 'Sénégal' },
-  { code: '+229', flag: '🇧🇯', label: 'Bénin' },
-  { code: '+223', flag: '🇲🇱', label: 'Mali' },
-  { code: '+228', flag: '🇹🇬', label: 'Togo' },
-  { code: '+234', flag: '🇳🇬', label: 'Nigeria' },
-  { code: '+254', flag: '🇰🇪', label: 'Kenya' },
-  { code: '+27',  flag: '🇿🇦', label: 'Afrique du Sud' },
-  { code: '+250', flag: '🇷🇼', label: 'Rwanda' },
-  { code: '+509', flag: '🇭🇹', label: 'Haïti' },
-  { code: '+55',  flag: '🇧🇷', label: 'Brésil' },
-  { code: '+57',  flag: '🇨🇴', label: 'Colombie' },
+  { code: '+33',  iso: 'fr', label: 'France' },
+  { code: '+32',  iso: 'be', label: 'Belgique' },
+  { code: '+41',  iso: 'ch', label: 'Suisse' },
+  { code: '+1',   iso: 'us', label: 'USA/Canada' },
+  { code: '+44',  iso: 'gb', label: 'Royaume-Uni' },
+  { code: '+49',  iso: 'de', label: 'Allemagne' },
+  { code: '+34',  iso: 'es', label: 'Espagne' },
+  { code: '+39',  iso: 'it', label: 'Italie' },
+  { code: '+351', iso: 'pt', label: 'Portugal' },
+  { code: '+237', iso: 'cm', label: 'Cameroun' },
+  { code: '+243', iso: 'cd', label: 'RD Congo' },
+  { code: '+242', iso: 'cg', label: 'Congo' },
+  { code: '+225', iso: 'ci', label: "Côte d'Ivoire" },
+  { code: '+221', iso: 'sn', label: 'Sénégal' },
+  { code: '+229', iso: 'bj', label: 'Bénin' },
+  { code: '+223', iso: 'ml', label: 'Mali' },
+  { code: '+228', iso: 'tg', label: 'Togo' },
+  { code: '+234', iso: 'ng', label: 'Nigeria' },
+  { code: '+254', iso: 'ke', label: 'Kenya' },
+  { code: '+27',  iso: 'za', label: 'Afrique du Sud' },
+  { code: '+250', iso: 'rw', label: 'Rwanda' },
+  { code: '+509', iso: 'ht', label: 'Haïti' },
+  { code: '+55',  iso: 'br', label: 'Brésil' },
+  { code: '+57',  iso: 'co', label: 'Colombie' },
 ];
+
+function Flag({ iso, size = 16 }) {
+  return (
+    <span
+      className={`fi fi-${iso}`}
+      style={{
+        display: 'inline-block',
+        width: size,
+        height: Math.round(size * 0.75),
+        backgroundSize: 'cover',
+        borderRadius: 2,
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+function PhoneCodeSelect({ value, onChange, telephone, onTelChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const selected = PHONE_CODES.find(p => p.code === value) || PHONE_CODES[0];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="fi2-phone-wrap" ref={ref}>
+      <button
+        type="button"
+        className="fi2-phone-code-btn"
+        onClick={() => setOpen(!open)}
+      >
+        <Flag iso={selected.iso} size={18} />
+        <span>{selected.code}</span>
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ marginLeft: 4 }}>
+          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      {open && (
+        <div className="fi2-phone-dropdown">
+          {PHONE_CODES.map(p => (
+            <button
+              key={p.code}
+              type="button"
+              className={`fi2-phone-option ${p.code === value ? 'fi2-phone-option--active' : ''}`}
+              onClick={() => { onChange(p.code); setOpen(false); }}
+            >
+              <Flag iso={p.iso} size={18} />
+              <span className="fi2-phone-option-label">{p.label}</span>
+              <span className="fi2-phone-option-code">{p.code}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <input
+        className="fi2-phone-input"
+        type="tel"
+        value={telephone}
+        onChange={e => onTelChange(e)}
+        placeholder="6 00 00 00 00"
+      />
+    </div>
+  );
+}
 
 const EMPTY_FORM = {
   formule: '',
@@ -322,34 +394,30 @@ function Step2({ formData, setFormData, onNext, onBack }) {
         <div className="fi2-field">
           <label className="fi2-label">Prénom *</label>
           <input className={errors.prenom ? 'fi2-input--error' : ''} value={formData.prenom}
-            onChange={set('prenom')} onBlur={validate} placeholder="Jean" />
+            onChange={set('prenom')} onBlur={validate} placeholder="Votre prénom" />
           {errors.prenom && <span className="fi2-error">{errors.prenom}</span>}
         </div>
         <div className="fi2-field">
           <label className="fi2-label">Nom *</label>
           <input className={errors.nom ? 'fi2-input--error' : ''} value={formData.nom}
-            onChange={set('nom')} onBlur={validate} placeholder="Dupont" />
+            onChange={set('nom')} onBlur={validate} placeholder="Votre nom" />
           {errors.nom && <span className="fi2-error">{errors.nom}</span>}
         </div>
         <div className="fi2-field fi2-field--full">
           <label className="fi2-label">Adresse email *</label>
           <input type="email" className={errors.email ? 'fi2-input--error' : ''}
             value={formData.email} onChange={set('email')} onBlur={validate}
-            placeholder="jean.dupont@email.com" />
+            placeholder="votre@email.com" />
           {errors.email && <span className="fi2-error">{errors.email}</span>}
         </div>
         <div className="fi2-field fi2-field--full">
           <label className="fi2-label">Téléphone</label>
-          <div className="fi2-phone-wrap">
-            <select className="fi2-phone-code" value={formData.phone_code}
-              onChange={e => set('phone_code')(e.target.value)}>
-              {PHONE_CODES.map(p => (
-                <option key={p.code} value={p.code}>{p.flag} {p.code}</option>
-              ))}
-            </select>
-            <input className="fi2-phone-input" type="tel" value={formData.telephone}
-              onChange={set('telephone')} placeholder="6 00 00 00 00" />
-          </div>
+          <PhoneCodeSelect
+            value={formData.phone_code}
+            onChange={val => set('phone_code')(val)}
+            telephone={formData.telephone}
+            onTelChange={set('telephone')}
+          />
         </div>
         <div className="fi2-field">
           <label className="fi2-label">Date de naissance</label>
@@ -366,7 +434,7 @@ function Step2({ formData, setFormData, onNext, onBack }) {
         <div className="fi2-field">
           <label className="fi2-label">Ville *</label>
           <input className={errors.ville ? 'fi2-input--error' : ''} value={formData.ville}
-            onChange={set('ville')} onBlur={validate} placeholder="Paris" />
+            onChange={set('ville')} onBlur={validate} placeholder="Votre ville" />
           {errors.ville && <span className="fi2-error">{errors.ville}</span>}
         </div>
       </div>
