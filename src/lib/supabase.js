@@ -1112,8 +1112,30 @@ export async function getRessourcesEleve(eleveId) {
 // ─── Formules de paiement ─────────────────────────────────────
 
 const MOCK_FORMULES_PAIEMENT = [
-  { id: 'formule-integral', nom: 'Intégral', type: 'unique', prix_total: 45000, nombre_echeances: 1, montant_echeance: 45000, description: 'Accès immédiat à tous les modules · Économisez 10%', actif: true, ordre_affichage: 1 },
-  { id: 'formule-echelonne', nom: 'Échelonné', type: 'echelonne', prix_total: 50000, nombre_echeances: 10, montant_echeance: 5000, description: 'Paiement en 10 mensualités de 50€', actif: true, ordre_affichage: 2 },
+  {
+    id: 'formule-integral',
+    nom: 'Intégral',
+    type: 'unique',
+    prix_total: 45000,
+    nombre_echeances: 1,
+    montant_echeance: 45000,
+    description: 'Accès immédiat à tous les modules',
+    avantages: ['Paiement unique', 'Accès immédiat à tous les modules', 'Économisez 10%'],
+    actif: true,
+    ordre_affichage: 1
+  },
+  {
+    id: 'formule-echelonne',
+    nom: 'Échelonné',
+    type: 'echelonne',
+    prix_total: 50000,
+    nombre_echeances: 10,
+    montant_echeance: 5000,
+    description: 'Paiement en plusieurs fois',
+    avantages: ['Paiement en plusieurs fois', 'Déblocage progressif des modules', 'Budget maîtrisé'],
+    actif: true,
+    ordre_affichage: 2
+  },
 ];
 
 export async function getFormulesPaiement(includeInactive = false) {

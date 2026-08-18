@@ -2082,7 +2082,7 @@ function SubTabFormules() {
   const [editForm, setEditForm] = useState({});
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({
-    nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: 1
+    nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: 1
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
@@ -2105,13 +2105,14 @@ function SubTabFormules() {
 
   const startEdit = (f) => {
     setEditingId(f.id);
+    const avantages = Array.isArray(f.avantages) && f.avantages.length > 0 ? f.avantages : [''];
     setEditForm({
       nom: f.nom,
       type: f.type,
       prix_total: f.prix_total / 100,
       nombre_echeances: f.nombre_echeances,
       montant_echeance: f.montant_echeance / 100,
-      description: f.description || '',
+      avantages: avantages,
       actif: f.actif,
       ordre_affichage: f.ordre_affichage,
     });
@@ -2122,16 +2123,55 @@ function SubTabFormules() {
     setEditForm({});
   };
 
+  const updateAvantage = (index, value, isCreate = false) => {
+    if (isCreate) {
+      setCreateForm(prev => {
+        const newAvantages = [...prev.avantages];
+        newAvantages[index] = value;
+        return { ...prev, avantages: newAvantages };
+      });
+    } else {
+      setEditForm(prev => {
+        const newAvantages = [...prev.avantages];
+        newAvantages[index] = value;
+        return { ...prev, avantages: newAvantages };
+      });
+    }
+  };
+
+  const addAvantage = (isCreate = false) => {
+    if (isCreate) {
+      setCreateForm(prev => ({ ...prev, avantages: [...prev.avantages, ''] }));
+    } else {
+      setEditForm(prev => ({ ...prev, avantages: [...prev.avantages, ''] }));
+    }
+  };
+
+  const removeAvantage = (index, isCreate = false) => {
+    if (isCreate) {
+      setCreateForm(prev => ({
+        ...prev,
+        avantages: prev.avantages.filter((_, i) => i !== index)
+      }));
+    } else {
+      setEditForm(prev => ({
+        ...prev,
+        avantages: prev.avantages.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
   const saveEdit = async () => {
     if (saving) return;
     setSaving(true);
+    const avantagesFiltered = editForm.avantages.filter(a => a.trim() !== '');
     const { error } = await updateFormulePaiement(editingId, {
       nom: editForm.nom,
       type: editForm.type,
       prix_total: Math.round(parseFloat(editForm.prix_total) * 100),
       nombre_echeances: parseInt(editForm.nombre_echeances),
       montant_echeance: Math.round(parseFloat(editForm.montant_echeance) * 100),
-      description: editForm.description || null,
+      avantages: avantagesFiltered,
       actif: editForm.actif,
       ordre_affichage: parseInt(editForm.ordre_affichage),
     });
@@ -2149,13 +2189,14 @@ function SubTabFormules() {
     e.preventDefault();
     if (saving) return;
     setSaving(true);
+    const avantagesFiltered = createForm.avantages.filter(a => a.trim() !== '');
     const { error } = await createFormulePaiement({
       nom: createForm.nom,
       type: createForm.type,
       prix_total: Math.round(parseFloat(createForm.prix_total) * 100),
       nombre_echeances: parseInt(createForm.nombre_echeances),
       montant_echeance: Math.round(parseFloat(createForm.montant_echeance) * 100),
-      description: createForm.description || null,
+      avantages: avantagesFiltered,
       actif: true,
       ordre_affichage: parseInt(createForm.ordre_affichage),
     });
@@ -2165,7 +2206,7 @@ function SubTabFormules() {
       return;
     }
     setShowCreate(false);
-    setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: formules.length + 1 });
+    setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
     showMsg('Formule créée ✓');
     load();
   };
@@ -2175,6 +2216,32 @@ function SubTabFormules() {
     showMsg(f.actif ? 'Formule désactivée' : 'Formule activée');
     load();
   };
+
+  const AvantagesEditor = ({ avantages, isCreate }) => (
+    <div className="af-avantages-editor">
+      <label>Avantages affichés</label>
+      <div className="af-avantages-list">
+        {avantages.map((av, i) => (
+          <div key={i} className="af-avantage-row">
+            <span className="af-avantage-dash">—</span>
+            <input
+              value={av}
+              onChange={e => updateAvantage(i, e.target.value, isCreate)}
+              placeholder="Ex: Accès immédiat à tous les modules"
+            />
+            {avantages.length > 1 && (
+              <button type="button" className="af-avantage-remove" onClick={() => removeAvantage(i, isCreate)}>
+                <Icon name="x" size={12} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <button type="button" className="af-btn af-btn--sm" onClick={() => addAvantage(isCreate)}>
+        + Ajouter un avantage
+      </button>
+    </div>
+  );
 
   return (
     <div className="af-subtab">
@@ -2186,7 +2253,7 @@ function SubTabFormules() {
         </span>
         <button className="af-btn af-btn--primary" onClick={() => {
           setShowCreate(true);
-          setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', description: '', ordre_affichage: formules.length + 1 });
+          setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
         }}>+ Nouvelle formule</button>
       </div>
 
@@ -2229,10 +2296,7 @@ function SubTabFormules() {
                         onChange={e => setEditForm({...editForm, ordre_affichage: e.target.value})} />
                     </div>
                     <div style={{gridColumn: '1 / -1'}}>
-                      <label>Description</label>
-                      <input value={editForm.description}
-                        onChange={e => setEditForm({...editForm, description: e.target.value})}
-                        placeholder="Ex: Accès immédiat à tous les modules" />
+                      <AvantagesEditor avantages={editForm.avantages} isCreate={false} />
                     </div>
                     <div style={{gridColumn: '1 / -1'}}>
                       <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
@@ -2268,7 +2332,13 @@ function SubTabFormules() {
                       </div>
                     )}
                   </div>
-                  {f.description && <div className="af-formule-desc">{f.description}</div>}
+                  {Array.isArray(f.avantages) && f.avantages.length > 0 && (
+                    <ul className="af-formule-avantages">
+                      {f.avantages.map((av, i) => (
+                        <li key={i}>— {av}</li>
+                      ))}
+                    </ul>
+                  )}
                   <div className="af-formule-actions">
                     <button className="af-btn af-btn--sm" onClick={() => startEdit(f)}>
                       <Icon name="pencil" size={14} /> Modifier
@@ -2289,7 +2359,7 @@ function SubTabFormules() {
       {/* Modal création */}
       {showCreate && ReactDOM.createPortal(
         <div className="af-modal-backdrop" onClick={() => setShowCreate(false)}>
-          <div className="af-modal" style={{maxWidth: 520}} onClick={e => e.stopPropagation()}>
+          <div className="af-modal" style={{maxWidth: 560}} onClick={e => e.stopPropagation()}>
             <div className="af-modal-header">
               <span>Nouvelle formule de paiement</span>
               <button type="button" className="af-modal-close" onClick={() => setShowCreate(false)}>
@@ -2326,9 +2396,7 @@ function SubTabFormules() {
                   </div>
                 </div>
 
-                <label>Description</label>
-                <input placeholder="Ex: Accès immédiat à tous les modules" value={createForm.description}
-                  onChange={e => setCreateForm({...createForm, description: e.target.value})} />
+                <AvantagesEditor avantages={createForm.avantages} isCreate={true} />
 
                 <label>Ordre d'affichage</label>
                 <input type="number" min="1" value={createForm.ordre_affichage}

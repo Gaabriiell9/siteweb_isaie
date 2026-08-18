@@ -1907,3 +1907,85 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ====== AVANTAGES EDITOR ====== */
+.af-avantages-editor {
+  margin-top: 8px;
+}
+
+.af-avantages-editor > label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  margin-bottom: 8px;
+}
+
+.af-avantages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.af-avantage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.af-avantage-dash {
+  color: var(--or);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.af-avantage-row input {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  border-radius: 6px;
+  background: white;
+  font-family: var(--font-sans);
+}
+
+.af-avantage-row input:focus {
+  outline: none;
+  border-color: var(--or);
+}
+
+.af-avantage-remove {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #c0392b;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.af-avantage-remove:hover {
+  background: rgba(192, 57, 43, 0.1);
+}
+
+/* Liste d'avantages dans la carte formule (vue non-édition) */
+.af-formule-avantages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: var(--texte-doux);
+  line-height: 1.6;
+}
+
+.af-formule-avantages li {
+  padding: 2px 0;
+}

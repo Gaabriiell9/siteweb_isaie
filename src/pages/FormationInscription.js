@@ -236,40 +236,39 @@ function Step1({ formData, setFormData, onNext }) {
         <p style={{ textAlign: 'center', color: 'var(--texte-doux)', padding: '40px 0' }}>Chargement des formules…</p>
       ) : (
         <div className="fi2-formule-cards">
-          {/* Intégral */}
-          {formuleIntegral && (
-            <div className={`fi2-formule-card ${formData.formule_id === formuleIntegral.id || formData.formule === 'integral' ? 'fi2-formule-card--active' : ''}`}
-              onClick={() => choose(formuleIntegral.id, 'integral')}>
-              <div className="fi2-formule-badge-recommande">Recommandé</div>
-              <div className="fi2-formule-top">
-                <div className={`fi2-radio-dot ${formData.formule_id === formuleIntegral.id || formData.formule === 'integral' ? 'fi2-radio-dot--on' : ''}`} />
-                <div className="fi2-formule-price">{formatEuros(formuleIntegral.prix_total)}</div>
-              </div>
-              <div className="fi2-formule-name">{formuleIntegral.nom}</div>
-              <ul className="fi2-formule-points">
-                <li>Paiement unique</li>
-                <li>Accès immédiat à tous les modules</li>
-                {formuleIntegral.description && <li>{formuleIntegral.description}</li>}
-              </ul>
-            </div>
-          )}
+          {formules.map((formule, index) => {
+            const isSelected = formData.formule_id === formule.id || formData.formule === formule.type;
+            const isFirst = index === 0;
+            const avantages = Array.isArray(formule.avantages) ? formule.avantages : [];
 
-          {/* Échelonné */}
-          {formuleEchelonne && (
-            <div className={`fi2-formule-card ${formData.formule_id === formuleEchelonne.id || formData.formule === 'echelonne' ? 'fi2-formule-card--active' : ''}`}
-              onClick={() => choose(formuleEchelonne.id, 'echelonne')}>
-              <div className="fi2-formule-top">
-                <div className={`fi2-radio-dot ${formData.formule_id === formuleEchelonne.id || formData.formule === 'echelonne' ? 'fi2-radio-dot--on' : ''}`} />
-                <div className="fi2-formule-price">{formatEuros(formuleEchelonne.montant_echeance)} <span className="fi2-formule-mois">/mois</span></div>
+            return (
+              <div
+                key={formule.id}
+                className={`fi2-formule-card ${isSelected ? 'fi2-formule-card--active' : ''}`}
+                onClick={() => choose(formule.id, formule.type)}
+              >
+                {isFirst && <div className="fi2-formule-badge-recommande">Recommandé</div>}
+                <div className="fi2-formule-top">
+                  <div className={`fi2-radio-dot ${isSelected ? 'fi2-radio-dot--on' : ''}`} />
+                  <div className="fi2-formule-price">
+                    {formule.type === 'echelonne'
+                      ? <>{formatEuros(formule.montant_echeance)} <span className="fi2-formule-mois">/mois</span></>
+                      : formatEuros(formule.prix_total)
+                    }
+                  </div>
+                </div>
+                <div className="fi2-formule-name">{formule.nom}</div>
+                <ul className="fi2-formule-points">
+                  {avantages.map((av, i) => (
+                    <li key={i}>{av}</li>
+                  ))}
+                  {formule.type === 'echelonne' && (
+                    <li>{formatEuros(formule.prix_total)} au total</li>
+                  )}
+                </ul>
               </div>
-              <div className="fi2-formule-name">{formuleEchelonne.nom}</div>
-              <ul className="fi2-formule-points">
-                <li>{formuleEchelonne.nombre_echeances} mensualités</li>
-                <li>{formatEuros(formuleEchelonne.prix_total)} au total</li>
-                <li>Déblocage progressif des modules</li>
-              </ul>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
 
