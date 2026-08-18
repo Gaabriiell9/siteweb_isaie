@@ -4,6 +4,7 @@ import {
   createInscriptionAutoSave,
   finalizeInscription,
   IS_MOCK,
+  getFormulesPaiement,
 } from '../lib/supabase';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
@@ -61,6 +62,7 @@ const PHONE_CODES = [
 
 const EMPTY_FORM = {
   formule: '',
+  formule_id: null,
   prenom: '', nom: '',
   email: '', phone_code: '+33', telephone: '',
   date_naissance: '', pays: '', ville: '',
@@ -201,52 +203,78 @@ function SearchableSelect({ value, onChange, options, placeholder }) {
 // ─── Étape 1 — Formule ───────────────────────────────────────────────────────
 
 function Step1({ formData, setFormData, onNext }) {
-  const choose = (f) => {
-    setFormData(d => ({ ...d, formule: f }));
+  const [formules, setFormules] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFormulesPaiement().then(data => {
+      setFormules(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const choose = (formuleId, formuleType) => {
+    setFormData(d => ({ ...d, formule: formuleType, formule_id: formuleId }));
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, formule: f }));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, formule: formuleType, formule_id: formuleId }));
   };
+
+  const formatEuros = (cents) => {
+    if (!cents && cents !== 0) return '—';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+  };
+
+  const formuleIntegral = formules.find(f => f.type === 'unique');
+  const formuleEchelonne = formules.find(f => f.type === 'echelonne');
 
   return (
     <div className="fi2-step">
       <h2 className="fi2-step-title">Choisissez votre formule</h2>
       <p className="fi2-step-sub">Vous pouvez modifier ce choix en contactant l'administration.</p>
 
-      <div className="fi2-formule-cards">
-        {/* Intégral */}
-        <div className={`fi2-formule-card ${formData.formule === 'integral' ? 'fi2-formule-card--active' : ''}`}
-          onClick={() => choose('integral')}>
-          <div className="fi2-formule-badge-recommande">Recommandé</div>
-          <div className="fi2-formule-top">
-            <div className={`fi2-radio-dot ${formData.formule === 'integral' ? 'fi2-radio-dot--on' : ''}`} />
-            <div className="fi2-formule-price">450 €</div>
-          </div>
-          <div className="fi2-formule-name">Paiement intégral</div>
-          <ul className="fi2-formule-points">
-            <li>Paiement unique</li>
-            <li>Accès immédiat à tous les modules</li>
-            <li>10 % de réduction</li>
-          </ul>
-        </div>
+      {loading ? (
+        <p style={{ textAlign: 'center', color: 'var(--texte-doux)', padding: '40px 0' }}>Chargement des formules…</p>
+      ) : (
+        <div className="fi2-formule-cards">
+          {/* Intégral */}
+          {formuleIntegral && (
+            <div className={`fi2-formule-card ${formData.formule_id === formuleIntegral.id || formData.formule === 'integral' ? 'fi2-formule-card--active' : ''}`}
+              onClick={() => choose(formuleIntegral.id, 'integral')}>
+              <div className="fi2-formule-badge-recommande">Recommandé</div>
+              <div className="fi2-formule-top">
+                <div className={`fi2-radio-dot ${formData.formule_id === formuleIntegral.id || formData.formule === 'integral' ? 'fi2-radio-dot--on' : ''}`} />
+                <div className="fi2-formule-price">{formatEuros(formuleIntegral.prix_total)}</div>
+              </div>
+              <div className="fi2-formule-name">{formuleIntegral.nom}</div>
+              <ul className="fi2-formule-points">
+                <li>Paiement unique</li>
+                <li>Accès immédiat à tous les modules</li>
+                {formuleIntegral.description && <li>{formuleIntegral.description}</li>}
+              </ul>
+            </div>
+          )}
 
-        {/* Échelonné */}
-        <div className={`fi2-formule-card ${formData.formule === 'echelonne' ? 'fi2-formule-card--active' : ''}`}
-          onClick={() => choose('echelonne')}>
-          <div className="fi2-formule-top">
-            <div className={`fi2-radio-dot ${formData.formule === 'echelonne' ? 'fi2-radio-dot--on' : ''}`} />
-            <div className="fi2-formule-price">50 € <span className="fi2-formule-mois">/mois</span></div>
-          </div>
-          <div className="fi2-formule-name">Paiement échelonné</div>
-          <ul className="fi2-formule-points">
-            <li>10 mensualités</li>
-            <li>500 € au total</li>
-            <li>Déblocage progressif des modules</li>
-          </ul>
+          {/* Échelonné */}
+          {formuleEchelonne && (
+            <div className={`fi2-formule-card ${formData.formule_id === formuleEchelonne.id || formData.formule === 'echelonne' ? 'fi2-formule-card--active' : ''}`}
+              onClick={() => choose(formuleEchelonne.id, 'echelonne')}>
+              <div className="fi2-formule-top">
+                <div className={`fi2-radio-dot ${formData.formule_id === formuleEchelonne.id || formData.formule === 'echelonne' ? 'fi2-radio-dot--on' : ''}`} />
+                <div className="fi2-formule-price">{formatEuros(formuleEchelonne.montant_echeance)} <span className="fi2-formule-mois">/mois</span></div>
+              </div>
+              <div className="fi2-formule-name">{formuleEchelonne.nom}</div>
+              <ul className="fi2-formule-points">
+                <li>{formuleEchelonne.nombre_echeances} mensualités</li>
+                <li>{formatEuros(formuleEchelonne.prix_total)} au total</li>
+                <li>Déblocage progressif des modules</li>
+              </ul>
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       <button className="fi2-btn fi2-btn--primary fi2-btn--full" onClick={onNext}
-        disabled={!formData.formule}>
+        disabled={!formData.formule && !formData.formule_id}>
         Continuer →
       </button>
     </div>
@@ -613,6 +641,7 @@ export default function FormationInscription() {
       niveau_biblique: formData.niveau_biblique || null,
       motivation: formData.motivation || null,
       formule: formData.formule,
+      formule_id: formData.formule_id || null,
       communications_ok: formData.communications_ok,
       password: formData.password,
     });
