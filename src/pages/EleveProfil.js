@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEleve } from './EleveLayout';
-import { updateEleveProfil, supabase, IS_MOCK } from '../lib/supabase';
+import { updateEleveProfil, supabase, IS_MOCK, getFormulePaiementById } from '../lib/supabase';
 
 export default function EleveProfil() {
   const { eleve, setEleve } = useEleve();
@@ -10,9 +10,15 @@ export default function EleveProfil() {
   const [savingPwd, setSavingPwd] = useState(false);
   const [msgProfil, setMsgProfil] = useState('');
   const [msgPwd, setMsgPwd] = useState('');
+  const [formuleData, setFormuleData] = useState(null);
 
   useEffect(() => {
-    if (eleve) setForm({ nom: eleve.nom || '', email: eleve.email || '', telephone: eleve.telephone || '', pays: eleve.pays || '', ville: eleve.ville || '' });
+    if (eleve) {
+      setForm({ nom: eleve.nom || '', email: eleve.email || '', telephone: eleve.telephone || '', pays: eleve.pays || '', ville: eleve.ville || '' });
+      if (eleve.formule_id) {
+        getFormulePaiementById(eleve.formule_id).then(setFormuleData);
+      }
+    }
   }, [eleve]);
 
   const set = f => e => setForm(v => ({ ...v, [f]: e.target.value }));
@@ -53,7 +59,22 @@ export default function EleveProfil() {
     return <div className={isOk ? 'eleve-profil-ok' : ''} style={!isOk ? { background: '#FCEBEB', borderLeft: '3px solid #E24B4A', color: '#791F1F', padding: '9px 14px', fontSize: 12, fontWeight: 600 } : {}}>{text}</div>;
   };
 
-  const FORMULE_LABEL = { integral: 'Paiement intégral (450 €)', echelonne: 'Paiement échelonné (50 €/mois × 10)' };
+  const formatEuros = (cents) => {
+    if (!cents && cents !== 0) return '—';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+  };
+
+  const getFormuleLabel = () => {
+    if (formuleData) {
+      if (formuleData.type === 'echelonne') {
+        return `${formuleData.nom} (${formatEuros(formuleData.montant_echeance)}/mois × ${formuleData.nombre_echeances})`;
+      }
+      return `${formuleData.nom} (${formatEuros(formuleData.prix_total)})`;
+    }
+    if (eleve?.formule === 'echelonne') return 'Paiement échelonné';
+    if (eleve?.formule === 'integral') return 'Paiement intégral';
+    return eleve?.formule || '—';
+  };
 
   return (
     <div>
@@ -69,7 +90,7 @@ export default function EleveProfil() {
             <div>
               <div className="eleve-profil-label">Formule</div>
               <span className="eleve-badge eleve-badge--gold" style={{ marginTop: 6 }}>
-                {FORMULE_LABEL[eleve?.formule] || eleve?.formule}
+                {getFormuleLabel()}
               </span>
             </div>
             <div>

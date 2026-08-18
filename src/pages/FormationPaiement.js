@@ -1,32 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './FormationPaiement.css';
 import Icon from '../components/Icon';
+import { getModulesCount } from '../lib/supabase';
 
 export default function FormationPaiement() {
-  const [searchParams] = useSearchParams();
-  const [data, setData] = useState(null);
+  const [modulesCount, setModulesCount] = useState(null);
 
   useEffect(() => {
-    // Lire les données depuis localStorage (enregistrées après inscription)
-    const raw = localStorage.getItem('etc_inscription_success');
-    if (raw) {
-      try { setData(JSON.parse(raw)); } catch {}
-    }
+    getModulesCount().then(setModulesCount);
   }, []);
 
   const successData = JSON.parse(localStorage.getItem('etc_inscription_success') || '{}');
   const draft = JSON.parse(localStorage.getItem('etc_inscription_draft') || '{}');
-  const nomComplet = [draft.prenom, draft.nom].filter(Boolean).join(' ') || successData.prenom || 'Futur étudiant';
-  const nom = nomComplet;
-  const formule = data?.formule || 'integral';
-  const isEchelonne = formule === 'echelonne';
+  const formuleData = JSON.parse(localStorage.getItem('etc_formule_selectionnee') || '{}');
 
-  const montantTotal = isEchelonne ? '50 € / mois × 10 mois' : '450 €';
-  const montantAujourdhui = isEchelonne ? '50 €' : '450 €';
+  const nomComplet = [draft.prenom, draft.nom].filter(Boolean).join(' ') || successData.prenom || 'Futur étudiant';
+  const isEchelonne = formuleData.type === 'echelonne';
+
+  const formatEuros = (cents) => {
+    if (!cents && cents !== 0) return '—';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+  };
+
+  const getMontantTotal = () => {
+    if (!formuleData.prix_total) return '—';
+    if (isEchelonne) {
+      return `${formatEuros(formuleData.montant_echeance)} / mois × ${formuleData.nombre_echeances || 10} mois`;
+    }
+    return formatEuros(formuleData.prix_total);
+  };
+
+  const getMontantAujourdhui = () => {
+    if (isEchelonne) {
+      return formatEuros(formuleData.montant_echeance);
+    }
+    return formatEuros(formuleData.prix_total);
+  };
 
   const handleStripeClick = () => {
-    // TODO: appeler createCheckoutSession puis rediriger vers Stripe
     alert('Le paiement Stripe sera activé très prochainement.\nVous recevrez un email avec les instructions de paiement.');
   };
 
@@ -49,24 +61,26 @@ export default function FormationPaiement() {
           <div className="fp-recap">
             <div className="fp-recap-row">
               <span className="fp-recap-key">Étudiant</span>
-              <span className="fp-recap-val">{nom}</span>
+              <span className="fp-recap-val">{nomComplet}</span>
             </div>
             <div className="fp-recap-row">
               <span className="fp-recap-key">Formation</span>
-              <span className="fp-recap-val">Théologie Biblique — 6 modules</span>
+              <span className="fp-recap-val">
+                Théologie Biblique — {modulesCount !== null ? `${modulesCount} modules` : '…'}
+              </span>
             </div>
             <div className="fp-recap-row">
               <span className="fp-recap-key">Formule</span>
-              <span className="fp-recap-val">{isEchelonne ? 'Paiement échelonné' : 'Paiement intégral'}</span>
+              <span className="fp-recap-val">{formuleData.nom || (isEchelonne ? 'Paiement échelonné' : 'Paiement intégral')}</span>
             </div>
             <div className="fp-recap-row">
               <span className="fp-recap-key">Total</span>
-              <span className="fp-recap-val fp-recap-total">{montantTotal}</span>
+              <span className="fp-recap-val fp-recap-total">{getMontantTotal()}</span>
             </div>
             {isEchelonne && (
               <div className="fp-recap-row">
                 <span className="fp-recap-key">Aujourd'hui</span>
-                <span className="fp-recap-val">{montantAujourdhui}</span>
+                <span className="fp-recap-val">{getMontantAujourdhui()}</span>
               </div>
             )}
           </div>

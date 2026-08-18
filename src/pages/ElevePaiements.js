@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getPaiements } from '../lib/supabase';
+import { getPaiements, getFormulePaiementById } from '../lib/supabase';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -20,23 +20,37 @@ const TYPE_LABEL = {
   remboursement: 'Remboursement',
 };
 
+const formatEuros = (cents) => {
+  if (!cents && cents !== 0) return '—';
+  return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+};
+
 export default function ElevePaiements() {
   const { eleve } = useEleve();
   const [paiements, setPaiements] = useState([]);
+  const [formuleData, setFormuleData] = useState(null);
 
   useEffect(() => {
     if (!eleve) return;
     getPaiements(eleve.id).then(setPaiements);
+    if (eleve.formule_id) {
+      getFormulePaiementById(eleve.formule_id).then(setFormuleData);
+    }
   }, [eleve]);
 
   const totalPaye = paiements.filter(p => p.statut === 'reussi').reduce((s, p) => s + Number(p.montant), 0);
-  const totalFormule = eleve?.formule === 'integral' ? 450 : 500;
+  const totalFormuleCents = formuleData?.prix_total || (eleve?.formule === 'integral' ? 45000 : 50000);
+  const totalFormule = totalFormuleCents / 100;
+  const montantEcheance = formuleData?.montant_echeance ? formuleData.montant_echeance / 100 : 50;
+  const nombreEcheances = formuleData?.nombre_echeances || 10;
 
-  // Planning 10 mensualités pour formule échelonnée
-  const planning = eleve?.formule === 'echelonne'
+  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
+
+  // Planning des mensualités pour formule échelonnée
+  const planning = isEchelonne
     ? (() => {
         const dateDebut = eleve?.date_inscription ? new Date(eleve.date_inscription) : new Date();
-        return Array.from({ length: 10 }, (_, i) => {
+        return Array.from({ length: nombreEcheances }, (_, i) => {
           const date = new Date(dateDebut);
           date.setMonth(date.getMonth() + i);
           const paiementExistant = paiements.find(p => {
@@ -46,17 +60,27 @@ export default function ElevePaiements() {
           return {
             num: i + 1,
             date: date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-            montant: 50,
-            statut: paiementExistant ? (paiementExistant.statut === 'reussi' ? 'reussi' : 'en_attente') : (date < new Date() ? 'en_attente' : 'en_attente'),
+            montant: montantEcheance,
+            statut: paiementExistant ? (paiementExistant.statut === 'reussi' ? 'reussi' : 'en_attente') : 'en_attente',
           };
         });
       })()
     : [];
 
+  const getFormuleLabel = () => {
+    if (formuleData) {
+      if (formuleData.type === 'echelonne') {
+        return `${formuleData.nom} · ${formatEuros(formuleData.montant_echeance)}/mois × ${formuleData.nombre_echeances}`;
+      }
+      return `${formuleData.nom} · ${formatEuros(formuleData.prix_total)}`;
+    }
+    return isEchelonne ? `Formule échelonnée · ${montantEcheance} €/mois × ${nombreEcheances}` : `Formule intégrale · ${totalFormule} €`;
+  };
+
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>paiements</em></h1>
-      <p className="eleve-page-sub">{eleve?.formule === 'integral' ? 'Formule intégrale · 450 €' : 'Formule échelonnée · 50 €/mois × 10'}</p>
+      <p className="eleve-page-sub">{getFormuleLabel()}</p>
 
       {/* ── Résumé ── */}
       <div className="eleve-stats-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: 24 }}>
@@ -70,7 +94,7 @@ export default function ElevePaiements() {
         </div>
         <div className="eleve-stat-card">
           <div className="eleve-stat-label">Versements</div>
-          <div className="eleve-stat-value">{paiements.filter(p => p.statut === 'reussi').length}<span className="eleve-stat-unit"> / {eleve?.formule === 'integral' ? 1 : 10}</span></div>
+          <div className="eleve-stat-value">{paiements.filter(p => p.statut === 'reussi').length}<span className="eleve-stat-unit"> / {isEchelonne ? nombreEcheances : 1}</span></div>
         </div>
       </div>
 
@@ -114,9 +138,9 @@ export default function ElevePaiements() {
       </div>
 
       {/* ── Planning (échelonné) ── */}
-      {eleve?.formule === 'echelonne' && (
+      {isEchelonne && (
         <div className="eleve-paiement-planning">
-          <div className="eleve-planning-titre">Planning des 10 mensualités</div>
+          <div className="eleve-planning-titre">Planning des {nombreEcheances} mensualités</div>
           {planning.map(item => (
             <div className="eleve-planning-row" key={item.num}>
               <span className="eleve-planning-num">{String(item.num).padStart(2, '0')}</span>

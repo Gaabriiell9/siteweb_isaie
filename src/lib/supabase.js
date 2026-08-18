@@ -630,6 +630,18 @@ const MOCK_SESSIONS_LIVE = [
   },
 ];
 
+export async function getModulesCount() {
+  if (IS_MOCK) return 6;
+  const { count, error } = await supabase
+    .from('modules_formation')
+    .select('*', { count: 'exact', head: true });
+  if (error) {
+    console.error('getModulesCount error:', error);
+    return 6;
+  }
+  return count || 6;
+}
+
 export async function getModulesFormation() {
   if (IS_MOCK) {
     return [

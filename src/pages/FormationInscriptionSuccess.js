@@ -6,12 +6,15 @@ import Icon from '../components/Icon';
 export default function FormationInscriptionSuccess() {
   const navigate = useNavigate();
   const [info, setInfo] = useState({ email: '', formule: '', prenom: '' });
+  const [formuleData, setFormuleData] = useState(null);
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     const stored = localStorage.getItem('etc_inscription_success');
     if (!stored) { navigate('/formation/inscription'); return; }
     setInfo(JSON.parse(stored));
+    const formule = localStorage.getItem('etc_formule_selectionnee');
+    if (formule) setFormuleData(JSON.parse(formule));
   }, [navigate]);
 
   useEffect(() => {
@@ -24,9 +27,20 @@ export default function FormationInscriptionSuccess() {
     return () => clearInterval(interval);
   }, [navigate]);
 
-  const formuleLabel = info.formule === 'integral'
-    ? 'Paiement intégral — 450 €'
-    : 'Paiement échelonné — 50 €/mois';
+  const formatEuros = (cents) => {
+    if (!cents && cents !== 0) return '—';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+  };
+
+  const getFormuleLabel = () => {
+    if (!formuleData) {
+      return info.formule === 'integral' ? 'Paiement intégral' : 'Paiement échelonné';
+    }
+    if (formuleData.type === 'echelonne') {
+      return `${formuleData.nom} — ${formatEuros(formuleData.montant_echeance)}/mois`;
+    }
+    return `${formuleData.nom} — ${formatEuros(formuleData.prix_total)}`;
+  };
 
   return (
     <div className="fis-wrap">
@@ -56,7 +70,7 @@ export default function FormationInscriptionSuccess() {
           </div>
           <div className="fis-recap-row">
             <span className="fis-recap-key">Formule</span>
-            <span className="fis-recap-val">{formuleLabel}</span>
+            <span className="fis-recap-val">{getFormuleLabel()}</span>
           </div>
         </div>
 

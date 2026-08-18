@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getRessourcesEleve } from '../lib/supabase';
+import { getModulesAvecProgression, getRessourcesEleve, getModulesCount } from '../lib/supabase';
 import Icon from '../components/Icon';
 
 const IcoLock = () => (
@@ -27,6 +27,7 @@ export default function EleveModules() {
   const [modules, setModules] = useState([]);
   const [ressourcesMap, setRessourcesMap] = useState({});
   const [openRessources, setOpenRessources] = useState({});
+  const [modulesCount, setModulesCount] = useState(null);
 
   useEffect(() => {
     if (!eleve) return;
@@ -40,12 +41,13 @@ export default function EleveModules() {
       });
       setRessourcesMap(map);
     });
+    getModulesCount().then(setModulesCount);
   }, [eleve]);
 
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>modules</em></h1>
-      <p className="eleve-page-sub">Programme · 6 modules · 12 mois</p>
+      <p className="eleve-page-sub">Programme · {modulesCount !== null ? `${modulesCount} modules` : '…'} · 12 mois</p>
 
       <div className="eleve-modules-list">
         {modules.map(m => {

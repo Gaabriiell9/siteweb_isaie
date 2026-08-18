@@ -1,26 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
+import { getModulesCount } from '../lib/supabase';
 import './Formation.css';
-
-const FAQ = [
-  {
-    q: 'Comment se passe l\'inscription ?',
-    a: 'Remplissez le formulaire en ligne, choisissez votre formule de paiement, puis notre équipe vous contacte sous 48 h pour confirmer votre place et vous donner accès à l\'espace de formation.',
-  },
-  {
-    q: 'Puis-je changer de formule en cours de route ?',
-    a: 'Oui. Si vous avez opté pour le paiement échelonné, vous pouvez à tout moment régler le solde restant pour basculer sur la formule intégrale et accéder immédiatement à tous les modules.',
-  },
-  {
-    q: 'Que se passe-t-il si j\'arrête en cours de formation ?',
-    a: 'En cas d\'arrêt, les mensualités déjà réglées ne sont pas remboursées. Les modules débloqués restent accessibles. Notre équipe pastorale reste disponible pour vous accompagner.',
-  },
-  {
-    q: 'Recevrai-je un certificat à la fin ?',
-    a: 'Oui. Un certificat de formation en Théologie Biblique délivré par l\'Église Temple de la Célébration est remis à tout étudiant ayant complété les 6 modules.',
-  },
-];
 
 const IconChevron = ({ open }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
@@ -31,6 +13,32 @@ const IconChevron = ({ open }) => (
 
 export default function Formation() {
   const [openFaq, setOpenFaq] = useState(null);
+  const [modulesCount, setModulesCount] = useState(null);
+
+  useEffect(() => {
+    getModulesCount().then(setModulesCount);
+  }, []);
+
+  const n = modulesCount !== null ? modulesCount : '…';
+
+  const FAQ = [
+    {
+      q: 'Comment se passe l\'inscription ?',
+      a: 'Remplissez le formulaire en ligne, choisissez votre formule de paiement, puis notre équipe vous contacte sous 48 h pour confirmer votre place et vous donner accès à l\'espace de formation.',
+    },
+    {
+      q: 'Puis-je changer de formule en cours de route ?',
+      a: 'Oui. Si vous avez opté pour le paiement échelonné, vous pouvez à tout moment régler le solde restant pour basculer sur la formule intégrale et accéder immédiatement à tous les modules.',
+    },
+    {
+      q: 'Que se passe-t-il si j\'arrête en cours de formation ?',
+      a: 'En cas d\'arrêt, les mensualités déjà réglées ne sont pas remboursées. Les modules débloqués restent accessibles. Notre équipe pastorale reste disponible pour vous accompagner.',
+    },
+    {
+      q: 'Recevrai-je un certificat à la fin ?',
+      a: `Oui. Un certificat de formation en Théologie Biblique délivré par l'Église Temple de la Célébration est remis à tout étudiant ayant complété les ${n} modules.`,
+    },
+  ];
 
   return (
     <div>
@@ -39,7 +47,7 @@ export default function Formation() {
         label="Formation"
         title="Théologie"
         titleEm="Biblique"
-        subtitle="12 mois · 6 modules · Certificat final"
+        subtitle={`12 mois · ${n} modules · Certificat final`}
         actions={<>
           <Link to="/eleve/login" className="fsh-btn fsh-btn--outline">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -67,7 +75,7 @@ export default function Formation() {
                 Le programme de Formation en Théologie Biblique de l'Église Temple de la Célébration est conçu pour équiper chaque croyant dans sa compréhension des Écritures et son service au sein du Corps de Christ. Fondé sur la rigueur académique et la profondeur spirituelle, il accompagne l'étudiant sur un parcours de 12 mois.
               </p>
               <p className="form-pres-p">
-                La formation se déroule en 6 modules progressifs, allant des fondements de l'Écriture jusqu'à la théologie pratique et le ministère. Chaque module est conçu pour être étudié à votre rythme, avec l'accompagnement pastoral de notre équipe.
+                La formation se déroule en {n} modules progressifs, allant des fondements de l'Écriture jusqu'à la théologie pratique et le ministère. Chaque module est conçu pour être étudié à votre rythme, avec l'accompagnement pastoral de notre équipe.
               </p>
               <p className="form-pres-p">
                 À l'issue du programme, chaque étudiant reçoit un <strong>certificat de formation en Théologie Biblique</strong>, attestant de son engagement et de sa progression dans la connaissance de la Parole.

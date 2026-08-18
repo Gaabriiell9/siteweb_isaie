@@ -5,6 +5,7 @@ import {
   finalizeInscription,
   IS_MOCK,
   getFormulesPaiement,
+  getModulesCount,
 } from '../lib/supabase';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
@@ -285,10 +286,19 @@ function Step1({ formData, setFormData, onNext }) {
     });
   }, []);
 
-  const choose = (formuleId, formuleType) => {
-    setFormData(d => ({ ...d, formule: formuleType, formule_id: formuleId }));
+  const choose = (formule) => {
+    setFormData(d => ({ ...d, formule: formule.type, formule_id: formule.id }));
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, formule: formuleType, formule_id: formuleId }));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, formule: formule.type, formule_id: formule.id }));
+    // Sauvegarder les détails complets de la formule pour le récapitulatif
+    localStorage.setItem('etc_formule_selectionnee', JSON.stringify({
+      id: formule.id,
+      type: formule.type,
+      nom: formule.nom,
+      prix_total: formule.prix_total,
+      montant_echeance: formule.montant_echeance,
+      nombre_echeances: formule.nombre_echeances,
+    }));
   };
 
   const formatEuros = (cents) => {
@@ -317,7 +327,7 @@ function Step1({ formData, setFormData, onNext }) {
               <div
                 key={formule.id}
                 className={`fi2-formule-card ${isSelected ? 'fi2-formule-card--active' : ''}`}
-                onClick={() => choose(formule.id, formule.type)}
+                onClick={() => choose(formule)}
               >
                 {isFirst && <div className="fi2-formule-badge-recommande">Recommandé</div>}
                 <div className="fi2-formule-top">
@@ -577,7 +587,8 @@ function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
         <label className="fi2-label">Mot de passe *</label>
         <div className="fi2-pwd-wrap">
           <input type={showPwd ? 'text' : 'password'} value={formData.password}
-            onChange={set('password')} placeholder="Minimum 8 caractères" />
+            onChange={set('password')} placeholder="Minimum 8 caractères"
+            autoComplete="new-password" />
           <button type="button" className="fi2-pwd-toggle" onClick={() => setShowPwd(v => !v)}>
             <EyeIcon visible={showPwd} />
           </button>
@@ -591,7 +602,8 @@ function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
           <input type={showConfirm ? 'text' : 'password'} value={formData.password_confirm}
             onChange={set('password_confirm')}
             className={formData.password_confirm && !pwdMatch ? 'fi2-input--error' : ''}
-            placeholder="Répétez votre mot de passe" />
+            placeholder="Répétez votre mot de passe"
+            autoComplete="new-password" />
           <button type="button" className="fi2-pwd-toggle" onClick={() => setShowConfirm(v => !v)}>
             <EyeIcon visible={showConfirm} />
           </button>
@@ -656,7 +668,6 @@ export default function FormationInscription() {
   const [formData, setFormData] = useState(() => {
     const params = new URLSearchParams(location.search);
     const urlFormule = params.get('formule');
-    // On démarre toujours vierge — pas de restauration du draft au chargement
     return {
       ...EMPTY_FORM,
       formule: urlFormule === 'echelonne' ? 'echelonne'
@@ -666,10 +677,12 @@ export default function FormationInscription() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [modulesCount, setModulesCount] = useState(null);
 
-  // Vider le draft à chaque visite de la page
+  // Vider le draft et charger le nombre de modules
   useEffect(() => {
     localStorage.removeItem(DRAFT_KEY);
+    getModulesCount().then(setModulesCount);
   }, []);
 
   const goTo = (s) => {
@@ -748,7 +761,7 @@ export default function FormationInscription() {
           <h1 className="fi2-main-title">
             Inscription à la <em>Formation</em>
           </h1>
-          <p className="fi2-main-sub">Théologie Biblique — 6 modules · 12 mois</p>
+          <p className="fi2-main-sub">Théologie Biblique — {modulesCount !== null ? `${modulesCount} modules` : '…'} · 12 mois</p>
           <button className="fi2-reset-btn" onClick={handleReset} title="Recommencer l'inscription">
             Recommencer
           </button>
