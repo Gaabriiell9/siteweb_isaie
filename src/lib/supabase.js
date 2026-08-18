@@ -1173,8 +1173,10 @@ export async function getFormulesPaiement(includeInactive = false) {
   if (!includeInactive) {
     query = query.eq('actif', true);
   }
-  const { data, error } = await query;
-  if (error) console.error('getFormulesPaiement error:', error);
+  const { data, error, status } = await query;
+  if (error) {
+    console.error('getFormulesPaiement error:', error, 'status:', status);
+  }
   return data || [];
 }
 
@@ -1211,12 +1213,16 @@ export async function createFormulePaiement(formule) {
 
 export async function updateFormulePaiement(id, updates) {
   if (IS_MOCK) {
-    return { error: null };
+    return { data: { id, ...updates }, error: null };
   }
-  const { error } = await supabase
-    .from('formules_paiement').update(updates).eq('id', id);
-  if (error) console.error('updateFormulePaiement error:', error);
-  return { error };
+  const { data, error, status } = await supabase
+    .from('formules_paiement').update(updates).eq('id', id).select().single();
+  if (error) {
+    console.error('updateFormulePaiement error:', error, 'status:', status);
+  } else {
+    console.log('updateFormulePaiement success:', data);
+  }
+  return { data, error };
 }
 
 export async function deleteFormulePaiement(id) {

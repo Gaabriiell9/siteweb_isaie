@@ -2325,7 +2325,7 @@ function SubTabFormules() {
     if (saving) return;
     setSaving(true);
     const avantagesFiltered = editForm.avantages.filter(a => a.trim() !== '');
-    const { error } = await updateFormulePaiement(editingId, {
+    const updates = {
       nom: editForm.nom,
       type: editForm.type,
       prix_total: Math.round(parseFloat(editForm.prix_total) * 100),
@@ -2334,15 +2334,22 @@ function SubTabFormules() {
       avantages: avantagesFiltered,
       actif: editForm.actif,
       ordre_affichage: parseInt(editForm.ordre_affichage),
-    });
+    };
+    const { data, error } = await updateFormulePaiement(editingId, updates);
     setSaving(false);
     if (error) {
-      showMsg('Erreur lors de la sauvegarde');
+      console.error('Erreur mise à jour formule:', error);
+      showMsg(`Erreur: ${error.message || 'Échec de la sauvegarde'}`);
       return;
+    }
+    // Mettre à jour le state local immédiatement avec les données retournées
+    if (data) {
+      setFormules(prev => prev.map(f => f.id === editingId ? data : f));
     }
     setEditingId(null);
     showMsg('Formule mise à jour ✓');
-    load();
+    // Re-fetch pour s'assurer de la synchronisation
+    await load();
   };
 
   const handleCreate = async (e) => {
@@ -2350,7 +2357,7 @@ function SubTabFormules() {
     if (saving) return;
     setSaving(true);
     const avantagesFiltered = createForm.avantages.filter(a => a.trim() !== '');
-    const { error } = await createFormulePaiement({
+    const { data, error } = await createFormulePaiement({
       nom: createForm.nom,
       type: createForm.type,
       prix_total: Math.round(parseFloat(createForm.prix_total) * 100),
@@ -2362,19 +2369,27 @@ function SubTabFormules() {
     });
     setSaving(false);
     if (error) {
-      showMsg('Erreur lors de la création');
+      console.error('Erreur création formule:', error);
+      showMsg(`Erreur: ${error.message || 'Échec de la création'}`);
       return;
     }
     setShowCreate(false);
     setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
     showMsg('Formule créée ✓');
-    load();
+    await load();
   };
 
   const toggleActif = async (f) => {
-    await updateFormulePaiement(f.id, { actif: !f.actif });
+    const { error } = await updateFormulePaiement(f.id, { actif: !f.actif });
+    if (error) {
+      console.error('Erreur toggle actif:', error);
+      showMsg(`Erreur: ${error.message || 'Échec'}`);
+      return;
+    }
+    // Mise à jour optimiste du state local
+    setFormules(prev => prev.map(form => form.id === f.id ? { ...form, actif: !f.actif } : form));
     showMsg(f.actif ? 'Formule désactivée' : 'Formule activée');
-    load();
+    await load();
   };
 
   const AvantagesEditor = ({ avantages, isCreate }) => (
