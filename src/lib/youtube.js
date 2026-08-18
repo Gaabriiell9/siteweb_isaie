@@ -47,7 +47,7 @@ export function extractYoutubeId(url) {
 export function getYoutubeEmbedUrl(url) {
   const videoId = extractYoutubeId(url);
   if (!videoId) return null;
-  return `https://www.youtube.com/embed/${videoId}`;
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
 }
 
 /**

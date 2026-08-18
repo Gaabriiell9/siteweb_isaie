@@ -206,6 +206,39 @@
   height: 100%;
 }
 
+/* Overlay play sur le lecteur */
+.prog-player-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 6, 0, 0.4);
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 1;
+}
+.prog-player-overlay:hover {
+  background: rgba(14, 6, 0, 0.55);
+}
+.prog-player-play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(200, 134, 10, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #fff;
+  padding-left: 4px;
+  transition: transform 0.15s, background 0.2s;
+}
+.prog-player-overlay:hover .prog-player-play-btn {
+  transform: scale(1.08);
+  background: var(--or);
+}
+
 /* Bouton externe (Zoom, etc.) */
 .prog-external-btn {
   display: inline-flex; align-items: center; gap: 8px;
