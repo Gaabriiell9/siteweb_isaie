@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis, TIMEZONE } from '../lib/supabase';
+import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis, getFormulePaiementById } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon';
 
@@ -75,6 +75,7 @@ export default function EleveDashboard() {
   const [modules, setModules] = useState([]);
   const [evals, setEvals] = useState([]);
   const [paiements, setPaiements] = useState([]);
+  const [formuleData, setFormuleData] = useState(null);
   const [prochainCours, setProchainCours] = useState(null);
   const [messagesNonLus, setMessagesNonLus] = useState(0);
   const [, setTick] = useState(0); // force re-render toutes les 60s pour statut live
@@ -84,8 +85,10 @@ export default function EleveDashboard() {
     getModulesAvecProgression(eleve.id).then(setModules);
     getEvaluations(eleve.id).then(setEvals);
     getPaiements(eleve.id).then(setPaiements);
+    if (eleve.formule_id) {
+      getFormulePaiementById(eleve.formule_id).then(setFormuleData);
+    }
     getMesSessionsLive(eleve.id).then(sessions => {
-      // getMesSessionsLive retourne déjà en_cours en premier grâce au tri
       const prochain = sessions.find(s => {
         const st = getSessionStatut(s);
         return st === 'en_cours' || st === 'programme';
@@ -111,7 +114,44 @@ export default function EleveDashboard() {
   const prochainModule = modules.find(m => m.debloque && !m.complete)
     || modules.find(m => !m.debloque);
 
-  const prochainPaiement = paiements.find(p => p.statut === 'en_attente');
+  // Logique paiement dynamique
+  const isEchelonne = formuleData?.type === 'echelonne' || eleve?.formule === 'echelonne';
+  const montantEcheanceCents = formuleData?.montant_echeance || (isEchelonne ? 5000 : formuleData?.prix_total || 45000);
+  const nombreEcheances = formuleData?.nombre_echeances || (isEchelonne ? 10 : 1);
+  const prixTotalCents = formuleData?.prix_total || (isEchelonne ? 50000 : 45000);
+
+  // Trouver le prochain paiement en attente (depuis la DB) ou calculer la prochaine échéance
+  const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
+  const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
+  const prixTotalEuros = prixTotalCents / 100;
+  const toutPaye = totalPayeEuros >= prixTotalEuros;
+
+  // Chercher un paiement explicitement en attente dans la DB
+  const prochainPaiementDB = paiements.find(p => p.statut === 'en_attente');
+
+  // Si pas de paiement en attente en DB mais formule échelonnée, calculer la prochaine échéance
+  const getProchainPaiementCalcule = () => {
+    if (toutPaye) return null;
+    if (!isEchelonne) {
+      // Paiement intégral non payé
+      return { montant: prixTotalEuros, date: null, isCalculated: true };
+    }
+    // Calculer la prochaine échéance non payée
+    const dateDebut = eleve?.date_inscription ? new Date(eleve.date_inscription) : new Date();
+    const nbPaye = paiementsReussis.length;
+    if (nbPaye >= nombreEcheances) return null;
+
+    const prochaineDate = new Date(dateDebut);
+    prochaineDate.setMonth(prochaineDate.getMonth() + nbPaye);
+
+    return {
+      montant: montantEcheanceCents / 100,
+      date: prochaineDate,
+      isCalculated: true
+    };
+  };
+
+  const prochainPaiement = prochainPaiementDB || getProchainPaiementCalcule();
 
   return (
     <div>
@@ -172,23 +212,31 @@ export default function EleveDashboard() {
         </div>
 
         <div className="eleve-stat-card">
-          <div className="eleve-stat-label">{eleve?.formule === 'echelonne' ? 'Prochain paiement' : 'Formule'}</div>
-          {eleve?.formule === 'echelonne' ? (
-            prochainPaiement ? (
-              <>
-                <div className="eleve-stat-value">
-                  {prochainPaiement.montant}<span className="eleve-stat-unit"> €</span>
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginTop: 6 }}>
-                  {new Date(prochainPaiement.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                </div>
-              </>
-            ) : (
-              <div style={{ fontSize: 13, color: 'var(--texte-doux)', fontStyle: 'italic', marginTop: 8 }}>Aucun paiement en attente</div>
-            )
+          <div className="eleve-stat-label">
+            {toutPaye ? 'Paiement' : isEchelonne ? 'Prochain paiement' : 'Formule'}
+          </div>
+          {toutPaye ? (
+            <div style={{ marginTop: 8 }}>
+              <span className="eleve-badge eleve-badge--green">Soldé</span>
+            </div>
+          ) : prochainPaiement ? (
+            <>
+              <div className="eleve-stat-value">
+                {prochainPaiement.montant}<span className="eleve-stat-unit"> €</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginTop: 6 }}>
+                {prochainPaiement.date_paiement
+                  ? new Date(prochainPaiement.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+                  : prochainPaiement.date
+                    ? new Date(prochainPaiement.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+                    : 'En attente'}
+              </div>
+            </>
           ) : (
             <div style={{ marginTop: 8 }}>
-              <span className="eleve-badge eleve-badge--gold">Intégral</span>
+              <span className="eleve-badge eleve-badge--gold">
+                {formuleData?.nom || (isEchelonne ? 'Échelonné' : 'Intégral')}
+              </span>
             </div>
           )}
         </div>

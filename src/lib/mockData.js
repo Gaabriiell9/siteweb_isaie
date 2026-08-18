@@ -403,6 +403,7 @@ export const MOCK_ELEVE = {
   date_naissance: '1990-05-15',
   eglise: 'Église Temple de la Célébration',
   formule: 'echelonne',
+  formule_id: 'formule-echelonne',
   statut: 'actif',
   progression_pct: 33,
   date_inscription: '2026-01-15T00:00:00Z',
