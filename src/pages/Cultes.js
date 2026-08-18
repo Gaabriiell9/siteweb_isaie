@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis, TIMEZONE } from '../lib/supabase';
-import { extractYoutubeId, getYoutubeEmbedUrl, isYoutubeUrl, isZoomUrl } from '../lib/videoUtils';
+import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis } from '../lib/supabase';
+import { extractYoutubeId, getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import './Cultes.css';
 import Icon from '../components/Icon';
 
@@ -47,26 +47,26 @@ function formatLiveDate(dateStr) {
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
-function isLiveActif(culte) {
+/**
+ * Calcule l'état d'un culte par rapport à l'heure actuelle (Europe/Paris)
+ * @returns {'a_venir' | 'en_cours' | 'termine'}
+ */
+function getCulteEtat(culte) {
   const now = getNowParis();
-  const nowParis = getNowParis();
-
   const [y, m, d] = culte.date_culte.split('-').map(Number);
-  const memeJour =
-    nowParis.getFullYear() === y &&
-    (nowParis.getMonth() + 1) === m &&
-    nowParis.getDate() === d;
 
-  if (!memeJour) return false;
-
+  // Construire les timestamps de début et fin en heure Paris
   const [hDeb, mDeb] = (culte.heure_debut || '10:00').split(':').map(Number);
-  const [hFin, mFin] = (culte.heure_fin   || '11:30').split(':').map(Number);
+  const [hFin, mFin] = (culte.heure_fin || '11:30').split(':').map(Number);
 
-  const debutMinutes = hDeb * 60 + mDeb - 15;
-  const finMinutes = hFin * 60 + mFin + 30;
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  // Date de début (15 min avant pour permettre l'accès anticipé)
+  const debut = new Date(y, m - 1, d, hDeb, mDeb - 15, 0);
+  // Date de fin (30 min après pour le temps de clôture)
+  const fin = new Date(y, m - 1, d, hFin, mFin + 30, 0);
 
-  return nowMinutes >= debutMinutes && nowMinutes <= finMinutes;
+  if (now < debut) return 'a_venir';
+  if (now > fin) return 'termine';
+  return 'en_cours';
 }
 
 export default function Cultes() {
@@ -82,8 +82,12 @@ export default function Cultes() {
   useEffect(() => {
     getCultes('culte').then(data => {
       setCultes(data);
-      const liveActif = data.find(c => c.lien_live && isLiveActif(c));
-      if (liveActif) { setLienLive(liveActif.lien_live); setLiveDate(liveActif.date_culte || ''); }
+      // Trouver un culte en cours avec un lien live
+      const culteEnCours = data.find(c => c.lien_live && getCulteEtat(c) === 'en_cours');
+      if (culteEnCours) {
+        setLienLive(culteEnCours.lien_live);
+        setLiveDate(culteEnCours.date_culte || '');
+      }
       setLoading(false);
     });
     getAnciensCultes().then(setAnciensCultes);
@@ -118,53 +122,60 @@ export default function Cultes() {
 
       <div className="cultes-wrap">
 
-          {/* ── Section Live ────────────────────────────────────────── */}
-          {!loading && lienLive && (
-            <div className="live-section">
-              <div className="live-top-row">
-                <span className="live-badge">
-                  <span className="live-dot-red" />
-                  EN DIRECT
-                </span>
-                {liveDate && (
-                  <span className="live-top-date">
-                    {formatLiveDate(liveDate)} · 10h00
+          {/* ── Section Live (culte en cours) ─────────────────────────── */}
+          {!loading && lienLive && (() => {
+            const embedUrl = getYoutubeEmbedUrl(lienLive);
+            return (
+              <div className="live-section">
+                <div className="live-top-row">
+                  <span className="live-badge">
+                    <span className="live-dot-red" />
+                    EN DIRECT
                   </span>
-                )}
-              </div>
-              <h3 className="live-titre">Culte du <em>Dimanche</em></h3>
-              <p className="live-sous-titre">Louange · Adoration · Prédication</p>
-              {isYoutubeUrl(lienLive) ? (
-                <div className="live-player">
-                  <iframe
-                    src={getYoutubeEmbedUrl(lienLive, { autoplay: 0 })}
-                    title="Culte en direct"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  {liveDate && (
+                    <span className="live-top-date">
+                      {formatLiveDate(liveDate)} · 10h00
+                    </span>
+                  )}
                 </div>
-              ) : (
-                <a
-                  href={lienLive}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="live-external-btn"
-                >
-                  {isZoomUrl(lienLive) ? '📹 Rejoindre sur Zoom' : '🔗 Ouvrir le live'}
-                </a>
-              )}
-              <div className="live-footer">
-                <span className="live-footer-item">Dimanche · 10h00</span>
-                <div className="live-losange" />
-                <span className="live-footer-item">En ligne</span>
-                <div className="live-losange" />
-                <button className="live-share-btn" onClick={handleShare}>
-                  {copied ? 'Lien copié !' : 'Partager'}
-                </button>
+                <h3 className="live-titre">Culte du <em>Dimanche</em></h3>
+                <p className="live-sous-titre">Louange · Adoration · Prédication</p>
+
+                {/* Si YouTube : iframe intégré */}
+                {embedUrl ? (
+                  <div className="live-player">
+                    <iframe
+                      src={embedUrl}
+                      title="Culte en direct"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  /* Sinon : bouton externe (Zoom ou autre) */
+                  <a
+                    href={lienLive}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="live-external-btn"
+                  >
+                    🔗 Rejoindre le live
+                  </a>
+                )}
+
+                <div className="live-footer">
+                  <span className="live-footer-item">Dimanche · 10h00</span>
+                  <div className="live-losange" />
+                  <span className="live-footer-item">En ligne</span>
+                  <div className="live-losange" />
+                  <button className="live-share-btn" onClick={handleShare}>
+                    {copied ? 'Lien copié !' : 'Partager'}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── Programme éditorial ───────────────────────────────── */}
           <div className="prog-section">
@@ -194,12 +205,11 @@ export default function Cultes() {
                 const [year, month, day] = c.date_culte.split('-').map(Number);
                 const heure = `${(c.heure_debut || '10:00').slice(0,5)} — ${(c.heure_fin || '11:30').slice(0,5)}`;
                 const hasLive = c.lien_live && c.lien_live.trim();
-                const isCulteActif = hasLive && isLiveActif(c);
-                const isYoutube = hasLive && isYoutubeUrl(c.lien_live);
-                const embedUrl = isYoutube ? getYoutubeEmbedUrl(c.lien_live) : null;
+                const etat = getCulteEtat(c);
+                const embedUrl = hasLive ? getYoutubeEmbedUrl(c.lien_live) : null;
 
                 return (
-                  <div className={`prog-row ${isCulteActif ? 'prog-row--live' : ''}`} key={c.id || i}>
+                  <div className={`prog-row ${etat === 'en_cours' && hasLive ? 'prog-row--live' : ''}`} key={c.id || i}>
                     <div className="prog-date">
                       <span className="prog-day">{day}</span>
                       <span className="prog-month">{MOIS[month - 1]}</span>
@@ -209,17 +219,21 @@ export default function Cultes() {
                       <span className="prog-sub">Louange · Adoration · Prédication</span>
                     </div>
                     <div className="prog-heure">{heure}</div>
-                    {hasLive && !isCulteActif && (
+
+                    {/* Badge "Live prévu" pour culte à venir avec lien */}
+                    {hasLive && etat === 'a_venir' && (
                       <span className="prog-live-badge">Live prévu</span>
                     )}
-                    {isCulteActif && (
+
+                    {/* Badge "En direct" pour culte en cours */}
+                    {hasLive && etat === 'en_cours' && (
                       <span className="prog-live-badge prog-live-badge--active">
                         <span className="prog-live-dot" />En direct
                       </span>
                     )}
 
-                    {/* Lecteur intégré pour le culte en cours uniquement */}
-                    {isCulteActif && embedUrl && (
+                    {/* Lecteur YouTube intégré pour le culte en cours */}
+                    {etat === 'en_cours' && embedUrl && (
                       <div className="prog-player-wrap">
                         <div className="prog-player">
                           <iframe
@@ -233,8 +247,8 @@ export default function Cultes() {
                       </div>
                     )}
 
-                    {/* Bouton externe pour Zoom ou liens non-YouTube */}
-                    {isCulteActif && !isYoutube && (
+                    {/* Bouton externe si en cours mais pas YouTube (Zoom, etc.) */}
+                    {etat === 'en_cours' && hasLive && !embedUrl && (
                       <div className="prog-player-wrap">
                         <a
                           href={c.lien_live}
@@ -242,7 +256,7 @@ export default function Cultes() {
                           rel="noopener noreferrer"
                           className="prog-external-btn"
                         >
-                          {isZoomUrl(c.lien_live) ? '📹 Rejoindre sur Zoom' : '🔗 Ouvrir le live'}
+                          🔗 Rejoindre le live
                         </a>
                       </div>
                     )}
@@ -283,25 +297,36 @@ export default function Cultes() {
       </div>
 
       {/* ── Modal replay ─────────────────────────────────────────── */}
-      {selectedCulte && (
-        <div className="replay-modal-overlay" onClick={() => setSelectedCulte(null)}>
-          <div className="replay-modal" onClick={e => e.stopPropagation()}>
-            <div className="replay-modal-header">
-              <span className="replay-modal-titre">{selectedCulte.titre}</span>
-              <button className="replay-modal-close" onClick={() => setSelectedCulte(null)}><Icon name="x" size={16} /></button>
-            </div>
-            <div className="live-player">
-              <iframe
-                src={getYoutubeEmbedUrl(selectedCulte.lien_live, { autoplay: 1 })}
-                title={selectedCulte.titre}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+      {selectedCulte && (() => {
+        const replayEmbedUrl = getYoutubeEmbedUrl(selectedCulte.lien_live);
+        return (
+          <div className="replay-modal-overlay" onClick={() => setSelectedCulte(null)}>
+            <div className="replay-modal" onClick={e => e.stopPropagation()}>
+              <div className="replay-modal-header">
+                <span className="replay-modal-titre">{selectedCulte.titre}</span>
+                <button className="replay-modal-close" onClick={() => setSelectedCulte(null)}><Icon name="x" size={16} /></button>
+              </div>
+              {replayEmbedUrl ? (
+                <div className="live-player">
+                  <iframe
+                    src={replayEmbedUrl}
+                    title={selectedCulte.titre}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <div style={{ padding: '24px', textAlign: 'center' }}>
+                  <a href={selectedCulte.lien_live} target="_blank" rel="noopener noreferrer" className="prog-external-btn">
+                    🔗 Ouvrir le replay
+                  </a>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
