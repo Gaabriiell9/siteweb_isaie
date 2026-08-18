@@ -133,6 +133,25 @@
   user-select: none;
 }
 
+/* Variante compacte */
+.dons-amount-zone--compact {
+  padding-bottom: 32px;
+}
+.dons-amount-zone--compact .dons-amount-display {
+  margin-bottom: 0;
+}
+.dons-amount-zone--compact .dons-amount-input {
+  font-size: clamp(40px, 8vw, 56px);
+  width: clamp(80px, 14vw, 140px);
+}
+.dons-amount-zone--compact .dons-amount-input::placeholder {
+  color: rgba(107,26,46,0.25);
+}
+.dons-amount-zone--compact .dons-amount-currency {
+  font-size: clamp(20px, 4vw, 28px);
+  padding-top: 8px;
+}
+
 /* Presets */
 .dons-presets {
   display: flex;

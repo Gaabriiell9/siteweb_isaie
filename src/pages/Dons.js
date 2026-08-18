@@ -2,26 +2,16 @@ import React, { useState, useRef } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import './Dons.css';
 
-const PRESETS  = [10, 25, 50, 100, 200];
-const MOTIFS   = [
-  { value: 'general',  label: 'Soutien général' },
-  { value: 'offrande', label: 'Offrande' },
-  { value: 'dime',     label: 'Dîme' },
-  { value: 'projet',   label: 'Projet' },
-  { value: 'autre',    label: 'Autre' },
-];
-
 export default function Dons() {
-  const [step, setStep]           = useState('landing'); // landing | form | done
-  const [valeur, setValeur]       = useState('25');
-  const [motif, setMotif]         = useState('general');
-  const [autreMotif, setAutreMotif] = useState('');
+  const [step, setStep]     = useState('landing'); // landing | form | done
+  const [valeur, setValeur] = useState('');
   const inputRef = useRef(null);
+
+  // Fallback silencieux pour le backend/Stripe
+  const motif = 'general';
 
   const montantNum  = parseFloat(valeur) || 0;
   const valide      = montantNum >= 1;
-
-  const choisir = (n) => { setValeur(String(n)); inputRef.current?.focus(); };
 
   const handleInput = (e) => {
     const v = e.target.value.replace(/[^0-9]/g, '');
@@ -30,7 +20,7 @@ export default function Dons() {
 
   const handleSubmit = (e) => { e.preventDefault(); if (valide) setStep('done'); };
 
-  const reset = () => { setStep('landing'); setValeur('25'); setMotif('general'); setAutreMotif(''); };
+  const reset = () => { setStep('landing'); setValeur(''); };
 
   if (step === 'done') return (
     <div>
@@ -96,8 +86,8 @@ export default function Dons() {
           </button>
         </div>
 
-        {/* ── Zone montant ── */}
-        <div className="dons-amount-zone">
+        {/* ── Zone montant (simplifiée) ── */}
+        <div className="dons-amount-zone dons-amount-zone--compact">
           <label className="dons-amount-eyebrow">Montant de votre don</label>
           <div className="dons-amount-display" onClick={() => inputRef.current?.focus()}>
             <input
@@ -107,57 +97,12 @@ export default function Dons() {
               inputMode="numeric"
               value={valeur}
               onChange={handleInput}
+              placeholder="0"
               maxLength={6}
               autoFocus
             />
             <span className="dons-amount-currency">€</span>
           </div>
-          <div className="dons-presets">
-            {PRESETS.map(n => (
-              <button
-                key={n}
-                type="button"
-                className={`dons-preset${valeur === String(n) ? ' active' : ''}`}
-                onClick={() => choisir(n)}
-              >
-                {n} €
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Séparateur ── */}
-        <div className="dons-divider">
-          <span />
-          <span className="dons-divider-diamond" />
-          <span />
-        </div>
-
-        {/* ── Destination ── */}
-        <div className="dons-dest-zone">
-          <label className="dons-dest-eyebrow">Destination</label>
-          <div className="dons-motifs">
-            {MOTIFS.map(m => (
-              <button
-                key={m.value}
-                type="button"
-                className={`dons-motif${motif === m.value ? ' active' : ''}`}
-                onClick={() => setMotif(m.value)}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-          {motif === 'autre' && (
-            <input
-              className="dons-autre"
-              type="text"
-              placeholder="Précisez le motif…"
-              value={autreMotif}
-              onChange={e => setAutreMotif(e.target.value)}
-              maxLength={80}
-            />
-          )}
         </div>
 
         {/* ── Submit ── */}

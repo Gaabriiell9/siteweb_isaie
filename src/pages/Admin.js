@@ -4,7 +4,6 @@ import logoPng from '../assets/logoe-eglise.png';
 import {
   signIn, signOut, getSession, checkIsAdmin,
   getVideos, addVideo, deleteVideo,
-  getFichiers, uploadFichier, deleteFichier,
   getAllMessages, upsertMessage, deleteMessage,
   getCultes, addCulte, deleteCulte, getAnciensCultes,
   getAllElevesAvecStats,
@@ -157,79 +156,6 @@ function TabVideos() {
           </div>
         ))}
         {videos.length === 0 && <p className="admin-empty">Aucune vidéo pour l'instant.</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// TAB : FICHIERS (PDF / Images)
-// ─────────────────────────────────────────────
-function TabFichiers() {
-  const [fichiers, setFichiers] = useState([]);
-  const [nom, setNom] = useState('');
-  const [desc, setDesc] = useState('');
-  const [cat, setCat] = useState('general');
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [msg, setMsg] = useState('');
-  const fileRef = useRef();
-
-  const load = async () => setFichiers(await getFichiers());
-  useEffect(() => { load(); }, []);
-
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file) return;
-    setUploading(true);
-    const { error } = await uploadFichier(file, nom || file.name, desc, cat);
-    if (!error) { setMsg('Fichier publié ✓'); setNom(''); setDesc(''); setFile(null); fileRef.current.value = ''; load(); }
-    else setMsg('Erreur : ' + error.message);
-    setUploading(false);
-    setTimeout(() => setMsg(''), 3000);
-  };
-
-  const handleDelete = async (id, path) => {
-    if (!window.confirm('Supprimer ce fichier ?')) return;
-    await deleteFichier(id, path);
-    load();
-  };
-
-  return (
-    <div className="admin-tab">
-      <h3>Uploader un fichier</h3>
-      <form onSubmit={handleUpload} className="admin-form">
-        <input placeholder="Nom du fichier" value={nom} onChange={e => setNom(e.target.value)} />
-        <textarea placeholder="Description (optionnelle)" rows={2} value={desc} onChange={e => setDesc(e.target.value)} />
-        <select value={cat} onChange={e => setCat(e.target.value)}>
-          <option value="general">Général</option>
-          <option value="sermon">Support de prédication</option>
-          <option value="bulletin">Bulletin / Programme</option>
-          <option value="formation">Formation théologique</option>
-          <option value="priere">Montagne de prière</option>
-        </select>
-        <div className="admin-file-drop">
-          <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={e => setFile(e.target.files[0])} required />
-          {file && <span className="admin-file-name"><Icon name="file" size={14} style={{marginRight:4}} />{file.name}</span>}
-        </div>
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') ? 'err' : 'ok'}`}>{msg}</div>}
-        <button type="submit" className="admin-btn-primary" disabled={uploading}>{uploading ? 'Upload en cours…' : 'Publier le fichier'}</button>
-      </form>
-
-      <h3 style={{ marginTop: 24 }}>Fichiers publiés ({fichiers.length})</h3>
-      <div className="admin-list">
-        {fichiers.map(f => (
-          <div className="admin-item" key={f.id}>
-            <div className="admin-file-icon"><Icon name={f.type === 'pdf' ? 'file' : 'image'} size={18} /></div>
-            <div className="admin-item-info">
-              <strong>{f.nom}</strong>
-              <span>{f.categorie}</span>
-              <a href={f.storage_path} target="_blank" rel="noreferrer" className="admin-link">Voir le fichier →</a>
-            </div>
-            <button className="admin-btn-delete" onClick={() => handleDelete(f.id, f.storage_path)}><Icon name="x" size={14} /></button>
-          </div>
-        ))}
-        {fichiers.length === 0 && <p className="admin-empty">Aucun fichier pour l'instant.</p>}
       </div>
     </div>
   );
@@ -2199,14 +2125,6 @@ const IconPlay = () => (
     <polygon points="3,1 13,7 3,13" fill="currentColor" stroke="none" />
   </svg>
 );
-const IconDoc = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 1h6l3 3v9H3V1z" />
-    <path d="M9 1v3h3" />
-    <line x1="5" y1="7" x2="10" y2="7" />
-    <line x1="5" y1="10" x2="10" y2="10" />
-  </svg>
-);
 const IconCroix = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
     <line x1="7" y1="1" x2="7" y2="13" />
@@ -2234,7 +2152,6 @@ const IconFormation = () => (
 
 const TABS = [
   { id: 'videos',    label: 'Vidéos',            icon: <IconPlay /> },
-  { id: 'fichiers',  label: 'Fichiers',           icon: <IconDoc /> },
   { id: 'priere',    label: 'Messages prière',    icon: <IconCroix /> },
   { id: 'cultes',    label: 'Cultes & Cellules',  icon: <IconCal /> },
   { id: 'formation', label: 'Formation',          icon: <IconFormation /> },
@@ -2299,7 +2216,6 @@ export default function Admin() {
         <div className="admin-content">
           <div key={animKey} style={{ animation: 'adminFadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both' }}>
             {activeTab === 'videos'    && <TabVideos />}
-            {activeTab === 'fichiers'  && <TabFichiers />}
             {activeTab === 'priere'    && <TabPriere />}
             {activeTab === 'cultes'    && <TabCultes />}
             {activeTab === 'formation' && <TabFormation />}
