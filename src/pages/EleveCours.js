@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getMesSessionsLive, marquerSessionRejointe, getSessionStatut } from '../lib/supabase';
+import { getMesSessionsLive, marquerSessionRejointe, getSessionStatut, TIMEZONE, formatDateParis } from '../lib/supabase';
 import './EleveCours.css';
 import Icon from '../components/Icon';
 
@@ -53,16 +53,16 @@ function SessionCard({ session, onJoin }) {
   return (
     <div className={`ec-session-card${isLive ? ' ec-session-card--live' : ''}${isPast ? ' ec-session-card--past' : ''}`}>
       <div className="ec-session-date-bloc">
-        <div className="ec-session-date-day">{date.getDate()}</div>
+        <div className="ec-session-date-day">{formatDateParis(date, { day: 'numeric' })}</div>
         <div className="ec-session-date-month">
-          {date.toLocaleDateString('fr-FR', { month: 'short' })}
+          {formatDateParis(date, { month: 'short' })}
         </div>
       </div>
 
       <div className="ec-session-info">
         <div className="ec-session-titre">{session.titre}</div>
         <div className="ec-session-meta">
-          <span><Icon name="clock" size={13} style={{marginRight:4}} />{date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span><Icon name="clock" size={13} style={{marginRight:4}} />{formatDateParis(date, { hour: '2-digit', minute: '2-digit' })}</span>
           <span><Icon name="timer" size={13} style={{marginRight:4}} />{session.duree_minutes || 60} min</span>
           {session.type_session === 'recurrent' && <span><Icon name="refresh" size={13} style={{marginRight:4}} />Récurrent</span>}
         </div>

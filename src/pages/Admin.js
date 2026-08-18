@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import ReactDOM from 'react-dom';
 import logoPng from '../assets/logoe-eglise.png';
 import {
-  signIn, signOut, getSession,
+  signIn, signOut, getSession, checkIsAdmin,
   getVideos, addVideo, deleteVideo,
   getFichiers, uploadFichier, deleteFichier,
   getAllMessages, upsertMessage, deleteMessage,
@@ -40,9 +40,23 @@ function LoginForm({ onLogin }) {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     const { error: err } = await signIn(email, password);
-    if (err) setError('Email ou mot de passe incorrect.');
-    else onLogin();
+    if (err) {
+      setError('Email ou mot de passe incorrect.');
+      setLoading(false);
+      return;
+    }
+
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) {
+      await signOut();
+      setError('Ce compte n\'a pas les droits administrateur.');
+      setLoading(false);
+      return;
+    }
+
+    onLogin();
     setLoading(false);
   };
 
@@ -341,7 +355,16 @@ function TabCultes() {
 
   const list = tab === 'culte' ? cultes : cellules;
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const parseDateCulte = (dateStr) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return { year: y, month: m, day: d };
+  };
+  const formatDate = (dateStr) => {
+    const { year, month, day } = parseDateCulte(dateStr);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  };
+  const MOIS_COURT = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
   return (
     <div className="admin-tab">
@@ -367,19 +390,22 @@ function TabCultes() {
 
       <h3 style={{ marginTop: 24 }}>À venir ({list.length})</h3>
       <div className="admin-list">
-        {list.map(c => (
-          <div className="admin-item" key={c.id}>
-            <div className="admin-date-box">
-              <span>{new Date(c.date_culte).getDate()}</span>
-              <span>{new Date(c.date_culte).toLocaleString('fr-FR', { month: 'short' })}</span>
+        {list.map(c => {
+          const { day, month } = parseDateCulte(c.date_culte);
+          return (
+            <div className="admin-item" key={c.id}>
+              <div className="admin-date-box">
+                <span>{day}</span>
+                <span>{MOIS_COURT[month - 1]}</span>
+              </div>
+              <div className="admin-item-info">
+                <strong>{c.titre}</strong>
+                <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
+              </div>
+              <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
             </div>
-            <div className="admin-item-info">
-              <strong>{c.titre}</strong>
-              <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
-            </div>
-            <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
-          </div>
-        ))}
+          );
+        })}
         {list.length === 0 && <p className="admin-empty">Aucun événement à venir.</p>}
       </div>
 
@@ -387,19 +413,22 @@ function TabCultes() {
         <>
           <h3 style={{ marginTop: 32 }}>Anciens cultes ({anciensCultes.length})</h3>
           <div className="admin-list">
-            {anciensCultes.map(c => (
-              <div className="admin-item" key={c.id}>
-                <div className="admin-date-box">
-                  <span>{new Date(c.date_culte).getDate()}</span>
-                  <span>{new Date(c.date_culte).toLocaleString('fr-FR', { month: 'short' })}</span>
+            {anciensCultes.map(c => {
+              const { day, month } = parseDateCulte(c.date_culte);
+              return (
+                <div className="admin-item" key={c.id}>
+                  <div className="admin-date-box">
+                    <span>{day}</span>
+                    <span>{MOIS_COURT[month - 1]}</span>
+                  </div>
+                  <div className="admin-item-info">
+                    <strong>{c.titre}</strong>
+                    <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
+                  </div>
+                  <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
                 </div>
-                <div className="admin-item-info">
-                  <strong>{c.titre}</strong>
-                  <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
-                </div>
-                <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
-              </div>
-            ))}
+              );
+            })}
             {anciensCultes.length === 0 && <p className="admin-empty">Aucun ancien culte.</p>}
           </div>
         </>
@@ -2213,16 +2242,37 @@ const TABS = [
 
 export default function Admin() {
   const [session, setSession] = useState(undefined);
+  const [isAdmin, setIsAdmin] = useState(undefined);
   const [activeTab, setActiveTab] = useState('videos');
   const [animKey, setAnimKey] = useState(0);
   const switchTab = (tab) => { setActiveTab(tab); setAnimKey(k => k + 1); };
 
   useEffect(() => {
-    getSession().then(setSession);
+    const checkAuth = async () => {
+      const sess = await getSession();
+      setSession(sess);
+      if (sess) {
+        const admin = await checkIsAdmin();
+        setIsAdmin(admin);
+        if (!admin) {
+          await signOut();
+          setSession(null);
+        }
+      }
+    };
+    checkAuth();
   }, []);
 
-  if (session === undefined) return <div className="admin-loading">Chargement…</div>;
-  if (!session) return <LoginForm onLogin={() => getSession().then(setSession)} />;
+  if (session === undefined || (session && isAdmin === undefined)) {
+    return <div className="admin-loading">Chargement…</div>;
+  }
+  if (!session || !isAdmin) {
+    return <LoginForm onLogin={async () => {
+      const sess = await getSession();
+      setSession(sess);
+      setIsAdmin(true);
+    }} />;
+  }
 
   return (
     <div className="admin-wrap">

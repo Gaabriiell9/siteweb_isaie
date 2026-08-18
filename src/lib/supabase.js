@@ -1,5 +1,40 @@
 import { createClient } from '@supabase/supabase-js';
 
+// ─── Timezone Europe/Paris ────────────────────────────────────────
+// Tous les horaires du site sont en heure de Paris
+export const TIMEZONE = 'Europe/Paris';
+
+export function getNowParis() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
+}
+
+export function getTodayParis() {
+  const now = getNowParis();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+export function parseDateParis(dateStr, timeStr = '00:00') {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [h, min] = timeStr.split(':').map(Number);
+  const dateInParis = new Date(Date.UTC(y, m - 1, d, h, min, 0));
+  const offset = getParisOffset(dateInParis);
+  return new Date(dateInParis.getTime() - offset * 60 * 1000);
+}
+
+function getParisOffset(date) {
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const parisDate = new Date(date.toLocaleString('en-US', { timeZone: TIMEZONE }));
+  return (utcDate - parisDate) / 60000;
+}
+
+export function formatDateParis(date, options = {}) {
+  return new Intl.DateTimeFormat('fr-FR', { timeZone: TIMEZONE, ...options }).format(date);
+}
+
+export function formatTimeParis(date) {
+  return formatDateParis(date, { hour: '2-digit', minute: '2-digit' });
+}
+
 // ─── Utilitaires statut session ───────────────────────────────────
 export function getSessionStatut(session) {
   const now = new Date();
@@ -128,17 +163,19 @@ export async function deleteMessage(id) {
 // ─── Helpers cultes / cellules ────────────────────────────────────
 export async function getCultes(type = 'culte') {
   if (IS_MOCK) return type === 'cellule' ? MOCK_CELLULES : MOCK_CULTES;
+  const todayParis = getTodayParis();
   const { data, error } = await supabase
     .from('cultes').select('*').eq('visible', true).eq('type', type)
-    .gte('date_culte', new Date().toISOString().split('T')[0]).order('date_culte');
+    .gte('date_culte', todayParis).order('date_culte');
   if (error) console.error(error);
   return data || [];
 }
 export async function getAnciensCultes() {
   if (IS_MOCK) return MOCK_ANCIENS_CULTES;
+  const todayParis = getTodayParis();
   const { data, error } = await supabase
     .from('cultes').select('*').eq('visible', true).eq('type', 'culte')
-    .lt('date_culte', new Date().toISOString().split('T')[0])
+    .lt('date_culte', todayParis)
     .not('lien_live', 'is', null).neq('lien_live', '')
     .order('date_culte', { ascending: false });
   if (error) console.error(error);
@@ -181,9 +218,7 @@ export async function signInEleve(email, password) {
   // Mettre à jour derniere_connexion via RPC (fire-and-forget)
   // Note: supabase.rpc() n'expose pas .catch() directement, on utilise .then()
   if (data?.user) {
-    supabase.rpc('update_ma_derniere_connexion').then(({ error }) => {
-      if (error) console.log('[signInEleve] RPC update_ma_derniere_connexion ignoré:', error.message);
-    });
+    supabase.rpc('update_ma_derniere_connexion').catch(() => {});
   }
 
   return { data: data?.session ? data : { user: data?.user }, error };
@@ -211,7 +246,6 @@ export async function getEleveProfil(authUserId) {
       console.error('[getEleveProfil] Error:', error);
       return null;
     }
-    console.log('[getEleveProfil] Profil trouvé:', data?.id ? 'oui' : 'non');
     return data;
   } catch (err) {
     console.error('[getEleveProfil] Exception:', err);
@@ -227,7 +261,6 @@ export async function getEleveStatut(authUserId) {
       console.error('[getEleveStatut] Error:', error);
       return 'actif';
     }
-    console.log('[getEleveStatut] Résultat pour', authUserId, ':', data);
     return data?.statut || 'actif';
   } catch (err) {
     console.error('[getEleveStatut] Exception:', err);
@@ -309,14 +342,8 @@ export async function finalizeInscription(data) {
     },
   });
 
-  console.log('[finalizeInscription] signUp response:', {
-    user: authData?.user?.id,
-    error: authError?.message
-  });
-
   // Vérifier d'abord si le user a été créé
   if (authData?.user?.id) {
-    console.log('[finalizeInscription] SUCCESS - user créé:', authData.user.id);
     return { success: true, user: authData.user };
   }
 
@@ -502,6 +529,22 @@ export async function signOut() {
 export async function getSession() {
   const { data } = await supabase.auth.getSession();
   return data.session;
+}
+
+export async function checkIsAdmin() {
+  if (IS_MOCK) return true;
+  const { data } = await supabase.auth.getSession();
+  if (!data.session?.user?.id) return false;
+  const { data: admin, error } = await supabase
+    .from('admins')
+    .select('id')
+    .eq('auth_user_id', data.session.user.id)
+    .maybeSingle();
+  if (error) {
+    console.error('[checkIsAdmin] Error:', error);
+    return false;
+  }
+  return !!admin;
 }
 
 // ─── Ancienne fonction (compatibilité) ───────────────────────────
@@ -825,25 +868,19 @@ export async function envoyerMessageEleve(contenu) {
   }
   const session = await supabase.auth.getSession();
   const userId = session.data?.session?.user?.id;
-  console.log('[envoyerMessageEleve] userId (auth.uid):', userId);
   if (!userId) return { data: null, error: { message: 'Non connecté' } };
 
-  const { data: eleve, error: eleveError } = await supabase.from('eleves').select('id').eq('auth_user_id', userId).single();
-  console.log('[envoyerMessageEleve] eleve.id:', eleve?.id, 'error:', eleveError);
+  const { data: eleve } = await supabase.from('eleves').select('id').eq('auth_user_id', userId).single();
   if (!eleve) return { data: null, error: { message: 'Profil élève introuvable' } };
 
-  const insertPayload = {
+  const { data, error } = await supabase.from('messages').insert([{
     expediteur_id: userId,
     expediteur_type: 'eleve',
     destinataire_id: eleve.id,
     destinataire_type: 'admin',
     contenu,
     lu: false,
-  };
-  console.log('[envoyerMessageEleve] INSERT payload:', insertPayload);
-
-  const { data, error } = await supabase.from('messages').insert([insertPayload]).select().single();
-  console.log('[envoyerMessageEleve] INSERT result:', { data, error });
+  }]).select().single();
   return { data, error };
 }
 

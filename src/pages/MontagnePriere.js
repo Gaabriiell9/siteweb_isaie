@@ -12,7 +12,6 @@ export default function MontagnePriere() {
 
   useEffect(() => {
     Promise.all([getAllMessages(), getMessagesDuJour()]).then(([all, t]) => {
-      console.log('Structure messages:', JSON.stringify(Array.isArray(all) ? all.slice(0, 2) : all));
       const valides = Array.isArray(all) ? all.filter(m => m && m.famille) : [];
       setMessages(valides); setToday(t); setLoading(false);
     });

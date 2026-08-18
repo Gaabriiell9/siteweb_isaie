@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getCultes, getAnciensCultes, IS_MOCK } from '../lib/supabase';
+import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis, TIMEZONE } from '../lib/supabase';
 import './Cultes.css';
 import Icon from '../components/Icon';
 
@@ -8,14 +8,16 @@ const MOIS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov
 const JOURS_SEMAINE = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 
 function getUpcomingSundays(n = 8) {
-  const arr = []; const d = new Date();
+  const arr = [];
+  const now = getNowParis();
+  const d = new Date(now);
   d.setDate(d.getDate() + ((7 - d.getDay()) % 7 || 7));
   for (let i = 0; i < n; i++) { arr.push(new Date(d)); d.setDate(d.getDate() + 7); }
   return arr;
 }
 
-function getNextSunday10h() {
-  const now = new Date();
+function getNextSunday10hParis() {
+  const now = getNowParis();
   const day = now.getDay();
   if (day === 0) {
     const t = new Date(now); t.setHours(10, 0, 0, 0);
@@ -28,7 +30,7 @@ function getNextSunday10h() {
 }
 
 function calcCd() {
-  const total = Math.max(0, Math.floor((getNextSunday10h() - new Date()) / 1000));
+  const total = Math.max(0, Math.floor((getNextSunday10hParis() - getNowParis()) / 1000));
   return {
     days: Math.floor(total / 86400),
     hrs:  Math.floor((total % 86400) / 3600),
@@ -38,34 +40,32 @@ function calcCd() {
 
 function formatLiveDate(dateStr) {
   if (!dateStr) return '';
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('fr-FR', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
+  const date = parseDateParis(dateStr, '12:00');
+  return formatDateParis(date, { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
 function isLiveActif(culte) {
-  const now = new Date();
-  const dateCulte = new Date(culte.date_culte);
+  const now = getNowParis();
+  const nowParis = getNowParis();
 
+  const [y, m, d] = culte.date_culte.split('-').map(Number);
   const memeJour =
-    now.getFullYear() === dateCulte.getFullYear() &&
-    now.getMonth()    === dateCulte.getMonth()    &&
-    now.getDate()     === dateCulte.getDate();
+    nowParis.getFullYear() === y &&
+    (nowParis.getMonth() + 1) === m &&
+    nowParis.getDate() === d;
 
   if (!memeJour) return false;
 
   const [hDeb, mDeb] = (culte.heure_debut || '10:00').split(':').map(Number);
   const [hFin, mFin] = (culte.heure_fin   || '11:30').split(':').map(Number);
 
-  const debut = new Date(dateCulte);
-  debut.setHours(hDeb, mDeb - 15, 0);
+  const debutMinutes = hDeb * 60 + mDeb - 15;
+  const finMinutes = hFin * 60 + mFin + 30;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const fin = new Date(dateCulte);
-  fin.setHours(hFin, mFin + 30, 0);
-
-  return now >= debut && now <= fin;
+  return nowMinutes >= debutMinutes && nowMinutes <= finMinutes;
 }
 
 export default function Cultes() {
@@ -179,13 +179,13 @@ export default function Cultes() {
             )}
             <div className="prog-list">
               {sundays.map((c, i) => {
-                const d = new Date(c.date_culte + 'T12:00:00');
+                const [year, month, day] = c.date_culte.split('-').map(Number);
                 const heure = `${(c.heure_debut || '10:00').slice(0,5)} — ${(c.heure_fin || '11:30').slice(0,5)}`;
                 return (
                   <div className="prog-row" key={c.id || i}>
                     <div className="prog-date">
-                      <span className="prog-day">{d.getDate()}</span>
-                      <span className="prog-month">{MOIS[d.getMonth()]}</span>
+                      <span className="prog-day">{day}</span>
+                      <span className="prog-month">{MOIS[month - 1]}</span>
                     </div>
                     <div className="prog-info">
                       <span className="prog-titre">{c.titre}</span>
@@ -205,8 +205,8 @@ export default function Cultes() {
               <div className="replays-grid">
                 {anciensCultes.map(c => {
                   const ytId = extractYtId(c.lien_live);
-                  const d = new Date(c.date_culte + 'T12:00:00');
-                  const dateLabel = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                  const dateParis = parseDateParis(c.date_culte, '12:00');
+                  const dateLabel = formatDateParis(dateParis, { day: 'numeric', month: 'long', year: 'numeric' });
                   return (
                     <div className="replay-card" key={c.id} onClick={() => setSelectedCulte(c)}>
                       <div className="replay-thumb">

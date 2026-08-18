@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut } from '../lib/supabase';
+import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis, TIMEZONE } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon';
 
@@ -43,9 +43,9 @@ function ProchainCoursCard({ cours }) {
       </div>
       <div className="eleve-cours-card-titre">{cours.titre}</div>
       <div className="eleve-cours-card-meta">
-        <Icon name="calendar" size={13} style={{marginRight:4}} />{date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+        <Icon name="calendar" size={13} style={{marginRight:4}} />{formatDateParis(date, { weekday: 'long', day: 'numeric', month: 'long' })}
         &nbsp;·&nbsp;
-        <Icon name="clock" size={13} style={{marginRight:4}} />{date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+        <Icon name="clock" size={13} style={{marginRight:4}} />{formatDateParis(date, { hour: '2-digit', minute: '2-digit' })}
         &nbsp;·&nbsp;
         <Icon name="timer" size={13} style={{marginRight:4}} />{cours.duree_minutes || 60} min
       </div>

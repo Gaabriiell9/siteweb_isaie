@@ -17,11 +17,8 @@ export default function EleveLogin() {
     setErrorType('');
     setLoading(true);
 
-    console.log('[EleveLogin] 1. Début connexion pour:', email);
-
     try {
       const { data, error: err } = await signInEleve(email, password);
-      console.log('[EleveLogin] 2. signInEleve result:', { userId: data?.user?.id, error: err?.message });
 
       if (err) {
         setLoading(false);
@@ -33,15 +30,12 @@ export default function EleveLogin() {
       // Vérifier le statut de l'élève
       const userId = data?.user?.id;
       if (!userId) {
-        console.log('[EleveLogin] 3. Pas de userId — redirection directe');
         setLoading(false);
         navigate('/eleve/dashboard');
         return;
       }
 
-      console.log('[EleveLogin] 3. userId obtenu:', userId);
       const statut = await getEleveStatut(userId);
-      console.log('[EleveLogin] 4. Statut élève:', statut);
 
       if (statut === 'suspendu') {
         setLoading(false);
@@ -58,7 +52,6 @@ export default function EleveLogin() {
         );
       }
 
-      console.log('[EleveLogin] 5. Redirection vers dashboard');
       setLoading(false);
       navigate('/eleve/dashboard');
     } catch (error) {
