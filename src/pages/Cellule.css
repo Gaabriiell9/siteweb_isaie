@@ -18,6 +18,20 @@
 .cellule-info h4 { font-family:var(--font-heading); font-size:15px; color:var(--bordeaux-clair); margin-bottom:4px; }
 .cellule-meta { display:flex; flex-wrap:wrap; gap:10px; }
 .cellule-meta span { font-size:10px; color:var(--texte-doux); letter-spacing:.5px; }
+.cellule-live-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px; padding: 8px 14px;
+  font-family: var(--font-ui); font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #fff; background: var(--or);
+  border: none; border-radius: 2px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.cellule-live-btn:hover {
+  background: var(--or-clair);
+  transform: translateY(-1px);
+}
 .prog-list { display:flex; flex-direction:column; gap:0; }
 .prog-item { display:flex; gap:16px; padding-bottom:24px; position:relative; }
 .prog-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:36px; width:1px; height:calc(100% - 12px); background:rgba(200,134,10,0.2); }

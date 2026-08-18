@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getCultes } from '../lib/supabase';
+import { getCultes, parseDateParis, formatDateParis } from '../lib/supabase';
 import './Cellule.css';
+
+function extractYtId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([^?&\s]+)/);
+  return m ? m[1] : null;
+}
+
+function isYouTubeUrl(url) {
+  if (!url) return false;
+  return /youtube\.com|youtu\.be/i.test(url);
+}
+
+function isZoomUrl(url) {
+  if (!url) return false;
+  return /zoom\.us/i.test(url);
+}
 
 const PROG = [
   {n:'1',titre:'Accueil & louange',duree:'15 min',desc:'Temps de louange et d\'adoration en commun'},
@@ -27,19 +43,35 @@ export default function Cellule() {
           {tab==='groupes' && (
             <div className="cellule-list">
               {cellules.length===0 && <p style={{color:'var(--texte-doux)',fontFamily:'var(--font-display)',fontStyle:'italic',padding:'20px 0'}}>Le programme des cellules sera publié prochainement.</p>}
-              {cellules.map(c => (
-                <div className="cellule-row carte" key={c.id}>
-                  <div className="cellule-icon">◇</div>
-                  <div className="cellule-info">
-                    <h4>{c.titre}</h4>
-                    <div className="cellule-meta">
-                      <span>◈ {new Date(c.date_culte).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
-                      <span>◈ {c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)}</span>
-                      {c.groupe && <span>◈ {c.groupe}</span>}
+              {cellules.map(c => {
+                const hasLive = c.lien_live && c.lien_live.trim();
+                const ytId = hasLive ? extractYtId(c.lien_live) : null;
+                const isZoom = hasLive && isZoomUrl(c.lien_live);
+                const dateParis = parseDateParis(c.date_culte, '12:00');
+                return (
+                  <div className="cellule-row carte" key={c.id}>
+                    <div className="cellule-icon">◇</div>
+                    <div className="cellule-info">
+                      <h4>{c.titre}</h4>
+                      <div className="cellule-meta">
+                        <span>◈ {formatDateParis(dateParis, {weekday:'long',day:'numeric',month:'long'})}</span>
+                        <span>◈ {c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)}</span>
+                        {c.groupe && <span>◈ {c.groupe}</span>}
+                      </div>
+                      {hasLive && (
+                        <a
+                          href={isZoom ? c.lien_live : (ytId ? `https://www.youtube.com/watch?v=${ytId}` : c.lien_live)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="cellule-live-btn"
+                        >
+                          {isZoom ? '📹 Rejoindre Zoom' : '▶ Voir le live'}
+                        </a>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div className="encart-or">
                 <span>✦</span>
                 Le programme des cellules suit le même système que les cultes dominicaux.

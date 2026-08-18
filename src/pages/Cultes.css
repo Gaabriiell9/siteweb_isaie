@@ -157,6 +157,86 @@
   flex-shrink: 0;
 }
 
+/* Badge "Live prévu" / "En direct" */
+.prog-live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  font-family: var(--font-ui); font-size: 9px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--or); background: rgba(200,134,10,0.1);
+  border: 1px solid rgba(200,134,10,0.25);
+  flex-shrink: 0;
+}
+.prog-live-badge--active {
+  color: #C0392B; background: rgba(192,57,43,0.08);
+  border-color: rgba(192,57,43,0.3);
+}
+.prog-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #C0392B;
+  animation: pulse-red 1.4s ease-in-out infinite;
+}
+
+/* Ligne de culte en cours */
+.prog-row--live {
+  flex-wrap: wrap;
+  background: linear-gradient(to right, rgba(200,134,10,0.04), transparent);
+  border-left: 3px solid var(--or);
+  padding-left: 20px;
+  margin-left: -3px;
+}
+
+/* Lecteur vidéo intégré dans la liste */
+.prog-player-wrap {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 8px;
+}
+.prog-player {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* Ratio 16:9 */
+  background: var(--creme);
+  border: 1px solid rgba(200,134,10,0.25);
+}
+.prog-player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Bouton externe (Zoom, etc.) */
+.prog-external-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 24px;
+  font-family: var(--font-ui); font-size: 12px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #fff; background: var(--or);
+  border: none; text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.prog-external-btn:hover {
+  background: var(--or-clair);
+  transform: translateY(-1px);
+}
+
+/* Bouton externe dans la section live principale */
+.live-external-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 10px; width: 100%;
+  padding: 20px 24px; margin-bottom: 16px;
+  font-family: var(--font-ui); font-size: 13px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: #fff; background: var(--or);
+  border: none; text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.live-external-btn:hover {
+  background: var(--or-clair);
+  transform: translateY(-2px);
+}
+
 .prog-empty {
   text-align: center; color: var(--texte-doux);
   font-family: var(--font-sans);

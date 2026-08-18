@@ -342,7 +342,7 @@ function TabCultes() {
     e.preventDefault();
     setSaving(true);
     const { error } = await addCulte({ ...form, type: tab });
-    if (!error) { setMsg('Ajouté ✓'); setForm({ ...form, date_culte: '', groupe: '', description: '' }); load(); }
+    if (!error) { setMsg('Ajouté ✓'); setForm({ ...form, date_culte: '', groupe: '', description: '', lien_live: '' }); load(); }
     else setMsg('Erreur : ' + error.message);
     setSaving(false);
     setTimeout(() => setMsg(''), 3000);

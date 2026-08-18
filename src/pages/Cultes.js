@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis, TIMEZONE } from '../lib/supabase';
+import { extractYoutubeId, getYoutubeEmbedUrl, isYoutubeUrl, isZoomUrl } from '../lib/videoUtils';
 import './Cultes.css';
 import Icon from '../components/Icon';
 
@@ -133,15 +134,26 @@ export default function Cultes() {
               </div>
               <h3 className="live-titre">Culte du <em>Dimanche</em></h3>
               <p className="live-sous-titre">Louange · Adoration · Prédication</p>
-              <div className="live-player">
-                <iframe
-                  src={`https://www.youtube.com/embed/${extractYtId(lienLive)}?autoplay=0&rel=0`}
-                  title="Culte en direct"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
+              {isYoutubeUrl(lienLive) ? (
+                <div className="live-player">
+                  <iframe
+                    src={getYoutubeEmbedUrl(lienLive, { autoplay: 0 })}
+                    title="Culte en direct"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <a
+                  href={lienLive}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="live-external-btn"
+                >
+                  {isZoomUrl(lienLive) ? '📹 Rejoindre sur Zoom' : '🔗 Ouvrir le live'}
+                </a>
+              )}
               <div className="live-footer">
                 <span className="live-footer-item">Dimanche · 10h00</span>
                 <div className="live-losange" />
@@ -181,8 +193,13 @@ export default function Cultes() {
               {sundays.map((c, i) => {
                 const [year, month, day] = c.date_culte.split('-').map(Number);
                 const heure = `${(c.heure_debut || '10:00').slice(0,5)} — ${(c.heure_fin || '11:30').slice(0,5)}`;
+                const hasLive = c.lien_live && c.lien_live.trim();
+                const isCulteActif = hasLive && isLiveActif(c);
+                const isYoutube = hasLive && isYoutubeUrl(c.lien_live);
+                const embedUrl = isYoutube ? getYoutubeEmbedUrl(c.lien_live) : null;
+
                 return (
-                  <div className="prog-row" key={c.id || i}>
+                  <div className={`prog-row ${isCulteActif ? 'prog-row--live' : ''}`} key={c.id || i}>
                     <div className="prog-date">
                       <span className="prog-day">{day}</span>
                       <span className="prog-month">{MOIS[month - 1]}</span>
@@ -192,6 +209,43 @@ export default function Cultes() {
                       <span className="prog-sub">Louange · Adoration · Prédication</span>
                     </div>
                     <div className="prog-heure">{heure}</div>
+                    {hasLive && !isCulteActif && (
+                      <span className="prog-live-badge">Live prévu</span>
+                    )}
+                    {isCulteActif && (
+                      <span className="prog-live-badge prog-live-badge--active">
+                        <span className="prog-live-dot" />En direct
+                      </span>
+                    )}
+
+                    {/* Lecteur intégré pour le culte en cours uniquement */}
+                    {isCulteActif && embedUrl && (
+                      <div className="prog-player-wrap">
+                        <div className="prog-player">
+                          <iframe
+                            src={embedUrl}
+                            title={c.titre}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bouton externe pour Zoom ou liens non-YouTube */}
+                    {isCulteActif && !isYoutube && (
+                      <div className="prog-player-wrap">
+                        <a
+                          href={c.lien_live}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="prog-external-btn"
+                        >
+                          {isZoomUrl(c.lien_live) ? '📹 Rejoindre sur Zoom' : '🔗 Ouvrir le live'}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -204,7 +258,7 @@ export default function Cultes() {
               <h3 className="replays-titre">Anciens <em>cultes</em></h3>
               <div className="replays-grid">
                 {anciensCultes.map(c => {
-                  const ytId = extractYtId(c.lien_live);
+                  const ytId = extractYoutubeId(c.lien_live);
                   const dateParis = parseDateParis(c.date_culte, '12:00');
                   const dateLabel = formatDateParis(dateParis, { day: 'numeric', month: 'long', year: 'numeric' });
                   return (
@@ -238,7 +292,7 @@ export default function Cultes() {
             </div>
             <div className="live-player">
               <iframe
-                src={`https://www.youtube.com/embed/${extractYtId(selectedCulte.lien_live)}?autoplay=1&rel=0`}
+                src={getYoutubeEmbedUrl(selectedCulte.lien_live, { autoplay: 1 })}
                 title={selectedCulte.titre}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -250,9 +304,4 @@ export default function Cultes() {
       )}
     </div>
   );
-}
-
-function extractYtId(url) {
-  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/)|youtu\.be\/)([^?&\s]+)/);
-  return m ? m[1] : null;
 }
