@@ -1,32 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAnnouncements, getProchainService } from '../lib/public';
+import { getAnnouncements } from '../lib/public';
 import './Home.css';
 
 const sections = [
-  { to: '/cultes', icon: '✝', label: 'Cultes', titre: 'Culte du Dimanche', desc: '10h – 11h30 · En ligne' },
-  { to: '/montagne-priere', icon: '✦', label: 'Prière', titre: 'Montagne de Prière', desc: 'Les 12 familles de Jacob' },
-  { to: '/predication', icon: '◈', label: 'Parole', titre: 'Chaîne de Prédication', desc: 'Vidéos & prédications' },
-  { to: '/cellule', icon: '◇', label: 'Communauté', titre: 'Cellule Bethel', desc: 'Réunions hebdomadaires' },
-  { to: '/formation', icon: '◎', label: 'Formation', titre: 'Théologie Biblique', desc: 'Formation chrétienne' },
-  { to: '/pasteur', icon: '✧', label: 'Pastoral', titre: 'Notre Pasteur', desc: 'Le couple pastoral' },
+  { to: '/cultes', icon: '&#10013;', label: 'Cultes', titre: 'Culte du Dimanche', desc: '10h - 11h30 - En ligne' },
+  { to: '/montagne-priere', icon: '&#10022;', label: 'Priere', titre: 'Montagne de Priere', desc: 'Les 12 familles de Jacob' },
+  { to: '/predication', icon: '&#9672;', label: 'Parole', titre: 'Chaine de Predication', desc: 'Videos et predications' },
+  { to: '/cellule', icon: '&#9671;', label: 'Communaute', titre: 'Cellule Bethel', desc: 'Reunions hebdomadaires' },
+  { to: '/formation', icon: '&#9678;', label: 'Formation', titre: 'Theologie Biblique', desc: 'Formation chretienne' },
+  { to: '/pasteur', icon: '&#10023;', label: 'Pastoral', titre: 'Notre Pasteur', desc: 'Le couple pastoral' },
 ];
 
 export default function Home() {
   const [annonces, setAnnonces] = useState([]);
-  const [prochainService, setProchainService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [annoncesData, serviceData] = await Promise.all([
-          getAnnouncements(),
-          getProchainService()
-        ]);
+        const annoncesData = await getAnnouncements();
         setAnnonces((annoncesData || []).slice(0, 3));
-        setProchainService(serviceData);
       } catch (err) {
         console.error('[Home] Erreur chargement:', err);
         setError(err.message || 'Erreur de chargement');
@@ -41,14 +36,6 @@ export default function Home() {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-  };
-
-  const formatServiceDateTime = (service) => {
-    if (!service?.date_service) return '';
-    const d = new Date(service.date_service);
-    const jour = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const heure = service.heure_debut ? service.heure_debut.slice(0, 5) : '';
-    return heure ? `${jour} a ${heure}` : jour;
   };
 
   return (
@@ -71,31 +58,7 @@ export default function Home() {
 
       <div style={{ background: '#FFF8F0', position: 'relative', zIndex: 1, paddingTop: '15px' }}>
 
-        {/* ── PROCHAIN SERVICE ── */}
-        <section className="home-prochain-service">
-          <div className="container">
-            {loading ? (
-              <div className="hps-loading">Chargement...</div>
-            ) : error ? (
-              <div className="hps-error">Impossible de charger le prochain culte</div>
-            ) : prochainService ? (
-              <div className="hps-card">
-                <div className="hps-label">Prochain culte</div>
-                <h3 className="hps-titre">{prochainService.titre || 'Culte du Dimanche'}</h3>
-                <div className="hps-datetime">{formatServiceDateTime(prochainService)}</div>
-                {prochainService.lien_live && (
-                  <a href={prochainService.lien_live} target="_blank" rel="noopener noreferrer" className="hps-btn">
-                    Rejoindre le live
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="hps-empty">Aucun culte programme pour le moment</div>
-            )}
-          </div>
-        </section>
-
-        {/* ── ANNONCES ── */}
+        {/* Section Annonces - affichee uniquement s'il y a des annonces (Home.js:46) */}
         {!loading && !error && annonces.length > 0 && (
           <section className="home-annonces">
             <div className="container">

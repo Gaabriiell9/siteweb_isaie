@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import LiveBanner from './components/LiveBanner';
 
 const Home = lazy(() => import('./pages/Home'));
 const Cultes = lazy(() => import('./pages/Cultes'));
@@ -79,6 +80,7 @@ export default function App() {
           {/* Site public */}
           <Route path="/*" element={
             <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <LiveBanner />
               <Navbar />
               <main style={{ flex: 1 }}>
                 <AnimatedRoutes />
