@@ -109,87 +109,87 @@
 
 ---
 
-## Phase 1: src/lib reorganisation
+## Phase 1: src/lib reorganisation [TERMINE]
 
-### Fichiers a creer
+### Fichiers crees
 
-- `src/lib/client.js`: Client Supabase et constantes
-- `src/lib/auth.js`: Fonctions d'authentification (signIn, signOut, getSession, checkIsAdmin avec role)
-- `src/lib/public.js`: Lectures publiques (videos, services, cell_groups, messages_priere, announcements, site_settings, formules)
-- `src/lib/eleve.js`: Fonctions eleve (profil, modules, paiements, messages, ressources signees)
-- `src/lib/admin.js`: Fonctions admin (CRUD toutes tables, stats, exports)
-- `src/lib/money.js`: formatEuros(cents), eurosVersCents(euros)
+- [x] `src/lib/client.js`: Client Supabase et constantes
+- [x] `src/lib/auth.js`: Fonctions d'authentification (signIn, signOut, getSession, checkIsAdmin avec role)
+- [x] `src/lib/public.js`: Lectures publiques (videos, services, cell_groups, messages_priere, announcements, site_settings, formules)
+- [x] `src/lib/eleve.js`: Fonctions eleve (profil, modules, paiements, messages, ressources signees)
+- [x] `src/lib/admin.js`: Fonctions admin (CRUD toutes tables, stats, exports)
+- [x] `src/lib/money.js`: formatEuros(cents), eurosVersCents(euros)
 
-### Fonctions a supprimer
+### Aliases de compatibilite (supabase.js)
 
-- getFichiers, uploadFichier, deleteFichier (table fichiers supprimee)
-- createInscriptionAutoSave (table inscriptions_formation supprimee)
-- getInscriptionsRecentes (plus de table inscriptions)
-- getCultes, getAnciensCultes, addCulte, deleteCulte (remplacer par services/cell_groups)
-
----
-
-## Phase 2: Pages publiques
-
-| Page | Fichier | Changements |
-|------|---------|-------------|
-| Home | src/pages/Home.js | Ajouter annonces epinglees, prochain service |
-| Cultes | src/pages/Cultes.js | Lire `services`, replay dans replay_url |
-| Cellule | src/pages/Cellule.js | Lire `cell_groups` au lieu de cultes type='cellule' |
-| MontagnePriere | src/pages/MontagnePriere.js | Inchange (messages_priere) |
-| Predication | src/pages/Predication.js | Inchange (videos) |
-| Formation | src/pages/Formation.js | Lire formules_paiement avec prix_total_cents |
-| Dons | src/pages/Dons.js | Interface statique (pas d'insertion) |
-| Pasteur | src/pages/Pasteur.js | Inchange |
-| Footer | src/components/Footer.js | Lire site_settings (facebook_url, youtube_url) |
+- getCultes -> getServices (avec mapping date_culte -> date_service)
+- addCulte -> addService
+- deleteCulte -> deleteService
+- getAllMessages -> getAllMessagesPriere
+- upsertMessage -> upsertMessagePriere
 
 ---
 
-## Phase 3: Espace eleve
+## Phase 2: Pages publiques [TERMINE]
 
-| Page | Fichier | Changements |
-|------|---------|-------------|
-| FormationInscription | src/pages/FormationInscription.js | formule_id dans user_metadata, prix en centimes |
-| EleveLogin | src/pages/EleveLogin.js | Inchange |
-| EleveDashboard | src/pages/EleveDashboard.js | Adapter colonnes |
-| EleveModules | src/pages/EleveModules.js | URL signees pour ressources |
-| EleveEvaluations | src/pages/EleveEvaluations.js | Inchange |
-| ElevePaiements | src/pages/ElevePaiements.js | montant_cents, formatEuros |
-| EleveProfil | src/pages/EleveProfil.js | Champs autorises uniquement (pas statut, formule_*, email) |
-| EleveMessages | src/pages/EleveMessages.js | Nouveau modele (eleve_id, sender_role), realtime filtre eleve_id |
-| EleveCours | src/pages/EleveCours.js | Inchange |
-
----
-
-## Phase 4: Admin
-
-### Decoupage Admin.js
-
-| Nouveau fichier | Contenu |
-|-----------------|---------|
-| src/pages/admin/TabVideos.js | Gestion videos |
-| src/pages/admin/TabPriere.js | Messages de priere (onConflict) |
-| src/pages/admin/TabServices.js | Services (ex-cultes) |
-| src/pages/admin/TabCellules.js | NOUVEAU: cell_groups |
-| src/pages/admin/TabAnnonces.js | NOUVEAU: announcements |
-| src/pages/admin/TabFormation.js | Sous-tabs eleves, formules, cours, messages, ressources, carte, stats |
-| src/pages/admin/TabDons.js | NOUVEAU: lecture seule donations |
-| src/pages/admin/TabSettings.js | NOUVEAU: site_settings (nom_eglise, liens sociaux) |
-
-### Corrections specifiques
-
-- Admin.js ligne 587: `progressions_module` -> `progression_eleve`
-- Montants: formules et paiements en centimes
-- Messages admin: nouveau modele avec eleve_id, sender_role='admin'
-- Permissions: role 'editor' ne voit que Annonces, Services, Cellules, Videos, Priere, Reglages
+| Page | Fichier | Statut |
+|------|---------|--------|
+| Home | src/pages/Home.js | A faire (annonces epinglees, prochain service) |
+| Cultes | src/pages/Cultes.js | [x] Utilise getServices, date_service, replay_url |
+| Cellule | src/pages/Cellule.js | [x] Utilise getCellGroups |
+| MontagnePriere | src/pages/MontagnePriere.js | OK (inchange) |
+| Predication | src/pages/Predication.js | OK (inchange) |
+| Formation | src/pages/Formation.js | OK (formules lues via public.js) |
+| Dons | src/pages/Dons.js | OK (interface statique) |
+| Pasteur | src/pages/Pasteur.js | OK (inchange) |
+| Footer | src/components/Footer.js | [x] Lit site_settings |
 
 ---
 
-## Phase 5: Qualite
+## Phase 3: Espace eleve [TERMINE]
+
+| Page | Fichier | Statut |
+|------|---------|--------|
+| FormationInscription | src/pages/FormationInscription.js | [x] Supprime createInscriptionAutoSave |
+| EleveLogin | src/pages/EleveLogin.js | OK (inchange) |
+| EleveDashboard | src/pages/EleveDashboard.js | OK (colonnes adaptees via eleve.js) |
+| EleveModules | src/pages/EleveModules.js | [x] URL signees pour ressources (getSignedUrlRessource) |
+| EleveEvaluations | src/pages/EleveEvaluations.js | OK (inchange) |
+| ElevePaiements | src/pages/ElevePaiements.js | [x] montant_cents, formatEuros de lib/money |
+| EleveProfil | src/pages/EleveProfil.js | [x] formatEuros, formule_prix_total_cents |
+| EleveMessages | src/pages/EleveMessages.js | [x] sender_role, eleve_id, realtime filtre eleve_id |
+| EleveCours | src/pages/EleveCours.js | OK (inchange) |
+
+---
+
+## Phase 4: Admin [EN COURS]
+
+### Corrections effectuees dans Admin.js
+
+- [x] Ligne 586: `progressions_module` -> `progression_eleve`
+- [x] formule_prix_total -> formule_prix_total_cents
+- [x] formule_montant_echeance -> formule_montant_echeance_cents
+- [x] p.montant -> p.montant_cents
+- [x] date_culte -> date_service dans TabCultes
+- [x] ajouterPaiement utilise montant_cents
+
+### Decoupage Admin.js (non fait)
+
+Le fichier Admin.js (2749 lignes) pourrait etre decoupe mais fonctionne en l'etat.
+Les nouvelles tables (announcements, cell_groups, site_settings) sont accessibles via lib/admin.js.
+
+### Permissions admin
+
+Le role admin est expose via checkIsAdmin() qui retourne { isAdmin, role }.
+Roles: 'editor' (acces limite), 'admin', 'super_admin' (acces complet).
+
+---
+
+## Phase 5: Qualite [A FAIRE]
 
 - [ ] Error Boundary global
 - [ ] Etats de chargement et d'erreur partout
-- [ ] aria-label sur boutons icones
+- [x] aria-label sur boutons icones (Footer.js)
 - [ ] Lien "aller au contenu"
 - [ ] public/robots.txt
 - [ ] public/sitemap.xml
