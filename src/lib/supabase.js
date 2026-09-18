@@ -153,7 +153,7 @@ export async function addCulte(culte) {
   return addService({
     type: culte.type || 'culte',
     titre: culte.titre,
-    date_service: culte.date_culte,
+    date_service: culte.date_service || culte.date_culte,
     heure_debut: culte.heure_debut,
     heure_fin: culte.heure_fin,
     description: culte.description,

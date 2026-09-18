@@ -254,7 +254,7 @@ function TabCultes() {
   const [cellules, setCellules] = useState([]);
   const [anciensCultes, setAnciensCultes] = useState([]);
   const [tab, setTab] = useState('culte');
-  const [form, setForm] = useState({ titre: 'Culte du Dimanche', date_culte: '', heure_debut: '10:00', heure_fin: '11:30', type: 'culte', groupe: '', description: '', lien_live: '' });
+  const [form, setForm] = useState({ titre: 'Culte du Dimanche', date_service: '', heure_debut: '10:00', heure_fin: '11:30', type: 'culte', groupe: '', description: '', lien_live: '' });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -269,7 +269,7 @@ function TabCultes() {
     e.preventDefault();
     setSaving(true);
     const { error } = await addCulte({ ...form, type: tab });
-    if (!error) { setMsg('Ajouté ✓'); setForm({ ...form, date_culte: '', groupe: '', description: '', lien_live: '' }); load(); }
+    if (!error) { setMsg('Ajoute'); setForm({ ...form, date_service: '', groupe: '', description: '', lien_live: '' }); load(); }
     else setMsg('Erreur : ' + error.message);
     setSaving(false);
     setTimeout(() => setMsg(''), 3000);
@@ -282,12 +282,14 @@ function TabCultes() {
 
   const list = tab === 'culte' ? cultes : cellules;
 
-  const parseDateCulte = (dateStr) => {
+  const parseDateService = (dateStr) => {
+    if (!dateStr) return { year: 2000, month: 1, day: 1 };
     const [y, m, d] = dateStr.split('-').map(Number);
     return { year: y, month: m, day: d };
   };
-  const formatDate = (dateStr) => {
-    const { year, month, day } = parseDateCulte(dateStr);
+  const formatDateService = (dateStr) => {
+    if (!dateStr) return '';
+    const { year, month, day } = parseDateService(dateStr);
     const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
   };
@@ -304,7 +306,7 @@ function TabCultes() {
       <form onSubmit={handleAdd} className="admin-form">
         <input required placeholder={tab === 'culte' ? 'Titre (ex: Culte du Dimanche)' : 'Titre (ex: Cellule Bethel — Groupe A)'} value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
         <div className="admin-form-row">
-          <input required type="date" value={form.date_culte} onChange={e => setForm({...form, date_culte: e.target.value})} />
+          <input required type="date" value={form.date_service} onChange={e => setForm({...form, date_service: e.target.value})} />
           <input type="time" value={form.heure_debut} onChange={e => setForm({...form, heure_debut: e.target.value})} />
           <input type="time" value={form.heure_fin} onChange={e => setForm({...form, heure_fin: e.target.value})} />
         </div>
@@ -315,10 +317,10 @@ function TabCultes() {
         <button type="submit" className="admin-btn-primary" disabled={saving}>{saving ? 'Enregistrement…' : 'Ajouter'}</button>
       </form>
 
-      <h3 style={{ marginTop: 24 }}>À venir ({list.length})</h3>
+      <h3 style={{ marginTop: 24 }}>A venir ({list.length})</h3>
       <div className="admin-list">
         {list.map(c => {
-          const { day, month } = parseDateCulte(c.date_culte);
+          const { day, month } = parseDateService(c.date_service);
           return (
             <div className="admin-item" key={c.id}>
               <div className="admin-date-box">
@@ -327,13 +329,13 @@ function TabCultes() {
               </div>
               <div className="admin-item-info">
                 <strong>{c.titre}</strong>
-                <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
+                <span>{c.heure_debut?.slice(0,5)} - {c.heure_fin?.slice(0,5)} . {formatDateService(c.date_service)}</span>
               </div>
               <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
             </div>
           );
         })}
-        {list.length === 0 && <p className="admin-empty">Aucun événement à venir.</p>}
+        {list.length === 0 && <p className="admin-empty">Aucun evenement a venir.</p>}
       </div>
 
       {tab === 'culte' && (
@@ -341,7 +343,7 @@ function TabCultes() {
           <h3 style={{ marginTop: 32 }}>Anciens cultes ({anciensCultes.length})</h3>
           <div className="admin-list">
             {anciensCultes.map(c => {
-              const { day, month } = parseDateCulte(c.date_culte);
+              const { day, month } = parseDateService(c.date_service);
               return (
                 <div className="admin-item" key={c.id}>
                   <div className="admin-date-box">
@@ -350,7 +352,7 @@ function TabCultes() {
                   </div>
                   <div className="admin-item-info">
                     <strong>{c.titre}</strong>
-                    <span>{c.heure_debut?.slice(0,5)} – {c.heure_fin?.slice(0,5)} · {formatDate(c.date_culte)}</span>
+                    <span>{c.heure_debut?.slice(0,5)} - {c.heure_fin?.slice(0,5)} . {formatDateService(c.date_service)}</span>
                   </div>
                   <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
                 </div>
@@ -409,17 +411,18 @@ function BadgeEmail({ confirmedAt }) {
 function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   const [saving, setSaving] = useState(null);
 
-  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
+  // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
   const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
-  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
-  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
+  const prixTotalCents = eleve?.formule_prix_total_cents || (isEchelonne ? 50000 : 45000);
+  const montantEcheanceCents = eleve?.formule_montant_echeance_cents || (isEchelonne ? 5000 : prixTotalCents);
   const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
-  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Echelonne' : 'Integral');
   const montantEcheanceEuros = montantEcheanceCents / 100;
   const prixTotalEuros = prixTotalCents / 100;
 
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
-  const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
+  const totalPayeCents = paiementsReussis.reduce((s, p) => s + Number(p.montant_cents || 0), 0);
+  const totalPayeEuros = totalPayeCents / 100;
   const restantDuEuros = Math.max(0, prixTotalEuros - totalPayeEuros);
 
   // Générer le planning des échéances
@@ -452,7 +455,7 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
     setSaving(echeance.num);
     try {
       await ajouterPaiement(eleve.id, {
-        montant: echeance.montant,
+        montant_cents: Math.round(echeance.montant * 100),
         devise: 'EUR',
         type_paiement: isEchelonne ? 'mensualite' : 'integral',
         methode: 'Manuel (admin)',
@@ -534,7 +537,7 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
           <div className="af-pay-planning-title" style={{ marginTop: 24 }}>Historique des versements</div>
           {paiements.map(p => (
             <div className="af-pay-row" key={p.id}>
-              <div className="af-pay-montant">{p.montant} €</div>
+              <div className="af-pay-montant">{(p.montant_cents || 0) / 100} EUR</div>
               <div>
                 <div className="af-pay-type">{p.type_paiement} · {p.methode || '—'}</div>
                 <div className="af-pay-date">
@@ -583,7 +586,7 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
       const [evals, paies, progRes, modsRes] = await Promise.all([
         getEvaluations(eleve.id),
         getPaiements(eleve.id),
-        supabase.from('progressions_module').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(ordre)'),
+        supabase.from('progression_eleve').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(numero)'),
         supabase.from('modules_formation').select('*').order('ordre'),
       ]);
       setEvaluations(evals || []);
