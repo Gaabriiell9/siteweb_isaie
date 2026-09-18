@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getAnnouncements, getProchainService } from '../lib/public';
 import './Home.css';
 
 const sections = [
@@ -12,8 +13,43 @@ const sections = [
 ];
 
 export default function Home() {
+  const [annonces, setAnnonces] = useState([]);
+  const [prochainService, setProchainService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    const load = async () => {
+      try {
+        const [annoncesData, serviceData] = await Promise.all([
+          getAnnouncements(),
+          getProchainService()
+        ]);
+        setAnnonces((annoncesData || []).slice(0, 3));
+        setProchainService(serviceData);
+      } catch (err) {
+        console.error('[Home] Erreur chargement:', err);
+        setError(err.message || 'Erreur de chargement');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const formatServiceDateTime = (service) => {
+    if (!service?.date_service) return '';
+    const d = new Date(service.date_service);
+    const jour = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const heure = service.heure_debut ? service.heure_debut.slice(0, 5) : '';
+    return heure ? `${jour} a ${heure}` : jour;
+  };
 
   return (
     <div className="home">
@@ -34,6 +70,56 @@ export default function Home() {
       </section>
 
       <div style={{ background: '#FFF8F0', position: 'relative', zIndex: 1, paddingTop: '15px' }}>
+
+        {/* ── PROCHAIN SERVICE ── */}
+        <section className="home-prochain-service">
+          <div className="container">
+            {loading ? (
+              <div className="hps-loading">Chargement...</div>
+            ) : error ? (
+              <div className="hps-error">Impossible de charger le prochain culte</div>
+            ) : prochainService ? (
+              <div className="hps-card">
+                <div className="hps-label">Prochain culte</div>
+                <h3 className="hps-titre">{prochainService.titre || 'Culte du Dimanche'}</h3>
+                <div className="hps-datetime">{formatServiceDateTime(prochainService)}</div>
+                {prochainService.lien_live && (
+                  <a href={prochainService.lien_live} target="_blank" rel="noopener noreferrer" className="hps-btn">
+                    Rejoindre le live
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="hps-empty">Aucun culte programme pour le moment</div>
+            )}
+          </div>
+        </section>
+
+        {/* ── ANNONCES ── */}
+        {!loading && !error && annonces.length > 0 && (
+          <section className="home-annonces">
+            <div className="container">
+              <p className="section-label" style={{ textAlign: 'center', marginBottom: 8 }}>Actualites</p>
+              <h2 className="section-title" style={{ textAlign: 'center', marginBottom: 28 }}>Annonces de <em>l'eglise</em></h2>
+              <div className="annonces-grid">
+                {annonces.map(a => (
+                  <div key={a.id} className="annonce-card carte">
+                    {a.image_url && (
+                      <div className="annonce-img-wrap">
+                        <img src={a.image_url} alt="" className="annonce-img" />
+                      </div>
+                    )}
+                    <div className="annonce-body">
+                      <div className="annonce-date">{formatDate(a.date_publi)}</div>
+                      <h3 className="annonce-titre">{a.titre}</h3>
+                      <p className="annonce-contenu">{a.contenu}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── SÉPARATEUR ── */}
         <div className="ornament-sep container">

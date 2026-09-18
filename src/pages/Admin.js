@@ -412,7 +412,7 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   const [saving, setSaving] = useState(null);
 
   // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
-  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+  const isEchelonne = eleve?.formule === 'echelonne';
   const prixTotalCents = eleve?.formule_prix_total_cents || (isEchelonne ? 50000 : 45000);
   const montantEcheanceCents = eleve?.formule_montant_echeance_cents || (isEchelonne ? 5000 : prixTotalCents);
   const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
@@ -2433,8 +2433,8 @@ function SubTabFormules() {
                     <div>
                       <label>Type</label>
                       <select value={editForm.type} onChange={e => setEditForm({...editForm, type: e.target.value})}>
-                        <option value="unique">Paiement unique</option>
-                        <option value="echelonne">Paiement échelonné</option>
+                        <option value="integral">Paiement integral</option>
+                        <option value="echelonne">Paiement echelonne</option>
                       </select>
                     </div>
                     <div>
@@ -2536,8 +2536,8 @@ function SubTabFormules() {
 
                 <label>Type *</label>
                 <select value={createForm.type} onChange={e => setCreateForm({...createForm, type: e.target.value})}>
-                  <option value="unique">Paiement unique</option>
-                  <option value="echelonne">Paiement échelonné</option>
+                  <option value="integral">Paiement integral</option>
+                  <option value="echelonne">Paiement echelonne</option>
                 </select>
 
                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12}}>
