@@ -112,9 +112,7 @@ export default function Cultes() {
     });
   };
 
-  const sundays = cultes.length > 0
-    ? cultes.map(c => ({ ...c, date_culte: c.date_service }))
-    : [];
+  const sundays = cultes;
 
   return (
     <div>
@@ -148,7 +146,7 @@ export default function Cultes() {
             )}
             <div className="prog-list">
               {sundays.map((c, i) => {
-                const [year, month, day] = c.date_culte.split('-').map(Number);
+                const [year, month, day] = c.date_service.split('-').map(Number);
                 const heure = `${(c.heure_debut || '10:00').slice(0,5)} — ${(c.heure_fin || '11:30').slice(0,5)}`;
                 const hasLive = c.lien_live && c.lien_live.trim();
                 const etat = getEventEtat(c);
