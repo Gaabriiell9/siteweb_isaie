@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  createInscriptionAutoSave,
   finalizeInscription,
   IS_MOCK,
   getFormulesPaiement,
@@ -702,13 +701,6 @@ export default function FormationInscription() {
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, step: s }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (!IS_MOCK) {
-      createInscriptionAutoSave({
-        ...formData,
-        step_completed: s - 1,
-        draft: true,
-      }).catch(console.error);
-    }
   };
 
   const handleSubmit = async () => {
