@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /eleve
+Disallow: /formation/inscription
+Disallow: /formation/paiement
+
+Sitemap: https://eglise-etc.com/sitemap.xml
