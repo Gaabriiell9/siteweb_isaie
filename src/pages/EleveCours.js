@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getMesSessionsLive, marquerSessionRejointe, getSessionStatut, TIMEZONE, formatDateParis } from '../lib/supabase';
+import { getMesSessionsLive, marquerSessionRejointe } from '../lib/eleve';
+import { getSessionStatut, TIMEZONE, formatDateParis } from '../lib/client';
 import './EleveCours.css';
 import Icon from '../components/Icon';
 

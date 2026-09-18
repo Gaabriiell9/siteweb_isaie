@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './FormationPaiement.css';
 import Icon from '../components/Icon';
-import { getModulesCount } from '../lib/supabase';
+import { getModulesCount } from '../lib/public';
 
 export default function FormationPaiement() {
   const [modulesCount, setModulesCount] = useState(null);
@@ -24,18 +24,18 @@ export default function FormationPaiement() {
   };
 
   const getMontantTotal = () => {
-    if (!formuleData.prix_total) return '—';
+    if (!formuleData.prix_total_cents) return '---';
     if (isEchelonne) {
-      return `${formatEuros(formuleData.montant_echeance)} / mois × ${formuleData.nombre_echeances || 10} mois`;
+      return `${formatEuros(formuleData.montant_echeance_cents)} / mois x ${formuleData.nombre_echeances || 10} mois`;
     }
-    return formatEuros(formuleData.prix_total);
+    return formatEuros(formuleData.prix_total_cents);
   };
 
   const getMontantAujourdhui = () => {
     if (isEchelonne) {
-      return formatEuros(formuleData.montant_echeance);
+      return formatEuros(formuleData.montant_echeance_cents);
     }
-    return formatEuros(formuleData.prix_total);
+    return formatEuros(formuleData.prix_total_cents);
   };
 
   const handleStripeClick = () => {

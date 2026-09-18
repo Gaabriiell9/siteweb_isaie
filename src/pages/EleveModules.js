@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getRessourcesEleve, getModulesCount, getSignedUrlRessource } from '../lib/supabase';
+import { getModulesAvecProgression, getRessourcesEleve, getSignedUrlRessource } from '../lib/eleve';
+import { getModulesCount } from '../lib/public';
 import Icon from '../components/Icon';
 
 const IcoLock = () => (

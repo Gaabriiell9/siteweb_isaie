@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus, getSessionStatut, formatDateParis } from '../lib/supabase';
+import { getModulesAvecProgression, getEvaluations, getPaiements, getMesSessionsLive, getMessagesNonLus } from '../lib/eleve';
+import { getSessionStatut, formatDateParis } from '../lib/client';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon';
 
@@ -110,16 +111,17 @@ export default function EleveDashboard() {
   const prochainModule = modules.find(m => m.debloque && !m.complete)
     || modules.find(m => !m.debloque);
 
-  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
-  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
-  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : eleve?.formule_prix_total || 45000);
+  // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
+  const isEchelonne = eleve?.formule === 'echelonne';
+  const montantEcheanceCents = eleve?.formule_montant_echeance_cents || (isEchelonne ? 5000 : eleve?.formule_prix_total_cents || 45000);
   const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
-  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
-  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
+  const prixTotalCents = eleve?.formule_prix_total_cents || (isEchelonne ? 50000 : 45000);
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Echelonne' : 'Integral');
 
-  // Trouver le prochain paiement en attente (depuis la DB) ou calculer la prochaine échéance
+  // Trouver le prochain paiement en attente (depuis la DB) ou calculer la prochaine echeance
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
-  const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
+  const totalPayeCents = paiementsReussis.reduce((s, p) => s + Number(p.montant_cents || 0), 0);
+  const totalPayeEuros = totalPayeCents / 100;
   const prixTotalEuros = prixTotalCents / 100;
   const toutPaye = totalPayeEuros >= prixTotalEuros;
 
@@ -219,7 +221,7 @@ export default function EleveDashboard() {
           ) : prochainPaiement ? (
             <>
               <div className="eleve-stat-value">
-                {prochainPaiement.montant}<span className="eleve-stat-unit"> €</span>
+                {prochainPaiement.montant || (prochainPaiement.montant_cents / 100)}<span className="eleve-stat-unit"> EUR</span>
               </div>
               <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginTop: 6 }}>
                 {prochainPaiement.date_paiement

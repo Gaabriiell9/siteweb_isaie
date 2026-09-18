@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getVideos } from '../lib/supabase';
+import { getVideos } from '../lib/public';
 import './Predication.css';
 import Icon from '../components/Icon';
 

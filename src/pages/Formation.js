@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
-import { getModulesCount } from '../lib/supabase';
+import { getModulesCount } from '../lib/public';
 import './Formation.css';
 
 const IconChevron = ({ open }) => (

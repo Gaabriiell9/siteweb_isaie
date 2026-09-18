@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getServices, getAnciensServices, IS_MOCK, getNowParis, parseDateParis, formatDateParis } from '../lib/supabase';
+import { getServices, getAnciensServices } from '../lib/public';
+import { getNowParis, parseDateParis, formatDateParis } from '../lib/client';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../lib/youtube';
 import { getEventEtat } from '../lib/dateUtils';
 import './Cultes.css';
@@ -113,13 +114,7 @@ export default function Cultes() {
 
   const sundays = cultes.length > 0
     ? cultes.map(c => ({ ...c, date_culte: c.date_service }))
-    : IS_MOCK
-      ? getUpcomingSundays(8).map((d, i) => ({
-          id: i, titre: 'Culte du Dimanche',
-          date_culte: d.toISOString().split('T')[0],
-          heure_debut: '10:00', heure_fin: '11:30', lien_live: null,
-        }))
-      : [];
+    : [];
 
   return (
     <div>

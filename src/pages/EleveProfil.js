@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEleve } from './EleveLayout';
-import { updateEleveProfil, supabase, IS_MOCK } from '../lib/supabase';
+import { updateEleveProfil } from '../lib/eleve';
+import { supabase } from '../lib/client';
 import { formatEuros } from '../lib/money';
 
 export default function EleveProfil() {
@@ -37,10 +38,6 @@ export default function EleveProfil() {
     if (pwd.next !== pwd.confirm) { setMsgPwd('err:Les mots de passe ne correspondent pas.'); return; }
     if (pwd.next.length < 8) { setMsgPwd('err:Le mot de passe doit contenir au moins 8 caractères.'); return; }
     setSavingPwd(true); setMsgPwd('');
-    if (IS_MOCK) {
-      setTimeout(() => { setSavingPwd(false); setMsgPwd('ok'); setPwd({ current: '', next: '', confirm: '' }); setTimeout(() => setMsgPwd(''), 3000); }, 600);
-      return;
-    }
     const { error } = await supabase.auth.updateUser({ password: pwd.next });
     setSavingPwd(false);
     if (error) { setMsgPwd('err:' + error.message); return; }
@@ -57,7 +54,7 @@ export default function EleveProfil() {
   };
 
   const getFormuleLabel = () => {
-    const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+    const isEchelonne = eleve?.formule === 'echelonne';
     const nom = eleve?.formule_nom || (isEchelonne ? 'Echelonne' : 'Integral');
 
     if (eleve?.formule_prix_total_cents) {

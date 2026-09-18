@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  finalizeInscription,
-  IS_MOCK,
-  getFormulesPaiement,
-  getModulesCount,
-} from '../lib/supabase';
+import { finalizeInscription } from '../lib/auth';
+import { getFormulesPaiement, getModulesCount } from '../lib/public';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
 import 'flag-icons/css/flag-icons.min.css';
@@ -286,27 +282,26 @@ function Step1({ formData, setFormData, onNext }) {
   }, []);
 
   const choose = (formule) => {
-    // Stocker tous les détails de la formule pour les figer à l'inscription
+    // Stocker tous les details de la formule pour les figer a l'inscription
     const formuleDetails = {
       formule: formule.type,
       formule_id: formule.id,
       formule_nom: formule.nom,
-      formule_type: formule.type,
-      formule_prix_total: formule.prix_total,
+      formule_prix_total_cents: formule.prix_total_cents,
       formule_nombre_echeances: formule.nombre_echeances,
-      formule_montant_echeance: formule.montant_echeance,
+      formule_montant_echeance_cents: formule.montant_echeance_cents,
       formule_avantages: Array.isArray(formule.avantages) ? formule.avantages : [],
     };
     setFormData(d => ({ ...d, ...formuleDetails }));
     const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, ...formuleDetails }));
-    // Sauvegarder aussi pour le récapitulatif
+    // Sauvegarder aussi pour le recapitulatif
     localStorage.setItem('etc_formule_selectionnee', JSON.stringify({
       id: formule.id,
       type: formule.type,
       nom: formule.nom,
-      prix_total: formule.prix_total,
-      montant_echeance: formule.montant_echeance,
+      prix_total_cents: formule.prix_total_cents,
+      montant_echeance_cents: formule.montant_echeance_cents,
       nombre_echeances: formule.nombre_echeances,
       avantages: formule.avantages || [],
     }));
@@ -317,7 +312,7 @@ function Step1({ formData, setFormData, onNext }) {
     return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
   };
 
-  const formuleIntegral = formules.find(f => f.type === 'unique');
+  const formuleIntegral = formules.find(f => f.type === 'integral');
   const formuleEchelonne = formules.find(f => f.type === 'echelonne');
 
   return (
@@ -345,8 +340,8 @@ function Step1({ formData, setFormData, onNext }) {
                   <div className={`fi2-radio-dot ${isSelected ? 'fi2-radio-dot--on' : ''}`} />
                   <div className="fi2-formule-price">
                     {formule.type === 'echelonne'
-                      ? <>{formatEuros(formule.montant_echeance)} <span className="fi2-formule-mois">/mois</span></>
-                      : formatEuros(formule.prix_total)
+                      ? <>{formatEuros(formule.montant_echeance_cents)} <span className="fi2-formule-mois">/mois</span></>
+                      : formatEuros(formule.prix_total_cents)
                     }
                   </div>
                 </div>
@@ -356,7 +351,7 @@ function Step1({ formData, setFormData, onNext }) {
                     <li key={i}>{av}</li>
                   ))}
                   {formule.type === 'echelonne' && (
-                    <li>{formatEuros(formule.prix_total)} au total</li>
+                    <li>{formatEuros(formule.prix_total_cents)} au total</li>
                   )}
                 </ul>
               </div>
@@ -726,12 +721,11 @@ export default function FormationInscription() {
       motivation: formData.motivation || null,
       formule: formData.formule,
       formule_id: formData.formule_id || null,
-      // Données de formule figées au moment de l'inscription
+      // Donnees de formule figees au moment de l'inscription
       formule_nom: formData.formule_nom || null,
-      formule_type: formData.formule_type || null,
-      formule_prix_total: formData.formule_prix_total || null,
+      formule_prix_total_cents: formData.formule_prix_total_cents || null,
       formule_nombre_echeances: formData.formule_nombre_echeances || null,
-      formule_montant_echeance: formData.formule_montant_echeance || null,
+      formule_montant_echeance_cents: formData.formule_montant_echeance_cents || null,
       formule_avantages: formData.formule_avantages || [],
       communications_ok: formData.communications_ok,
       password: formData.password,
@@ -744,23 +738,22 @@ export default function FormationInscription() {
       if (error.code === 'EMAIL_EXISTS') {
         setSubmitError('EMAIL_EXISTS');
       } else {
-        setSubmitError(error.message || 'Une erreur est survenue. Veuillez réessayer.');
+        setSubmitError(error.message || 'Une erreur est survenue. Veuillez reessayer.');
       }
       return;
     }
 
-    // Succès !
+    // Succes
     localStorage.removeItem(DRAFT_KEY);
     localStorage.setItem('etc_inscription_success', JSON.stringify({
       email: formData.email,
       formule: formData.formule,
       prenom: formData.prenom,
-      // Données figées pour affichage immédiat
+      // Donnees figees pour affichage immediat
       formule_nom: formData.formule_nom,
-      formule_type: formData.formule_type,
-      formule_prix_total: formData.formule_prix_total,
+      formule_prix_total_cents: formData.formule_prix_total_cents,
       formule_nombre_echeances: formData.formule_nombre_echeances,
-      formule_montant_echeance: formData.formule_montant_echeance,
+      formule_montant_echeance_cents: formData.formule_montant_echeance_cents,
     }));
     navigate('/formation/paiement');
   };

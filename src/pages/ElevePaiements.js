@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getPaiements } from '../lib/supabase';
+import { getPaiements } from '../lib/eleve';
 import { formatEuros, centsVersEuros } from '../lib/money';
 
 const STATUT_CSS = {
@@ -39,14 +39,14 @@ export default function ElevePaiements() {
     });
   }, [eleve]);
 
-  // Utiliser les données FIGÉES sur l'élève (pas de requête vers formules_paiement)
-  const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
+  // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
+  const isEchelonne = eleve?.formule === 'echelonne';
 
-  // Montants figés en centimes (depuis eleve.formule_*) ou fallback
-  const prixTotalCents = eleve?.formule_prix_total || (isEchelonne ? 50000 : 45000);
-  const montantEcheanceCents = eleve?.formule_montant_echeance || (isEchelonne ? 5000 : prixTotalCents);
+  // Montants figes en centimes (depuis eleve.formule_*) ou fallback
+  const prixTotalCents = eleve?.formule_prix_total_cents || (isEchelonne ? 50000 : 45000);
+  const montantEcheanceCents = eleve?.formule_montant_echeance_cents || (isEchelonne ? 5000 : prixTotalCents);
   const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
-  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
+  const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Echelonne' : 'Integral');
 
   // Total paye (paiements en centimes)
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');

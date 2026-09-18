@@ -5,9 +5,8 @@ import {
   getMessagesEleve,
   envoyerMessageEleve,
   marquerMessagesLusEleve,
-  supabase,
-  IS_MOCK,
-} from '../lib/supabase';
+} from '../lib/eleve';
+import { supabase } from '../lib/client';
 import './EleveMessages.css';
 
 function formatTime(dateStr) {
@@ -63,7 +62,7 @@ export default function EleveMessages() {
   }, [messages]);
 
   useEffect(() => {
-    if (!eleve || IS_MOCK) return;
+    if (!eleve) return;
 
     const channel = supabase
       .channel(`messages_eleve_${eleve.id}`)
@@ -89,7 +88,7 @@ export default function EleveMessages() {
   }, [eleve, loadConversation]);
 
   useEffect(() => {
-    if (!eleve || IS_MOCK) return;
+    if (!eleve) return;
     const interval = setInterval(async () => {
       const msgs = await getMessagesEleve(eleve.id);
       setMessages(prev => {

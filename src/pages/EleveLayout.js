@@ -1,6 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { getEleveSession, getEleveProfil, signOutEleve, getMessagesNonLus, getMesSessionsLive, supabase, IS_MOCK } from '../lib/supabase';
+import { getEleveSession, signOutEleve } from '../lib/auth';
+import { getEleveProfil, getMessagesNonLus, getMesSessionsLive } from '../lib/eleve';
+import { supabase } from '../lib/client';
 import './Eleve.css';
 
 // ─── Context partagé ──────────────────────────────────────────────
@@ -68,13 +70,12 @@ export default function EleveLayout() {
     if (!eleve || !eleve.id || eleve.error) return;
     refreshBadges();
 
-    // Realtime pour les messages (INSERT et UPDATE pour détecter les marquages lus)
-    if (IS_MOCK) return;
+    // Realtime pour les messages (INSERT pour detecter nouveaux messages de l'admin)
     const channel = supabase
       .channel(`layout_messages_${eleve.id}`)
       .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'messages',
-        filter: `destinataire_id=eq.${eleve.id}`,
+        event: 'INSERT', schema: 'public', table: 'messages',
+        filter: `eleve_id=eq.${eleve.id}`,
       }, () => refreshBadges())
       .subscribe();
     return () => supabase.removeChannel(channel);

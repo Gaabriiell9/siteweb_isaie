@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getAllMessages, getMessagesDuJour } from '../lib/supabase';
+import { getAllMessagesPriere, getMessageDuJour } from '../lib/public';
 import './MontagnePriere.css';
 
 
@@ -11,7 +11,7 @@ export default function MontagnePriere() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllMessages(), getMessagesDuJour()]).then(([all, t]) => {
+    Promise.all([getAllMessagesPriere(), getMessageDuJour()]).then(([all, t]) => {
       const valides = Array.isArray(all) ? all.filter(m => m && m.famille) : [];
       setMessages(valides); setToday(t); setLoading(false);
     });

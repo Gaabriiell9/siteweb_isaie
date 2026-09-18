@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getCellGroups } from '../lib/supabase';
+import { getCellGroups } from '../lib/public';
 import './Cellule.css';
 
 const PROG = [

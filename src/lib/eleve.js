@@ -1,58 +1,8 @@
-import { supabase, IS_MOCK, getSessionStatut } from './client';
-
-// ─── Mock data ────────────────────────────────────────────────────────────
-
-const MOCK_ELEVE = {
-  id: 'eleve-1',
-  prenom: 'Jean',
-  nom: 'Dupont',
-  email: 'jean@example.com',
-  telephone: '+33 6 12 34 56 78',
-  pays: 'France',
-  ville: 'Paris',
-  eglise: 'ETC',
-  pasteur_referent: 'Pasteur Martin',
-  niveau_biblique: 'intermediaire',
-  motivation: 'Approfondir ma connaissance de la Bible',
-  communications_ok: true,
-  formule: 'echelonne',
-  formule_nom: 'Echelonne',
-  formule_prix_total_cents: 50000,
-  formule_nombre_echeances: 10,
-  formule_montant_echeance_cents: 5000,
-  statut: 'actif',
-  progression_pct: 33,
-  date_inscription: '2026-01-15T10:00:00Z',
-};
-
-const MOCK_MODULES_PROGRESSION = [
-  { id: 'p1', module_id: 'm1', numero: 1, titre: 'Introduction a la Bible', description: 'Canon, inspiration', debloque: true, complete: true, date_debloque: '2026-01-15', date_complete: '2026-02-15' },
-  { id: 'p2', module_id: 'm2', numero: 2, titre: 'Ancien Testament', description: 'Pentateuque, prophetes', debloque: true, complete: false, date_debloque: '2026-02-15', date_complete: null },
-  { id: 'p3', module_id: 'm3', numero: 3, titre: 'Nouveau Testament', description: 'Evangiles, epitres', debloque: false, complete: false, date_debloque: null, date_complete: null },
-];
-
-const MOCK_EVALUATIONS = [
-  { id: 'e1', titre: 'Examen Module 1', type: 'final', note: 16, note_max: 20, date_eval: '2026-02-10', module: { titre: 'Introduction a la Bible' } },
-];
-
-const MOCK_PAIEMENTS = [
-  { id: 'pay1', montant_cents: 5000, devise: 'EUR', type_paiement: 'mensualite', echeance_numero: 1, statut: 'reussi', methode: 'CB', reference: 'ETC-2026-001', date_paiement: '2026-01-15' },
-  { id: 'pay2', montant_cents: 5000, devise: 'EUR', type_paiement: 'mensualite', echeance_numero: 2, statut: 'reussi', methode: 'CB', reference: 'ETC-2026-002', date_paiement: '2026-02-15' },
-];
-
-const MOCK_MESSAGES = [
-  { id: 'msg1', eleve_id: 'eleve-1', sender_role: 'admin', contenu: 'Bienvenue dans la Formation!', lu: true, date_lu: '2026-01-16', created_at: '2026-01-15T10:00:00Z' },
-  { id: 'msg2', eleve_id: 'eleve-1', sender_role: 'eleve', contenu: 'Merci beaucoup!', lu: true, created_at: '2026-01-16T09:00:00Z' },
-];
-
-const MOCK_RESSOURCES = [
-  { id: 'r1', module_id: 'm1', titre: 'Syllabus Module 1', description: 'Plan detaille', type_ressource: 'pdf', storage_path: null, url: '#', taille_ko: 245, ordre: 1 },
-];
+import { supabase, getSessionStatut } from './client';
 
 // ─── Profil eleve ─────────────────────────────────────────────────────────
 
 export async function getEleveProfil(authUserId) {
-  if (IS_MOCK) return MOCK_ELEVE;
   if (!authUserId) {
     console.error('[getEleveProfil] No authUserId provided');
     return null;
@@ -80,7 +30,6 @@ export async function getEleveProfil(authUserId) {
 }
 
 export async function getEleveStatut(authUserId) {
-  if (IS_MOCK) return 'actif';
   try {
     const { data, error } = await supabase
       .from('eleves')
@@ -103,8 +52,6 @@ export async function getEleveStatut(authUserId) {
  * Champs autorises: prenom, nom, telephone, date_naissance, pays, ville, eglise, pasteur_referent, niveau_biblique, motivation, communications_ok
  */
 export async function updateEleveProfil(eleveId, updates) {
-  if (IS_MOCK) return { error: null };
-
   const allowedFields = ['prenom', 'nom', 'telephone', 'date_naissance', 'pays', 'ville', 'eglise', 'pasteur_referent', 'niveau_biblique', 'motivation', 'communications_ok'];
   const safeUpdates = {};
   for (const key of allowedFields) {
@@ -127,8 +74,6 @@ export async function updateEleveProfil(eleveId, updates) {
 // ─── Modules et progression ───────────────────────────────────────────────
 
 export async function getModulesAvecProgression(eleveId) {
-  if (IS_MOCK) return MOCK_MODULES_PROGRESSION;
-
   const { data, error } = await supabase
     .from('progression_eleve')
     .select(`
@@ -155,7 +100,6 @@ export async function getModulesAvecProgression(eleveId) {
 // ─── Evaluations ──────────────────────────────────────────────────────────
 
 export async function getEvaluations(eleveId) {
-  if (IS_MOCK) return MOCK_EVALUATIONS;
   const { data, error } = await supabase
     .from('evaluations')
     .select('id, titre, type, note, note_max, commentaire, date_eval, module:modules_formation(titre)')
@@ -168,7 +112,6 @@ export async function getEvaluations(eleveId) {
 // ─── Paiements ────────────────────────────────────────────────────────────
 
 export async function getPaiements(eleveId) {
-  if (IS_MOCK) return MOCK_PAIEMENTS;
   const { data, error } = await supabase
     .from('paiements')
     .select('id, montant_cents, devise, type_paiement, echeance_numero, statut, methode, reference, date_paiement')
@@ -181,7 +124,6 @@ export async function getPaiements(eleveId) {
 // ─── Messages (nouveau modele) ────────────────────────────────────────────
 
 export async function getMessagesEleve(eleveId) {
-  if (IS_MOCK) return MOCK_MESSAGES;
   const { data, error } = await supabase
     .from('messages')
     .select('id, eleve_id, sender_role, sujet, contenu, lu, date_lu, created_at')
@@ -192,18 +134,6 @@ export async function getMessagesEleve(eleveId) {
 }
 
 export async function getConversationResume(eleveId) {
-  if (IS_MOCK) {
-    const adminMsgs = MOCK_MESSAGES.filter(m => m.sender_role === 'admin' && !m.lu);
-    const last = MOCK_MESSAGES[MOCK_MESSAGES.length - 1];
-    return {
-      partner_id: 'admin',
-      partner_name: 'Administration E.T.C',
-      last_message: last?.contenu?.slice(0, 60) || null,
-      last_at: last?.created_at || null,
-      unread_count: adminMsgs.length,
-    };
-  }
-
   const { data, error } = await supabase
     .from('messages')
     .select('sender_role, contenu, created_at, lu')
@@ -226,10 +156,6 @@ export async function getConversationResume(eleveId) {
 }
 
 export async function envoyerMessageEleve(eleveId, contenu) {
-  if (IS_MOCK) {
-    return { data: { id: `mock-${Date.now()}`, contenu, sender_role: 'eleve', created_at: new Date().toISOString() }, error: null };
-  }
-
   const session = await supabase.auth.getSession();
   const userId = session.data?.session?.user?.id;
   if (!userId) return { data: null, error: { message: 'Non connecte' } };
@@ -250,7 +176,6 @@ export async function envoyerMessageEleve(eleveId, contenu) {
 }
 
 export async function marquerMessagesLusEleve(eleveId) {
-  if (IS_MOCK) return { error: null };
   return supabase
     .from('messages')
     .update({ lu: true, date_lu: new Date().toISOString() })
@@ -260,7 +185,6 @@ export async function marquerMessagesLusEleve(eleveId) {
 }
 
 export async function getMessagesNonLus(eleveId) {
-  if (IS_MOCK) return MOCK_MESSAGES.filter(m => m.sender_role === 'admin' && !m.lu);
   const { data, error } = await supabase
     .from('messages')
     .select('id, contenu, created_at')
@@ -275,8 +199,6 @@ export async function getMessagesNonLus(eleveId) {
 // ─── Ressources (avec URL signees) ────────────────────────────────────────
 
 export async function getRessourcesEleve(eleveId) {
-  if (IS_MOCK) return MOCK_RESSOURCES;
-
   const { data: progression } = await supabase
     .from('progression_eleve')
     .select('module_id')
@@ -300,7 +222,7 @@ export async function getRessourcesEleve(eleveId) {
  * Genere une URL signee pour une ressource stockee dans le bucket prive
  */
 export async function getSignedUrlRessource(storagePath) {
-  if (IS_MOCK || !storagePath) return null;
+  if (!storagePath) return null;
 
   const { data, error } = await supabase.storage
     .from('ressources')
@@ -317,12 +239,6 @@ export async function getSignedUrlRessource(storagePath) {
 // ─── Sessions live ────────────────────────────────────────────────────────
 
 export async function getMesSessionsLive(eleveId) {
-  if (IS_MOCK) {
-    return [
-      { id: 's1', titre: 'Session Module 1', date_session: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString(), duree_minutes: 60, lien_zoom: 'https://zoom.us/j/123', statut_calcule: 'programme' },
-    ];
-  }
-
   const { data, error } = await supabase
     .from('sessions_participants')
     .select('session:sessions_live(*, module:modules_formation(numero, titre))')
@@ -348,7 +264,6 @@ export async function getMesSessionsLive(eleveId) {
 }
 
 export async function marquerSessionRejointe(sessionId, eleveId) {
-  if (IS_MOCK) return { error: null };
   return supabase
     .from('sessions_participants')
     .update({ a_rejoint: true, date_rejoint: new Date().toISOString() })

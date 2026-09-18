@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
-import { getEvaluations } from '../lib/supabase';
+import { getEvaluations } from '../lib/eleve';
 
 const TYPE_LABEL = { partiel: 'Partiel', final: 'Final', devoir: 'Devoir' };
 const TYPE_CSS   = { partiel: 'eleve-badge--blue', final: 'eleve-badge--gold', devoir: 'eleve-badge--grey' };

@@ -1,16 +1,8 @@
-import { supabase, IS_MOCK } from './client';
-
-const MOCK_SESSION_KEY = 'mock_eleve_session';
+import { supabase } from './client';
 
 // ─── Auth eleve ───────────────────────────────────────────────────────────
 
 export async function signInEleve(email, password) {
-  if (IS_MOCK) {
-    const session = { user: { id: 'mock-eleve-id', email } };
-    localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
-    return { data: session, error: null };
-  }
-
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
@@ -37,18 +29,10 @@ export async function signInEleve(email, password) {
 }
 
 export async function signOutEleve() {
-  if (IS_MOCK) {
-    localStorage.removeItem(MOCK_SESSION_KEY);
-    return;
-  }
   await supabase.auth.signOut();
 }
 
 export async function getEleveSession() {
-  if (IS_MOCK) {
-    const stored = localStorage.getItem(MOCK_SESSION_KEY);
-    return stored ? JSON.parse(stored) : null;
-  }
   const { data } = await supabase.auth.getSession();
   return data.session;
 }
@@ -73,8 +57,6 @@ export async function getSession() {
  * @returns {Promise<{isAdmin: boolean, role: string|null}>}
  */
 export async function checkIsAdmin() {
-  if (IS_MOCK) return { isAdmin: true, role: 'super_admin' };
-
   const { data } = await supabase.auth.getSession();
   if (!data.session?.user?.id) return { isAdmin: false, role: null };
 
@@ -102,11 +84,6 @@ export async function checkIsAdmin() {
  * Le trigger serveur cree automatiquement la fiche eleve
  */
 export async function finalizeInscription(data) {
-  if (IS_MOCK) {
-    await new Promise(r => setTimeout(r, 1500));
-    return { success: true, user: { id: 'mock-id', email: data.email } };
-  }
-
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,

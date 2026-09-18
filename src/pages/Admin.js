@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import logoPng from '../assets/logoe-eglise.png';
+import { signIn, signOut, getSession, checkIsAdmin } from '../lib/auth';
+import { getVideos, getAllMessagesPriere, getServices, getAnciensServices, getFormulesPaiement } from '../lib/public';
 import {
-  signIn, signOut, getSession, checkIsAdmin,
-  getVideos, addVideo, deleteVideo,
-  getAllMessages, upsertMessage, deleteMessage,
-  getCultes, addCulte, deleteCulte, getAnciensCultes,
+  addVideo, deleteVideo,
+  upsertMessagePriere, deleteMessagePriere,
+  addService, deleteService,
   getAllElevesAvecStats,
   suspendreEleve, reactiverEleve,
   ajouterEvaluation,
-  getEvaluations, getPaiements, ajouterPaiement,
+  getEvaluationsAdmin, getPaiementsAdmin, ajouterPaiement,
   updateProgressionModule, updateNotesAdmin,
   getStatistiquesFormation, getElevesParPays,
   exportElevesCSV,
@@ -18,12 +19,11 @@ import {
   inviteParticipantsToSession, getParticipantsSession,
   getAllElevesAvecDernierMessage, getMessagesConversation, envoyerMessageAdmin, marquerMessagesLusAdmin,
   broadcastMessage,
-  supabase, IS_MOCK,
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
   updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
-  getSessionStatut,
-  getFormulesPaiement, createFormulePaiement, updateFormulePaiement,
-} from '../lib/supabase';
+  createFormulePaiement, updateFormulePaiement,
+} from '../lib/admin';
+import { supabase, getSessionStatut } from '../lib/client';
 import './Admin.css';
 import Icon from '../components/Icon';
 
@@ -175,13 +175,13 @@ function TabPriere() {
   const [msg, setMsg] = useState('');
   const [editing, setEditing] = useState(null);
 
-  const load = async () => setMessages(await getAllMessages());
+  const load = async () => setMessages(await getAllMessagesPriere());
   useEffect(() => { load(); }, []);
 
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const { error } = await upsertMessage(editing ? { ...form, id: editing } : form);
+    const { error } = await upsertMessagePriere(editing ? { ...form, id: editing } : form);
     if (!error) { setMsg('Message enregistré ✓'); setForm({ famille: 'Ruben', jour_semaine: 'Lundi', semaine: 1, titre: '', contenu: '', verset: '' }); setEditing(null); load(); }
     else setMsg('Erreur : ' + error.message);
     setSaving(false);
@@ -196,7 +196,7 @@ function TabPriere() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer ce message ?')) return;
-    await deleteMessage(id);
+    await deleteMessagePriere(id);
     load();
   };
 
@@ -259,16 +259,16 @@ function TabCultes() {
   const [msg, setMsg] = useState('');
 
   const load = async () => {
-    setCultes(await getCultes('culte'));
-    setCellules(await getCultes('cellule'));
-    setAnciensCultes(await getAnciensCultes());
+    setCultes(await getServices('culte'));
+    setCellules(await getServices('cellule'));
+    setAnciensCultes(await getAnciensServices());
   };
   useEffect(() => { load(); }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const { error } = await addCulte({ ...form, type: tab });
+    const { error } = await addService({ ...form, type: tab });
     if (!error) { setMsg('Ajoute'); setForm({ ...form, date_service: '', groupe: '', description: '', lien_live: '' }); load(); }
     else setMsg('Erreur : ' + error.message);
     setSaving(false);
@@ -277,7 +277,7 @@ function TabCultes() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer ?')) return;
-    await deleteCulte(id); load();
+    await deleteService(id); load();
   };
 
   const list = tab === 'culte' ? cultes : cellules;
@@ -568,24 +568,10 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
   useEffect(() => {
     if (!eleve) return;
     setNotes(eleve.notes_admin || '');
-    if (IS_MOCK) {
-      setModules([
-        { id: 'm1', module: { numero: 1, titre: 'Introduction à la Bible' }, debloque: true, complete: true, date_debloque: new Date(Date.now()-60*24*3600*1000).toISOString(), date_complete: new Date(Date.now()-30*24*3600*1000).toISOString() },
-        { id: 'm2', module: { numero: 2, titre: 'Ancien Testament' }, debloque: true, complete: false, date_debloque: new Date(Date.now()-25*24*3600*1000).toISOString(), date_complete: null },
-        { id: 'm3', module: { numero: 3, titre: 'Nouveau Testament' }, debloque: eleve.formule === 'integral', complete: false, date_debloque: null, date_complete: null },
-        { id: 'm4', module: { numero: 4, titre: 'Théologie systématique' }, debloque: eleve.formule === 'integral', complete: false, date_debloque: null, date_complete: null },
-        { id: 'm5', module: { numero: 5, titre: "Histoire de l'Église" }, debloque: false, complete: false, date_debloque: null, date_complete: null },
-        { id: 'm6', module: { numero: 6, titre: 'Vie chrétienne et ministère' }, debloque: false, complete: false, date_debloque: null, date_complete: null },
-      ]);
-      setEvaluations([]);
-      setPaiements([]);
-      return;
-    }
-    // Chargement réel depuis Supabase
     const loadData = async () => {
       const [evals, paies, progRes, modsRes] = await Promise.all([
-        getEvaluations(eleve.id),
-        getPaiements(eleve.id),
+        getEvaluationsAdmin(eleve.id),
+        getPaiementsAdmin(eleve.id),
         supabase.from('progression_eleve').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(numero)'),
         supabase.from('modules_formation').select('*').order('ordre'),
       ]);
@@ -783,7 +769,7 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
               eleve={eleve}
               paiements={paiements}
               onPaiementAdded={async () => {
-                const newPaiements = await getPaiements(eleve.id);
+                const newPaiements = await getPaiementsAdmin(eleve.id);
                 setPaiements(newPaiements || []);
                 onUpdate();
               }}
@@ -1611,9 +1597,8 @@ function SubTabMessages() {
   // Garde selectedRef à jour sans recréer le channel
   useEffect(() => { selectedRef.current = selected; }, [selected]);
 
-  // Realtime — channel stable, utilise selectedRef pour éviter stale closure
+  // Realtime - channel stable, utilise selectedRef pour eviter stale closure
   useEffect(() => {
-    if (IS_MOCK) return;
     const channel = supabase
       .channel('admin_messages_rt')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
@@ -1621,7 +1606,7 @@ function SubTabMessages() {
         const current = selectedRef.current;
         if (!current) return;
         const msg = payload.new;
-        if (msg.destinataire_id === current.id) {
+        if (msg.eleve_id === current.id) {
           setMessages(prev => {
             if (prev.some(m => m.id === msg.id)) return prev;
             return [...prev, msg];
@@ -1634,7 +1619,6 @@ function SubTabMessages() {
 
   // Polling de secours toutes les 3s
   useEffect(() => {
-    if (IS_MOCK) return;
     const interval = setInterval(async () => {
       loadEleves();
       const current = selectedRef.current;
@@ -1658,7 +1642,7 @@ function SubTabMessages() {
     if (!texte.trim() || !selected || sending) return;
     const content = texte.trim();
     const tempId = `temp-${Date.now()}`;
-    const tempMsg = { id: tempId, contenu: content, expediteur_type: 'admin', created_at: new Date().toISOString() };
+    const tempMsg = { id: tempId, contenu: content, sender_role: 'admin', created_at: new Date().toISOString() };
     setMessages(prev => [...prev, tempMsg]);
     setTexte('');
     if (textareaRef.current) { textareaRef.current.style.height = 'auto'; }
@@ -1763,11 +1747,11 @@ function SubTabMessages() {
                 </div>
               )}
               {messages.map((msg, i) => {
-                const isAdmin = msg.expediteur_type === 'admin';
+                const isAdmin = msg.sender_role === 'admin';
                 const prev = messages[i - 1];
                 const next = messages[i + 1];
                 const showDateSep = !prev || new Date(msg.created_at).toDateString() !== new Date(prev.created_at).toDateString();
-                const isLastInGroup = !next || next.expediteur_type !== msg.expediteur_type ||
+                const isLastInGroup = !next || next.sender_role !== msg.sender_role ||
                   new Date(next.created_at).toDateString() !== new Date(msg.created_at).toDateString();
                 return (
                   <React.Fragment key={msg.id}>
@@ -2245,7 +2229,7 @@ function SubTabFormules() {
   const [editForm, setEditForm] = useState({});
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({
-    nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: 1
+    nom: '', type: 'integral', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: 1
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
@@ -2272,9 +2256,9 @@ function SubTabFormules() {
     setEditForm({
       nom: f.nom,
       type: f.type,
-      prix_total: f.prix_total / 100,
+      prix_total: (f.prix_total_cents || 0) / 100,
       nombre_echeances: f.nombre_echeances,
-      montant_echeance: f.montant_echeance / 100,
+      montant_echeance: (f.montant_echeance_cents || 0) / 100,
       avantages: avantages,
       actif: f.actif,
       ordre_affichage: f.ordre_affichage,
@@ -2331,9 +2315,9 @@ function SubTabFormules() {
     const updates = {
       nom: editForm.nom,
       type: editForm.type,
-      prix_total: Math.round(parseFloat(editForm.prix_total) * 100),
+      prix_total_cents: Math.round(parseFloat(editForm.prix_total) * 100),
       nombre_echeances: parseInt(editForm.nombre_echeances),
-      montant_echeance: Math.round(parseFloat(editForm.montant_echeance) * 100),
+      montant_echeance_cents: Math.round(parseFloat(editForm.montant_echeance) * 100),
       avantages: avantagesFiltered,
       actif: editForm.actif,
       ordre_affichage: parseInt(editForm.ordre_affichage),
@@ -2341,16 +2325,16 @@ function SubTabFormules() {
     const { data, error } = await updateFormulePaiement(editingId, updates);
     setSaving(false);
     if (error) {
-      console.error('Erreur mise à jour formule:', error);
-      showMsg(`Erreur: ${error.message || 'Échec de la sauvegarde'}`);
+      console.error('Erreur mise a jour formule:', error);
+      showMsg(`Erreur: ${error.message || 'Echec de la sauvegarde'}`);
       return;
     }
-    // Mettre à jour le state local immédiatement avec les données retournées
+    // Mettre a jour le state local immediatement avec les donnees retournees
     if (data) {
       setFormules(prev => prev.map(f => f.id === editingId ? data : f));
     }
     setEditingId(null);
-    showMsg('Formule mise à jour ✓');
+    showMsg('Formule mise a jour');
     // Re-fetch pour s'assurer de la synchronisation
     await load();
   };
@@ -2363,21 +2347,21 @@ function SubTabFormules() {
     const { data, error } = await createFormulePaiement({
       nom: createForm.nom,
       type: createForm.type,
-      prix_total: Math.round(parseFloat(createForm.prix_total) * 100),
+      prix_total_cents: Math.round(parseFloat(createForm.prix_total) * 100),
       nombre_echeances: parseInt(createForm.nombre_echeances),
-      montant_echeance: Math.round(parseFloat(createForm.montant_echeance) * 100),
+      montant_echeance_cents: Math.round(parseFloat(createForm.montant_echeance) * 100),
       avantages: avantagesFiltered,
       actif: true,
       ordre_affichage: parseInt(createForm.ordre_affichage),
     });
     setSaving(false);
     if (error) {
-      console.error('Erreur création formule:', error);
+      console.error('Erreur creation formule:', error);
       showMsg(`Erreur: ${error.message || 'Échec de la création'}`);
       return;
     }
     setShowCreate(false);
-    setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
+    setCreateForm({ nom: '', type: 'integral', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
     showMsg('Formule créée ✓');
     await load();
   };
@@ -2431,7 +2415,7 @@ function SubTabFormules() {
         </span>
         <button className="af-btn af-btn--primary" onClick={() => {
           setShowCreate(true);
-          setCreateForm({ nom: '', type: 'unique', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
+          setCreateForm({ nom: '', type: 'integral', prix_total: '', nombre_echeances: 1, montant_echeance: '', avantages: [''], ordre_affichage: formules.length + 1 });
         }}>+ Nouvelle formule</button>
       </div>
 
@@ -2496,17 +2480,17 @@ function SubTabFormules() {
                   <div className="af-formule-header">
                     <div className="af-formule-name">{f.nom}</div>
                     <div className="af-formule-badges">
-                      <span className={`af-badge af-badge--${f.type === 'unique' ? 'or' : 'bleu'}`}>
-                        {f.type === 'unique' ? 'Unique' : 'Échelonné'}
+                      <span className={`af-badge af-badge--${f.type === 'integral' ? 'or' : 'bleu'}`}>
+                        {f.type === 'integral' ? 'Integral' : 'Echelonne'}
                       </span>
                       {!f.actif && <span className="af-badge af-badge--gris">Inactif</span>}
                     </div>
                   </div>
                   <div className="af-formule-pricing">
-                    <div className="af-formule-price-main">{formatEuros(f.prix_total)}</div>
+                    <div className="af-formule-price-main">{formatEuros(f.prix_total_cents)}</div>
                     {f.type === 'echelonne' && (
                       <div className="af-formule-price-detail">
-                        {f.nombre_echeances} × {formatEuros(f.montant_echeance)}
+                        {f.nombre_echeances} x {formatEuros(f.montant_echeance_cents)}
                       </div>
                     )}
                   </div>

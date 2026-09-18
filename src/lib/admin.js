@@ -1,36 +1,31 @@
-import { supabase, IS_MOCK, getSessionStatut } from './client';
+import { supabase, getSessionStatut } from './client';
 import { formatEuros, eurosVersCents, centsVersEuros } from './money';
 
 // ─── Videos ───────────────────────────────────────────────────────────────
 
 export async function addVideo(video) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('videos').insert([video]);
 }
 
 export async function deleteVideo(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('videos').delete().eq('id', id);
 }
 
 // ─── Messages priere ──────────────────────────────────────────────────────
 
 export async function upsertMessagePriere(msg) {
-  if (IS_MOCK) return { error: null };
   return supabase
     .from('messages_priere')
     .upsert([msg], { onConflict: 'famille,jour_semaine,semaine' });
 }
 
 export async function deleteMessagePriere(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('messages_priere').delete().eq('id', id);
 }
 
 // ─── Services ─────────────────────────────────────────────────────────────
 
 export async function getAllServices() {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('services')
     .select('*')
@@ -40,24 +35,20 @@ export async function getAllServices() {
 }
 
 export async function addService(service) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('services').insert([service]);
 }
 
 export async function updateService(id, updates) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('services').update(updates).eq('id', id);
 }
 
 export async function deleteService(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('services').delete().eq('id', id);
 }
 
 // ─── Cell groups ──────────────────────────────────────────────────────────
 
 export async function getAllCellGroups() {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('cell_groups')
     .select('*')
@@ -67,24 +58,20 @@ export async function getAllCellGroups() {
 }
 
 export async function addCellGroup(group) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('cell_groups').insert([group]);
 }
 
 export async function updateCellGroup(id, updates) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('cell_groups').update(updates).eq('id', id);
 }
 
 export async function deleteCellGroup(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('cell_groups').delete().eq('id', id);
 }
 
 // ─── Announcements ────────────────────────────────────────────────────────
 
 export async function getAllAnnouncements() {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('announcements')
     .select('*')
@@ -94,31 +81,26 @@ export async function getAllAnnouncements() {
 }
 
 export async function addAnnouncement(ann) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('announcements').insert([ann]);
 }
 
 export async function updateAnnouncement(id, updates) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('announcements').update(updates).eq('id', id);
 }
 
 export async function deleteAnnouncement(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('announcements').delete().eq('id', id);
 }
 
 // ─── Site settings ────────────────────────────────────────────────────────
 
 export async function updateSiteSetting(cle, valeur) {
-  if (IS_MOCK) return { error: null };
   return supabase
     .from('site_settings')
     .upsert([{ cle, valeur, updated_at: new Date().toISOString() }], { onConflict: 'cle' });
 }
 
 export async function updateSiteSettings(settings) {
-  if (IS_MOCK) return { error: null };
   const rows = Object.entries(settings).map(([cle, valeur]) => ({
     cle,
     valeur,
@@ -132,7 +114,6 @@ export async function updateSiteSettings(settings) {
 // ─── Eleves ───────────────────────────────────────────────────────────────
 
 export async function getAllElevesAvecStats() {
-  if (IS_MOCK) return [];
   const [elevesRes, confirmRes] = await Promise.all([
     supabase.from('eleves').select(`
       id, auth_user_id, prenom, nom, email, telephone, pays, ville,
@@ -159,29 +140,24 @@ export async function getAllElevesAvecStats() {
 }
 
 export async function suspendreEleve(eleveId, raison = '') {
-  if (IS_MOCK) return { error: null };
   return supabase.from('eleves').update({ statut: 'suspendu', raison_suspension: raison }).eq('id', eleveId);
 }
 
 export async function reactiverEleve(eleveId) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('eleves').update({ statut: 'actif', raison_suspension: null }).eq('id', eleveId);
 }
 
 export async function updateNotesAdmin(eleveId, notes) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('eleves').update({ notes_admin: notes }).eq('id', eleveId);
 }
 
 // ─── Evaluations (admin) ──────────────────────────────────────────────────
 
 export async function ajouterEvaluation(eleveId, data) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('evaluations').insert([{ ...data, eleve_id: eleveId }]);
 }
 
 export async function getEvaluationsAdmin(eleveId) {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('evaluations')
     .select('*, module:modules_formation(titre)')
@@ -194,7 +170,6 @@ export async function getEvaluationsAdmin(eleveId) {
 // ─── Paiements (admin) ────────────────────────────────────────────────────
 
 export async function getPaiementsAdmin(eleveId) {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('paiements')
     .select('*')
@@ -205,7 +180,6 @@ export async function getPaiementsAdmin(eleveId) {
 }
 
 export async function ajouterPaiement(eleveId, data) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('paiements').insert([{
     eleve_id: eleveId,
     montant_cents: data.montant_cents,
@@ -222,7 +196,6 @@ export async function ajouterPaiement(eleveId, data) {
 // ─── Progression (admin) ──────────────────────────────────────────────────
 
 export async function getProgressionAdmin(eleveId) {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('progression_eleve')
     .select('*, module:modules_formation(*)')
@@ -233,7 +206,6 @@ export async function getProgressionAdmin(eleveId) {
 }
 
 export async function updateProgressionModule(eleveId, moduleId, action) {
-  if (IS_MOCK) return { error: null };
   const updates = action === 'debloquer'
     ? { debloque: true, date_debloque: new Date().toISOString() }
     : { complete: true, date_complete: new Date().toISOString() };
@@ -244,12 +216,6 @@ export async function updateProgressionModule(eleveId, moduleId, action) {
 // ─── Modules formation ────────────────────────────────────────────────────
 
 export async function getModulesFormation() {
-  if (IS_MOCK) {
-    return [
-      { id: 'mock-1', numero: 1, titre: 'Introduction a la Bible', description: 'Canon, inspiration', duree_semaines: 8 },
-      { id: 'mock-2', numero: 2, titre: 'Ancien Testament', description: 'Pentateuque, prophetes', duree_semaines: 8 },
-    ];
-  }
   const { data, error } = await supabase
     .from('modules_formation')
     .select('*')
@@ -259,7 +225,6 @@ export async function getModulesFormation() {
 }
 
 export async function createModuleFormation(data) {
-  if (IS_MOCK) return { data: { id: Date.now().toString(), ...data }, error: null };
   const { data: result, error } = await supabase
     .from('modules_formation')
     .insert({ numero: data.numero, titre: data.titre, description: data.description || null, duree_semaines: data.duree_semaines || 8 })
@@ -270,7 +235,6 @@ export async function createModuleFormation(data) {
 }
 
 export async function updateModuleFormation(id, fields) {
-  if (IS_MOCK) return { data: { id, ...fields }, error: null };
   const { data, error } = await supabase
     .from('modules_formation').update(fields).eq('id', id).select();
   if (error) console.error('[updateModuleFormation]', error);
@@ -278,7 +242,6 @@ export async function updateModuleFormation(id, fields) {
 }
 
 export async function swapModuleOrdre(idA, numeroA, idB, numeroB) {
-  if (IS_MOCK) return { error: null };
   const [r1, r2] = await Promise.all([
     supabase.from('modules_formation').update({ numero: numeroB }).eq('id', idA),
     supabase.from('modules_formation').update({ numero: numeroA }).eq('id', idB),
@@ -287,7 +250,6 @@ export async function swapModuleOrdre(idA, numeroA, idB, numeroB) {
 }
 
 export async function deleteModuleFormation(moduleId) {
-  if (IS_MOCK) return { error: null };
   const { error } = await supabase.from('modules_formation').delete().eq('id', moduleId);
   if (error) console.error('[deleteModuleFormation]', error);
   return { error: error ?? null };
@@ -296,7 +258,6 @@ export async function deleteModuleFormation(moduleId) {
 // ─── Ressources module ────────────────────────────────────────────────────
 
 export async function getAllRessourcesParModule() {
-  if (IS_MOCK) return {};
   const { data, error } = await supabase
     .from('ressources_module')
     .select('*, module:modules_formation(numero, titre)')
@@ -312,7 +273,6 @@ export async function getAllRessourcesParModule() {
 }
 
 export async function createRessource(data) {
-  if (IS_MOCK) return { data: { id: `mock-${Date.now()}`, ...data }, error: null };
   const { data: result, error } = await supabase
     .from('ressources_module').insert([data]).select().single();
   if (error) console.error('[createRessource]', error);
@@ -320,18 +280,14 @@ export async function createRessource(data) {
 }
 
 export async function updateRessource(id, updates) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('ressources_module').update(updates).eq('id', id);
 }
 
 export async function deleteRessource(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('ressources_module').delete().eq('id', id);
 }
 
 export async function uploadRessourceFile(file, moduleId, titre, description, ordre) {
-  if (IS_MOCK) return { error: null };
-
   const ext = file.name.split('.').pop().toLowerCase();
   const typeMap = { pdf: 'pdf', mp4: 'video', mp3: 'audio', wav: 'audio', jpg: 'image', jpeg: 'image', png: 'image', gif: 'image' };
   const type_ressource = typeMap[ext] || 'lien';
@@ -356,7 +312,6 @@ export async function uploadRessourceFile(file, moduleId, titre, description, or
 // ─── Formules paiement (admin) ────────────────────────────────────────────
 
 export async function getFormulesPaiementAdmin(includeInactive = false) {
-  if (IS_MOCK) return [];
   let query = supabase.from('formules_paiement').select('*').order('ordre_affichage');
   if (!includeInactive) {
     query = query.eq('actif', true);
@@ -367,7 +322,6 @@ export async function getFormulesPaiementAdmin(includeInactive = false) {
 }
 
 export async function createFormulePaiement(formule) {
-  if (IS_MOCK) return { data: { id: `formule-${Date.now()}`, ...formule }, error: null };
   const { data, error } = await supabase
     .from('formules_paiement').insert([formule]).select().single();
   if (error) console.error('[createFormulePaiement]', error);
@@ -375,7 +329,6 @@ export async function createFormulePaiement(formule) {
 }
 
 export async function updateFormulePaiement(id, updates) {
-  if (IS_MOCK) return { data: { id, ...updates }, error: null };
   const { data, error } = await supabase
     .from('formules_paiement').update(updates).eq('id', id).select().single();
   if (error) console.error('[updateFormulePaiement]', error);
@@ -383,7 +336,6 @@ export async function updateFormulePaiement(id, updates) {
 }
 
 export async function deleteFormulePaiement(id) {
-  if (IS_MOCK) return { error: null };
   const { error } = await supabase.from('formules_paiement').delete().eq('id', id);
   if (error) console.error('[deleteFormulePaiement]', error);
   return { error };
@@ -392,7 +344,6 @@ export async function deleteFormulePaiement(id) {
 // ─── Sessions live (admin) ────────────────────────────────────────────────
 
 export async function getSessionsLive(filters = {}) {
-  if (IS_MOCK) return [];
   let q = supabase.from('sessions_live')
     .select('*, module:modules_formation(numero, titre)')
     .order('date_session', { ascending: true });
@@ -407,30 +358,25 @@ export async function getSessionsLive(filters = {}) {
 }
 
 export async function createSessionLive(data) {
-  if (IS_MOCK) return { error: null, data: { id: 'new-mock-session' } };
   const payload = { ...data, module_id: data.module_id || null };
   const { data: session, error } = await supabase.from('sessions_live').insert([payload]).select('id').single();
   return { data: session, error };
 }
 
 export async function updateSessionLive(id, updates) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('sessions_live').update(updates).eq('id', id);
 }
 
 export async function deleteSessionLive(id) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('sessions_live').delete().eq('id', id);
 }
 
 export async function inviteParticipantsToSession(sessionId, eleveIds) {
-  if (IS_MOCK) return { error: null };
   const rows = eleveIds.map(eleveId => ({ session_id: sessionId, eleve_id: eleveId }));
   return supabase.from('sessions_participants').upsert(rows, { onConflict: 'session_id,eleve_id' });
 }
 
 export async function getParticipantsSession(sessionId) {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('sessions_participants')
     .select('*, eleve:eleves(id, prenom, nom, email, statut)')
@@ -442,8 +388,6 @@ export async function getParticipantsSession(sessionId) {
 // ─── Messages (admin) ─────────────────────────────────────────────────────
 
 export async function getAllElevesAvecDernierMessage() {
-  if (IS_MOCK) return [];
-
   const { data: eleves } = await supabase
     .from('eleves').select('id, prenom, nom, auth_user_id, statut, formule')
     .eq('statut', 'actif').order('nom');
@@ -465,7 +409,6 @@ export async function getAllElevesAvecDernierMessage() {
 }
 
 export async function getMessagesConversation(eleveId) {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('messages').select('*')
     .eq('eleve_id', eleveId)
@@ -475,9 +418,6 @@ export async function getMessagesConversation(eleveId) {
 }
 
 export async function envoyerMessageAdmin(eleveId, contenu) {
-  if (IS_MOCK) {
-    return { data: { id: `msg-mock-${Date.now()}`, sender_role: 'admin', contenu, created_at: new Date().toISOString(), lu: false }, error: null };
-  }
   const session = await supabase.auth.getSession();
   const userId = session.data?.session?.user?.id;
   const { data, error } = await supabase.from('messages').insert([{
@@ -491,7 +431,6 @@ export async function envoyerMessageAdmin(eleveId, contenu) {
 }
 
 export async function marquerMessagesLusAdmin(eleveId) {
-  if (IS_MOCK) return { error: null };
   return supabase.from('messages')
     .update({ lu: true, date_lu: new Date().toISOString() })
     .eq('eleve_id', eleveId)
@@ -500,7 +439,6 @@ export async function marquerMessagesLusAdmin(eleveId) {
 }
 
 export async function broadcastMessage(contenu, filter = {}) {
-  if (IS_MOCK) return { error: null };
   let query = supabase.from('eleves').select('id').eq('statut', 'actif');
   if (filter.formule) query = query.eq('formule', filter.formule);
   const { data: eleves } = await query;
@@ -522,7 +460,6 @@ export async function broadcastMessage(contenu, filter = {}) {
 // ─── Donations (lecture seule) ────────────────────────────────────────────
 
 export async function getDonations() {
-  if (IS_MOCK) return [];
   const { data, error } = await supabase
     .from('donations')
     .select('id, nom_donateur, email, montant_cents, devise, statut, message, date_don')
@@ -534,10 +471,6 @@ export async function getDonations() {
 // ─── Statistiques ─────────────────────────────────────────────────────────
 
 export async function getStatistiquesFormation() {
-  if (IS_MOCK) {
-    return { totalInscrits: 32, inscritsCeMois: 7, elevesActifs: 28, revenuTotalCents: 875000, tauxPaiement: 62 };
-  }
-
   const now = new Date();
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
@@ -569,7 +502,6 @@ export async function getStatistiquesFormation() {
 }
 
 export async function getElevesParPays() {
-  if (IS_MOCK) return [{ pays: 'France', count: 12 }, { pays: 'Congo (RDC)', count: 8 }];
   const { data, error } = await supabase
     .from('eleves').select('pays').not('pays', 'is', null);
   if (error) console.error('[getElevesParPays]', error);
@@ -580,7 +512,6 @@ export async function getElevesParPays() {
 }
 
 export async function exportElevesCSV() {
-  if (IS_MOCK) return;
   const { data } = await supabase.from('eleves')
     .select('prenom, nom, email, pays, ville, formule, statut, progression_pct, date_inscription')
     .order('date_inscription', { ascending: false });

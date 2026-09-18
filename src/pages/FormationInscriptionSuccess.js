@@ -34,12 +34,12 @@ export default function FormationInscriptionSuccess() {
 
   const getFormuleLabel = () => {
     if (!formuleData) {
-      return info.formule === 'integral' ? 'Paiement intégral' : 'Paiement échelonné';
+      return info.formule === 'integral' ? 'Paiement integral' : 'Paiement echelonne';
     }
     if (formuleData.type === 'echelonne') {
-      return `${formuleData.nom} — ${formatEuros(formuleData.montant_echeance)}/mois`;
+      return `${formuleData.nom} - ${formatEuros(formuleData.montant_echeance_cents)}/mois`;
     }
-    return `${formuleData.nom} — ${formatEuros(formuleData.prix_total)}`;
+    return `${formuleData.nom} - ${formatEuros(formuleData.prix_total_cents)}`;
   };
 
   return (

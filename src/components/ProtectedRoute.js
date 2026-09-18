@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getEleveSession } from '../lib/supabase';
+import { getEleveSession } from '../lib/auth';
 
 export default function ProtectedRoute({ children }) {
   const [checked, setChecked] = useState(false);

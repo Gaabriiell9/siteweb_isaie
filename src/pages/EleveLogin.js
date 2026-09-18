@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signInEleve, getEleveStatut } from '../lib/supabase';
+import { signInEleve } from '../lib/auth';
+import { getEleveStatut } from '../lib/eleve';
 import './EleveLogin.css';
 
 export default function EleveLogin() {
