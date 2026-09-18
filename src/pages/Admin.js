@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import ReactDOM from 'react-dom';
 import logoPng from '../assets/logoe-eglise.png';
 import { signIn, signOut, getSession, checkIsAdmin } from '../lib/auth';
-import { getVideos, getAllMessagesPriere, getServices, getAnciensServices, getFormulesPaiement } from '../lib/public';
+import { getFormulesPaiement } from '../lib/public';
+import { TabAnnonces, TabServices, TabCellules, TabSettings, TabDons, TabVideos, TabPriere } from './admin';
 import {
-  addVideo, deleteVideo,
-  upsertMessagePriere, deleteMessagePriere,
-  addService, deleteService,
   getAllElevesAvecStats,
   suspendreEleve, reactiverEleve,
   ajouterEvaluation,
@@ -81,287 +79,6 @@ function LoginForm({ onLogin }) {
           </button>
         </form>
       </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// TAB : VIDÉOS
-// ─────────────────────────────────────────────
-function TabVideos() {
-  const [videos, setVideos] = useState([]);
-  const [form, setForm] = useState({ titre: '', legende: '', description: '', youtube_url: '', date_publi: new Date().toISOString().split('T')[0], is_live: false });
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
-
-  const load = async () => setVideos(await getVideos());
-  useEffect(() => { load(); }, []);
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    const { error } = await addVideo(form);
-    if (!error) { setMsg('Vidéo ajoutée ✓'); setForm({ titre: '', legende: '', description: '', youtube_url: '', date_publi: new Date().toISOString().split('T')[0], is_live: false }); load(); }
-    else setMsg('Erreur : ' + error.message);
-    setSaving(false);
-    setTimeout(() => setMsg(''), 3000);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer cette vidéo ?')) return;
-    await deleteVideo(id);
-    load();
-  };
-
-  const getYouTubeId = (url) => {
-    const m = url.match(/(?:youtu\.be\/|v=)([^&\s]+)/);
-    return m ? m[1] : null;
-  };
-
-  return (
-    <div className="admin-tab">
-      <h3>Ajouter une vidéo</h3>
-      <form onSubmit={handleAdd} className="admin-form">
-        <input required placeholder="Titre de la prédication *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
-        <input placeholder="Légende (ex: Culte du Dimanche)" value={form.legende} onChange={e => setForm({...form, legende: e.target.value})} />
-        <textarea placeholder="Description (optionnelle)" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
-        <input required placeholder="Lien YouTube (https://youtube.com/watch?v=...) *" value={form.youtube_url} onChange={e => setForm({...form, youtube_url: e.target.value})} />
-        <input type="date" value={form.date_publi} onChange={e => setForm({...form, date_publi: e.target.value})} />
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--texte-doux)', cursor: 'pointer' }}>
-          <input type="checkbox" checked={form.is_live} onChange={e => setForm({...form, is_live: e.target.checked})} style={{ accentColor: 'var(--rouge)' }} />
-          Vidéo en direct ?
-        </label>
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') ? 'err' : 'ok'}`}>{msg}</div>}
-        <button type="submit" className="admin-btn-primary" disabled={saving}>{saving ? 'Enregistrement…' : 'Publier la vidéo'}</button>
-      </form>
-
-      <h3 style={{ marginTop: 24 }}>Vidéos publiées ({videos.length})</h3>
-      <div className="admin-list">
-        {videos.map(v => (
-          <div className="admin-item" key={v.id}>
-            {getYouTubeId(v.youtube_url) && (
-              <img
-                src={`https://img.youtube.com/vi/${getYouTubeId(v.youtube_url)}/mqdefault.jpg`}
-                alt="" className="admin-thumb"
-              />
-            )}
-            <div className="admin-item-info">
-              <strong>{v.titre}</strong>
-              <span>{v.legende}</span>
-              <span className="admin-date">
-                {new Date(v.date_publi).toLocaleDateString('fr-FR')}
-                {v.is_live && <span style={{ marginLeft: 8, color: 'var(--rouge)', fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>● EN DIRECT</span>}
-              </span>
-            </div>
-            <button className="admin-btn-delete" onClick={() => handleDelete(v.id)}><Icon name="x" size={14} /></button>
-          </div>
-        ))}
-        {videos.length === 0 && <p className="admin-empty">Aucune vidéo pour l'instant.</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// TAB : MESSAGES PRIÈRE
-// ─────────────────────────────────────────────
-const FAMILLES = ['Ruben','Siméon','Lévi','Juda','Dan','Nephtali','Gad','Aser','Issacar','Zabulon','Joseph','Benjamin'];
-const JOURS    = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-
-function TabPriere() {
-  const [messages, setMessages] = useState([]);
-  const [form, setForm] = useState({ famille: 'Ruben', jour_semaine: 'Lundi', semaine: 1, titre: '', contenu: '', verset: '' });
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [editing, setEditing] = useState(null);
-
-  const load = async () => setMessages(await getAllMessagesPriere());
-  useEffect(() => { load(); }, []);
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    const { error } = await upsertMessagePriere(editing ? { ...form, id: editing } : form);
-    if (!error) { setMsg('Message enregistré ✓'); setForm({ famille: 'Ruben', jour_semaine: 'Lundi', semaine: 1, titre: '', contenu: '', verset: '' }); setEditing(null); load(); }
-    else setMsg('Erreur : ' + error.message);
-    setSaving(false);
-    setTimeout(() => setMsg(''), 3000);
-  };
-
-  const handleEdit = (m) => {
-    setForm({ famille: m.famille, jour_semaine: m.jour_semaine, semaine: m.semaine, titre: m.titre, contenu: m.contenu, verset: m.verset || '' });
-    setEditing(m.id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer ce message ?')) return;
-    await deleteMessagePriere(id);
-    load();
-  };
-
-  return (
-    <div className="admin-tab">
-      <h3>{editing ? 'Modifier le message' : 'Ajouter un message de prière'}</h3>
-      <form onSubmit={handleSave} className="admin-form">
-        <div className="admin-form-row">
-          <select value={form.famille} onChange={e => setForm({...form, famille: e.target.value})}>
-            {FAMILLES.map(f => <option key={f}>{f}</option>)}
-          </select>
-          <select value={form.jour_semaine} onChange={e => setForm({...form, jour_semaine: e.target.value})}>
-            {JOURS.map(j => <option key={j}>{j}</option>)}
-          </select>
-          <select value={form.semaine} onChange={e => setForm({...form, semaine: parseInt(e.target.value)})}>
-            <option value={1}>Semaine 1</option>
-            <option value={2}>Semaine 2</option>
-          </select>
-        </div>
-        <input required placeholder="Titre du message *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
-        <input placeholder="Verset de référence (ex: Genèse 49:3)" value={form.verset} onChange={e => setForm({...form, verset: e.target.value})} />
-        <textarea required rows={6} placeholder="Contenu du message de prière *" value={form.contenu} onChange={e => setForm({...form, contenu: e.target.value})} />
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') ? 'err' : 'ok'}`}>{msg}</div>}
-        <div className="admin-form-row">
-          <button type="submit" className="admin-btn-primary" disabled={saving}>{saving ? 'Enregistrement…' : editing ? 'Mettre à jour' : 'Publier le message'}</button>
-          {editing && <button type="button" className="admin-btn-secondary" onClick={() => { setEditing(null); setForm({ famille: 'Ruben', jour_semaine: 'Lundi', semaine: 1, titre: '', contenu: '', verset: '' }); }}>Annuler</button>}
-        </div>
-      </form>
-
-      <h3 style={{ marginTop: 24 }}>Messages publiés ({messages.length})</h3>
-      <div className="admin-list">
-        {messages.map(m => (
-          <div className="admin-item" key={m.id}>
-            <div className="admin-famille-badge">{m.famille[0]}</div>
-            <div className="admin-item-info">
-              <strong>{m.famille} — {m.jour_semaine}</strong>
-              <span>{m.titre}</span>
-              <span className="admin-date">{m.verset}</span>
-            </div>
-            <button className="admin-btn-secondary admin-btn-sm" onClick={() => handleEdit(m)}><Icon name="pencil" size={14} /></button>
-            <button className="admin-btn-delete" onClick={() => handleDelete(m.id)}><Icon name="x" size={14} /></button>
-          </div>
-        ))}
-        {messages.length === 0 && <p className="admin-empty">Aucun message de prière pour l'instant.</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// TAB : CULTES & CELLULES
-// ─────────────────────────────────────────────
-function TabCultes() {
-  const [cultes, setCultes] = useState([]);
-  const [cellules, setCellules] = useState([]);
-  const [anciensCultes, setAnciensCultes] = useState([]);
-  const [tab, setTab] = useState('culte');
-  const [form, setForm] = useState({ titre: 'Culte du Dimanche', date_service: '', heure_debut: '10:00', heure_fin: '11:30', type: 'culte', groupe: '', description: '', lien_live: '' });
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
-
-  const load = async () => {
-    setCultes(await getServices('culte'));
-    setCellules(await getServices('cellule'));
-    setAnciensCultes(await getAnciensServices());
-  };
-  useEffect(() => { load(); }, []);
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    const { error } = await addService({ ...form, type: tab });
-    if (!error) { setMsg('Ajoute'); setForm({ ...form, date_service: '', groupe: '', description: '', lien_live: '' }); load(); }
-    else setMsg('Erreur : ' + error.message);
-    setSaving(false);
-    setTimeout(() => setMsg(''), 3000);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer ?')) return;
-    await deleteService(id); load();
-  };
-
-  const list = tab === 'culte' ? cultes : cellules;
-
-  const parseDateService = (dateStr) => {
-    if (!dateStr) return { year: 2000, month: 1, day: 1 };
-    const [y, m, d] = dateStr.split('-').map(Number);
-    return { year: y, month: m, day: d };
-  };
-  const formatDateService = (dateStr) => {
-    if (!dateStr) return '';
-    const { year, month, day } = parseDateService(dateStr);
-    const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-  };
-  const MOIS_COURT = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-
-  return (
-    <div className="admin-tab">
-      <div className="admin-mini-tabs">
-        <button className={tab === 'culte' ? 'active' : ''} onClick={() => setTab('culte')}>Cultes</button>
-        <button className={tab === 'cellule' ? 'active' : ''} onClick={() => setTab('cellule')}>Cellules</button>
-      </div>
-
-      <h3>Ajouter {tab === 'culte' ? 'un culte' : 'une cellule'}</h3>
-      <form onSubmit={handleAdd} className="admin-form">
-        <input required placeholder={tab === 'culte' ? 'Titre (ex: Culte du Dimanche)' : 'Titre (ex: Cellule Bethel — Groupe A)'} value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
-        <div className="admin-form-row">
-          <input required type="date" value={form.date_service} onChange={e => setForm({...form, date_service: e.target.value})} />
-          <input type="time" value={form.heure_debut} onChange={e => setForm({...form, heure_debut: e.target.value})} />
-          <input type="time" value={form.heure_fin} onChange={e => setForm({...form, heure_fin: e.target.value})} />
-        </div>
-        {tab === 'cellule' && <input placeholder="Groupe (ex: Groupe A)" value={form.groupe} onChange={e => setForm({...form, groupe: e.target.value})} />}
-        <input placeholder="Lien live (YouTube, Zoom…)" value={form.lien_live} onChange={e => setForm({...form, lien_live: e.target.value})} />
-        <textarea placeholder="Description (optionnelle)" rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') ? 'err' : 'ok'}`}>{msg}</div>}
-        <button type="submit" className="admin-btn-primary" disabled={saving}>{saving ? 'Enregistrement…' : 'Ajouter'}</button>
-      </form>
-
-      <h3 style={{ marginTop: 24 }}>A venir ({list.length})</h3>
-      <div className="admin-list">
-        {list.map(c => {
-          const { day, month } = parseDateService(c.date_service);
-          return (
-            <div className="admin-item" key={c.id}>
-              <div className="admin-date-box">
-                <span>{day}</span>
-                <span>{MOIS_COURT[month - 1]}</span>
-              </div>
-              <div className="admin-item-info">
-                <strong>{c.titre}</strong>
-                <span>{c.heure_debut?.slice(0,5)} - {c.heure_fin?.slice(0,5)} . {formatDateService(c.date_service)}</span>
-              </div>
-              <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
-            </div>
-          );
-        })}
-        {list.length === 0 && <p className="admin-empty">Aucun evenement a venir.</p>}
-      </div>
-
-      {tab === 'culte' && (
-        <>
-          <h3 style={{ marginTop: 32 }}>Anciens cultes ({anciensCultes.length})</h3>
-          <div className="admin-list">
-            {anciensCultes.map(c => {
-              const { day, month } = parseDateService(c.date_service);
-              return (
-                <div className="admin-item" key={c.id}>
-                  <div className="admin-date-box">
-                    <span>{day}</span>
-                    <span>{MOIS_COURT[month - 1]}</span>
-                  </div>
-                  <div className="admin-item-info">
-                    <strong>{c.titre}</strong>
-                    <span>{c.heure_debut?.slice(0,5)} - {c.heure_fin?.slice(0,5)} . {formatDateService(c.date_service)}</span>
-                  </div>
-                  <button className="admin-btn-delete" onClick={() => handleDelete(c.id)}><Icon name="x" size={14} /></button>
-                </div>
-              );
-            })}
-            {anciensCultes.length === 0 && <p className="admin-empty">Aucun ancien culte.</p>}
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -2659,17 +2376,39 @@ const IconFormation = () => (
   </svg>
 );
 
+const IconAnnonce = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 5v4a1 1 0 001 1h2l4 3V2L4 5H2a1 1 0 00-1 1z" />
+    <path d="M11 5a3 3 0 010 4" />
+  </svg>
+);
+const IconSettings = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="7" cy="7" r="2" />
+    <path d="M12 7a5 5 0 01-.5 2.2l1 1.3-1.5 1.5-1.3-1a5 5 0 01-4.4 0l-1.3 1L2.5 10.5l1-1.3A5 5 0 013 7a5 5 0 01.5-2.2l-1-1.3L4 2l1.3 1a5 5 0 014.4 0l1.3-1L12.5 3.5l-1 1.3A5 5 0 0112 7z" />
+  </svg>
+);
+const IconDons = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 12.5c3.5-2.5 5.5-5 5.5-7.5A3 3 0 009.5 2 3 3 0 007 3.5 3 3 0 004.5 2 3 3 0 001.5 5c0 2.5 2 5 5.5 7.5z" />
+  </svg>
+);
+
 const TABS = [
-  { id: 'videos',    label: 'Vidéos',            icon: <IconPlay />,      roles: ['editor', 'admin', 'super_admin'] },
-  { id: 'priere',    label: 'Messages prière',    icon: <IconCroix />,    roles: ['editor', 'admin', 'super_admin'] },
-  { id: 'cultes',    label: 'Cultes & Cellules',  icon: <IconCal />,      roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'annonces',  label: 'Annonces',           icon: <IconAnnonce />,   roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'services',  label: 'Services',           icon: <IconCal />,       roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'cellules',  label: 'Cellules',           icon: <IconCroix />,     roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'videos',    label: 'Videos',             icon: <IconPlay />,      roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'priere',    label: 'Messages priere',    icon: <IconCroix />,     roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'settings',  label: 'Reglages',           icon: <IconSettings />,  roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'dons',      label: 'Dons',               icon: <IconDons />,      roles: ['admin', 'super_admin'] },
   { id: 'formation', label: 'Formation',          icon: <IconFormation />, roles: ['admin', 'super_admin'] },
 ];
 
 export default function Admin() {
   const [session, setSession] = useState(undefined);
   const [adminInfo, setAdminInfo] = useState(undefined);
-  const [activeTab, setActiveTab] = useState('videos');
+  const [activeTab, setActiveTab] = useState('annonces');
   const [animKey, setAnimKey] = useState(0);
   const switchTab = (tab) => { setActiveTab(tab); setAnimKey(k => k + 1); };
 
@@ -2737,9 +2476,13 @@ export default function Admin() {
 
         <div className="admin-content">
           <div key={animKey} style={{ animation: 'adminFadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both' }}>
+            {activeTab === 'annonces'  && <TabAnnonces />}
+            {activeTab === 'services'  && <TabServices />}
+            {activeTab === 'cellules'  && <TabCellules />}
             {activeTab === 'videos'    && <TabVideos />}
             {activeTab === 'priere'    && <TabPriere />}
-            {activeTab === 'cultes'    && <TabCultes />}
+            {activeTab === 'settings'  && <TabSettings />}
+            {activeTab === 'dons'      && <TabDons />}
             {activeTab === 'formation' && <TabFormation />}
           </div>
         </div>
