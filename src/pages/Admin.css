@@ -179,6 +179,19 @@
     border-right-color: var(--or);
 }
 
+.admin-role-badge {
+    margin-top: auto;
+    padding: 8px 12px;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texte-doux);
+    background: rgba(200, 134, 10, 0.08);
+    border-radius: 4px;
+    text-align: center;
+}
+
 .admin-content {
     flex: 1;
     padding: 28px;

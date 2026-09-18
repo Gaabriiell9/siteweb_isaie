@@ -2660,27 +2660,30 @@ const IconFormation = () => (
 );
 
 const TABS = [
-  { id: 'videos',    label: 'Vidéos',            icon: <IconPlay /> },
-  { id: 'priere',    label: 'Messages prière',    icon: <IconCroix /> },
-  { id: 'cultes',    label: 'Cultes & Cellules',  icon: <IconCal /> },
-  { id: 'formation', label: 'Formation',          icon: <IconFormation /> },
+  { id: 'videos',    label: 'Vidéos',            icon: <IconPlay />,      roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'priere',    label: 'Messages prière',    icon: <IconCroix />,    roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'cultes',    label: 'Cultes & Cellules',  icon: <IconCal />,      roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'formation', label: 'Formation',          icon: <IconFormation />, roles: ['admin', 'super_admin'] },
 ];
 
 export default function Admin() {
   const [session, setSession] = useState(undefined);
-  const [isAdmin, setIsAdmin] = useState(undefined);
+  const [adminInfo, setAdminInfo] = useState(undefined);
   const [activeTab, setActiveTab] = useState('videos');
   const [animKey, setAnimKey] = useState(0);
   const switchTab = (tab) => { setActiveTab(tab); setAnimKey(k => k + 1); };
+
+  const userRole = adminInfo?.role || null;
+  const visibleTabs = TABS.filter(t => t.roles.includes(userRole));
 
   useEffect(() => {
     const checkAuth = async () => {
       const sess = await getSession();
       setSession(sess);
       if (sess) {
-        const admin = await checkIsAdmin();
-        setIsAdmin(admin);
-        if (!admin) {
+        const result = await checkIsAdmin();
+        setAdminInfo(result);
+        if (!result.isAdmin) {
           await signOut();
           setSession(null);
         }
@@ -2689,14 +2692,21 @@ export default function Admin() {
     checkAuth();
   }, []);
 
-  if (session === undefined || (session && isAdmin === undefined)) {
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !visibleTabs.find(t => t.id === activeTab)) {
+      setActiveTab(visibleTabs[0].id);
+    }
+  }, [visibleTabs, activeTab]);
+
+  if (session === undefined || (session && adminInfo === undefined)) {
     return <div className="admin-loading">Chargement…</div>;
   }
-  if (!session || !isAdmin) {
+  if (!session || !adminInfo?.isAdmin) {
     return <LoginForm onLogin={async () => {
       const sess = await getSession();
       setSession(sess);
-      setIsAdmin(true);
+      const result = await checkIsAdmin();
+      setAdminInfo(result);
     }} />;
   }
 
@@ -2714,12 +2724,15 @@ export default function Admin() {
 
       <div className="admin-layout">
         <nav className="admin-nav">
-          {TABS.map(t => (
+          {visibleTabs.map(t => (
             <button key={t.id} className={`admin-nav-btn ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
               {t.icon}
               {t.label}
             </button>
           ))}
+          {userRole && (
+            <div className="admin-role-badge">{userRole === 'super_admin' ? 'Super Admin' : userRole === 'admin' ? 'Admin' : 'Editeur'}</div>
+          )}
         </nav>
 
         <div className="admin-content">
