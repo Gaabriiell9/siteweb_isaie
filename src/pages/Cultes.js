@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getCultes, getAnciensCultes, IS_MOCK, getNowParis, parseDateParis, formatDateParis } from '../lib/supabase';
+import { getServices, getAnciensServices, IS_MOCK, getNowParis, parseDateParis, formatDateParis } from '../lib/supabase';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../lib/youtube';
 import { getEventEtat } from '../lib/dateUtils';
 import './Cultes.css';
@@ -64,11 +64,11 @@ export default function Cultes() {
   }, []);
 
   useEffect(() => {
-    getCultes('culte').then(data => {
+    getServices('culte').then(data => {
       setCultes(data);
       setLoading(false);
     });
-    getAnciensCultes().then(setAnciensCultes);
+    getAnciensServices().then(setAnciensCultes);
   }, []);
 
   // Pause automatique quand le player sort de l'écran ou au démontage
@@ -112,7 +112,7 @@ export default function Cultes() {
   };
 
   const sundays = cultes.length > 0
-    ? cultes
+    ? cultes.map(c => ({ ...c, date_culte: c.date_service }))
     : IS_MOCK
       ? getUpcomingSundays(8).map((d, i) => ({
           id: i, titre: 'Culte du Dimanche',
@@ -234,11 +234,12 @@ export default function Cultes() {
               <h3 className="replays-titre">Anciens <em>cultes</em></h3>
               <div className="replays-grid">
                 {anciensCultes.map(c => {
-                  const ytId = extractYoutubeId(c.lien_live);
-                  const dateParis = parseDateParis(c.date_culte, '12:00');
+                  const replayUrl = c.replay_url || c.lien_live;
+                  const ytId = extractYoutubeId(replayUrl);
+                  const dateParis = parseDateParis(c.date_service, '12:00');
                   const dateLabel = formatDateParis(dateParis, { day: 'numeric', month: 'long', year: 'numeric' });
                   return (
-                    <div className="replay-card" key={c.id} onClick={() => setSelectedCulte(c)}>
+                    <div className="replay-card" key={c.id} onClick={() => setSelectedCulte({ ...c, replay_url: replayUrl })}>
                       <div className="replay-thumb">
                         {ytId && <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt={c.titre} />}
                         <div className="replay-play-overlay">
@@ -260,7 +261,8 @@ export default function Cultes() {
 
       {/* ── Modal replay ─────────────────────────────────────────── */}
       {selectedCulte && (() => {
-        const replayEmbedUrl = getYoutubeEmbedUrl(selectedCulte.lien_live);
+        const replayUrl = selectedCulte.replay_url || selectedCulte.lien_live;
+        const replayEmbedUrl = getYoutubeEmbedUrl(replayUrl);
         return (
           <div className="replay-modal-overlay" onClick={() => setSelectedCulte(null)}>
             <div className="replay-modal" onClick={e => e.stopPropagation()}>
@@ -280,8 +282,8 @@ export default function Cultes() {
                 </div>
               ) : (
                 <div style={{ padding: '24px', textAlign: 'center' }}>
-                  <a href={selectedCulte.lien_live} target="_blank" rel="noopener noreferrer" className="prog-external-btn">
-                    🔗 Ouvrir le replay
+                  <a href={replayUrl} target="_blank" rel="noopener noreferrer" className="prog-external-btn">
+                    Ouvrir le replay
                   </a>
                 </div>
               )}

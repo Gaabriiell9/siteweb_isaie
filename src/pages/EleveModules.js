@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useEleve } from './EleveLayout';
-import { getModulesAvecProgression, getRessourcesEleve, getModulesCount } from '../lib/supabase';
+import { getModulesAvecProgression, getRessourcesEleve, getModulesCount, getSignedUrlRessource } from '../lib/supabase';
 import Icon from '../components/Icon';
 
 const IcoLock = () => (
@@ -28,6 +28,7 @@ export default function EleveModules() {
   const [ressourcesMap, setRessourcesMap] = useState({});
   const [openRessources, setOpenRessources] = useState({});
   const [modulesCount, setModulesCount] = useState(null);
+  const [loadingUrl, setLoadingUrl] = useState({});
 
   useEffect(() => {
     if (!eleve || !eleve.id) return;
@@ -43,6 +44,18 @@ export default function EleveModules() {
     });
     getModulesCount().then(setModulesCount);
   }, [eleve]);
+
+  const handleRessourceClick = useCallback(async (e, ressource) => {
+    if (ressource.url) return;
+    if (!ressource.storage_path) return;
+    e.preventDefault();
+    setLoadingUrl(prev => ({ ...prev, [ressource.id]: true }));
+    const signedUrl = await getSignedUrlRessource(ressource.storage_path);
+    setLoadingUrl(prev => ({ ...prev, [ressource.id]: false }));
+    if (signedUrl) {
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, []);
 
   return (
     <div>
@@ -86,18 +99,30 @@ export default function EleveModules() {
                   </button>
                   {openRessources[m.id] && (
                     <div className="eleve-module-ressources-list">
-                      {(ressourcesMap[m.module_id] || []).map(r => (
-                        <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" className="eleve-ressource-item">
-                          <span className="eleve-ressource-type">
-                            <Icon name={r.type_ressource === 'pdf' ? 'file' : r.type_ressource === 'video' ? 'video' : r.type_ressource === 'audio' ? 'audio' : r.type_ressource === 'image' ? 'image' : 'link'} size={16} />
-                          </span>
-                          <div>
-                            <div className="eleve-ressource-titre">{r.titre}</div>
-                            {r.description && <div className="eleve-ressource-desc">{r.description}</div>}
-                          </div>
-                          {r.taille_ko && <span className="eleve-ressource-size">{r.taille_ko < 1024 ? `${r.taille_ko} Ko` : `${(r.taille_ko/1024).toFixed(1)} Mo`}</span>}
-                        </a>
-                      ))}
+                      {(ressourcesMap[m.module_id] || []).map(r => {
+                        const hasUrl = !!r.url;
+                        const hasStorage = !!r.storage_path;
+                        const isLoading = loadingUrl[r.id];
+                        return (
+                          <a
+                            key={r.id}
+                            href={hasUrl ? r.url : '#'}
+                            target={hasUrl ? '_blank' : undefined}
+                            rel={hasUrl ? 'noopener noreferrer' : undefined}
+                            className={`eleve-ressource-item${isLoading ? ' eleve-ressource-item--loading' : ''}`}
+                            onClick={hasStorage && !hasUrl ? (e) => handleRessourceClick(e, r) : undefined}
+                          >
+                            <span className="eleve-ressource-type">
+                              <Icon name={r.type_ressource === 'pdf' ? 'file' : r.type_ressource === 'video' ? 'video' : r.type_ressource === 'audio' ? 'audio' : r.type_ressource === 'image' ? 'image' : 'link'} size={16} />
+                            </span>
+                            <div>
+                              <div className="eleve-ressource-titre">{r.titre}{isLoading && ' ...'}</div>
+                              {r.description && <div className="eleve-ressource-desc">{r.description}</div>}
+                            </div>
+                            {r.taille_ko && <span className="eleve-ressource-size">{r.taille_ko < 1024 ? `${r.taille_ko} Ko` : `${(r.taille_ko/1024).toFixed(1)} Mo`}</span>}
+                          </a>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

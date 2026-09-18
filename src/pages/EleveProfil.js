@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEleve } from './EleveLayout';
 import { updateEleveProfil, supabase, IS_MOCK } from '../lib/supabase';
+import { formatEuros } from '../lib/money';
 
 export default function EleveProfil() {
   const { eleve, setEleve } = useEleve();
@@ -55,21 +56,15 @@ export default function EleveProfil() {
     return <div className={isOk ? 'eleve-profil-ok' : ''} style={!isOk ? { background: '#FCEBEB', borderLeft: '3px solid #E24B4A', color: '#791F1F', padding: '9px 14px', fontSize: 12, fontWeight: 600 } : {}}>{text}</div>;
   };
 
-  const formatEuros = (cents) => {
-    if (!cents && cents !== 0) return '—';
-    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
-  };
-
-  // Utiliser les données FIGÉES sur l'élève
   const getFormuleLabel = () => {
     const isEchelonne = eleve?.formule_type === 'echelonne' || eleve?.formule === 'echelonne';
-    const nom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
+    const nom = eleve?.formule_nom || (isEchelonne ? 'Echelonne' : 'Integral');
 
-    if (eleve?.formule_prix_total) {
-      if (isEchelonne && eleve?.formule_montant_echeance) {
-        return `${nom} (${formatEuros(eleve.formule_montant_echeance)}/mois × ${eleve.formule_nombre_echeances || 1})`;
+    if (eleve?.formule_prix_total_cents) {
+      if (isEchelonne && eleve?.formule_montant_echeance_cents) {
+        return `${nom} (${formatEuros(eleve.formule_montant_echeance_cents)}/mois x ${eleve.formule_nombre_echeances || 1})`;
       }
-      return `${nom} (${formatEuros(eleve.formule_prix_total)})`;
+      return `${nom} (${formatEuros(eleve.formule_prix_total_cents)})`;
     }
     return nom;
   };

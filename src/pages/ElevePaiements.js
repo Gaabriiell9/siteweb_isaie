@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useEleve } from './EleveLayout';
 import { getPaiements } from '../lib/supabase';
+import { formatEuros, centsVersEuros } from '../lib/money';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -20,13 +21,8 @@ const STATUT_LABEL = {
 };
 const TYPE_LABEL = {
   integral:    'Paiement intégral',
-  mensualite:  'Mensualité',
+  mensualite:  'Mensualite',
   remboursement: 'Remboursement',
-};
-
-const formatEuros = (cents) => {
-  if (!cents && cents !== 0) return '—';
-  return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
 };
 
 export default function ElevePaiements() {
@@ -52,13 +48,14 @@ export default function ElevePaiements() {
   const nombreEcheances = eleve?.formule_nombre_echeances || (isEchelonne ? 10 : 1);
   const formuleNom = eleve?.formule_nom || (isEchelonne ? 'Échelonné' : 'Intégral');
 
-  // Total payé (paiements en euros)
+  // Total paye (paiements en centimes)
   const paiementsReussis = paiements.filter(p => p.statut === 'reussi' || p.statut === 'paye');
-  const totalPayeEuros = paiementsReussis.reduce((s, p) => s + Number(p.montant), 0);
+  const totalPayeCents = paiementsReussis.reduce((s, p) => s + Number(p.montant_cents || 0), 0);
 
   // Conversions pour affichage
-  const prixTotalEuros = prixTotalCents / 100;
-  const montantEcheanceEuros = montantEcheanceCents / 100;
+  const prixTotalEuros = centsVersEuros(prixTotalCents);
+  const montantEcheanceEuros = centsVersEuros(montantEcheanceCents);
+  const totalPayeEuros = centsVersEuros(totalPayeCents);
   const restantDuEuros = Math.max(0, prixTotalEuros - totalPayeEuros);
 
   // Génération du planning pour formule échelonnée
@@ -171,7 +168,7 @@ export default function ElevePaiements() {
                     <td style={{ whiteSpace: 'nowrap' }}>
                       {new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
-                    <td><strong>{p.montant} {p.devise || '€'}</strong></td>
+                    <td><strong>{formatEuros(p.montant_cents)}</strong></td>
                     <td>{TYPE_LABEL[p.type_paiement] || p.type_paiement}</td>
                     <td>{p.methode || '—'}</td>
                     <td style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--or)' }}>{p.reference || '—'}</td>
