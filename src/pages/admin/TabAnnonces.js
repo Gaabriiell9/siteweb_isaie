@@ -255,7 +255,7 @@ export default function TabAnnonces() {
           {annonces.map(a => (
             <div className={`admin-item ${!a.visible ? 'admin-item--inactive' : ''}`} key={a.id}>
               {a.image_url && (
-                <img src={a.image_url} alt="" className="admin-thumb" />
+                <img src={a.image_url} alt="" className="admin-thumb" loading="lazy" />
               )}
               <div className="admin-item-info">
                 <strong>

@@ -73,7 +73,9 @@ export default function TabVideos() {
             {getYouTubeId(v.youtube_url) && (
               <img
                 src={`https://img.youtube.com/vi/${getYouTubeId(v.youtube_url)}/mqdefault.jpg`}
-                alt="" className="admin-thumb"
+                alt=""
+                className="admin-thumb"
+                loading="lazy"
               />
             )}
             <div className="admin-item-info">
