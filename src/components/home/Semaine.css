@@ -1,0 +1,229 @@
+/* ══════════════════════════════════════════
+   SEMAINE - Cette semaine
+══════════════════════════════════════════ */
+
+.semaine-section {
+  padding: 80px 0;
+  background: var(--color-ink);
+  overflow: hidden;
+}
+
+.semaine-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.semaine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.semaine-section .section-label {
+  color: var(--color-gold);
+}
+
+.semaine-section .section-title {
+  color: var(--color-parchment);
+}
+
+.semaine-priere-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-gold);
+  text-decoration: none;
+  padding: 12px 20px;
+  border: 1px solid rgba(200, 155, 74, 0.3);
+  border-radius: var(--r-md);
+  transition: all 0.25s;
+}
+
+.semaine-priere-link:hover {
+  background: rgba(200, 155, 74, 0.1);
+  border-color: var(--color-gold);
+}
+
+/* ── Scroll horizontal ── */
+.semaine-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
+  margin: 0 -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.semaine-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.semaine-scroll::-webkit-scrollbar-track {
+  background: rgba(200, 155, 74, 0.1);
+  border-radius: 2px;
+}
+
+.semaine-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 2px;
+}
+
+/* ── Carte jour ── */
+.jour-card {
+  flex: 0 0 200px;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(200, 155, 74, 0.15);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  scroll-snap-align: center;
+  transition: all 0.3s;
+}
+
+.jour-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(200, 155, 74, 0.3);
+}
+
+.jour-card--today {
+  background: rgba(200, 155, 74, 0.1);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 24px rgba(200, 155, 74, 0.2);
+}
+
+.jour-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(200, 155, 74, 0.15);
+}
+
+.jour-card-nom {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-parchment);
+}
+
+.jour-card--today .jour-card-nom {
+  color: var(--color-gold);
+}
+
+.jour-card-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(250, 247, 241, 0.5);
+}
+
+/* ── Événements ── */
+.jour-card-events {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jour-card-empty {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: rgba(250, 247, 241, 0.3);
+  font-style: italic;
+}
+
+.jour-event {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.jour-event svg {
+  color: var(--color-gold);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.jour-event > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jour-event-heure {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-gold);
+}
+
+.jour-event-titre {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-parchment);
+  line-height: 1.3;
+}
+
+.jour-event-lieu {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: rgba(250, 247, 241, 0.5);
+}
+
+/* ── Skeleton ── */
+.semaine-skeleton {
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.skeleton-jour {
+  flex: 0 0 200px;
+  height: 180px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--r-lg);
+  animation: skeletonPulse 1.5s infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .semaine-section {
+    padding: 60px 0;
+  }
+
+  .semaine-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .semaine-priere-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jour-card {
+    flex: 0 0 180px;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .jour-card {
+    flex: 0 0 160px;
+    min-width: 160px;
+    padding: 16px;
+  }
+}

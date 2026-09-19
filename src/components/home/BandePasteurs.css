@@ -1,0 +1,58 @@
+/* ══════════════════════════════════════════
+   BANDE PASTEURS
+══════════════════════════════════════════ */
+
+.pasteurs-section {
+  padding: 80px 0;
+  background: var(--color-emerald);
+}
+
+.pasteurs-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.pasteurs-citation {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 36px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-parchment);
+  line-height: 1.4;
+  margin: 0 0 40px;
+}
+
+.pasteurs-btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: var(--color-gold);
+  padding: 16px 36px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pasteurs-btn:hover {
+  background: #D4AD5C;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .pasteurs-section {
+    padding: 60px 0;
+  }
+
+  .pasteurs-citation {
+    font-size: 22px;
+    margin-bottom: 32px;
+  }
+}

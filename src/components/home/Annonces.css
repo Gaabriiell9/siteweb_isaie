@@ -1,0 +1,281 @@
+/* ══════════════════════════════════════════
+   ANNONCES - À la une
+══════════════════════════════════════════ */
+
+.annonces-section {
+  padding: 80px 0;
+  background: var(--color-parchment);
+}
+
+.annonces-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.annonces-section .section-label {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.annonces-section .section-title {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+/* ── Grille ── */
+.annonces-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.annonces-single {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.annonces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Carte ── */
+.annonce-card {
+  background: var(--blanc);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.annonce-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+  border-color: rgba(200, 155, 74, 0.3);
+}
+
+/* ── Carte principale ── */
+.annonce-card--main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.annonce-card--main .annonce-card-img {
+  height: 100%;
+  min-height: 300px;
+}
+
+.annonce-card--main .annonce-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.annonce-card--main .annonce-card-date-big {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-ink) 0%, #1a1816 100%);
+  padding: 40px;
+}
+
+.annonce-card-jour {
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 900;
+  color: var(--color-gold);
+  line-height: 1;
+}
+
+.annonce-card-mois {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250, 247, 241, 0.6);
+}
+
+.annonce-card--main .annonce-card-body {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.annonce-card--main .annonce-card-titre {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.annonce-card--main .annonce-card-contenu {
+  font-size: 15px;
+  -webkit-line-clamp: 4;
+}
+
+/* ── Carte petite ── */
+.annonce-card--small {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+.annonce-card--small .annonce-card-img {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.annonce-card--small .annonce-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.annonce-card--small .annonce-card-date-big {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-ink);
+  border-radius: var(--r-sm);
+}
+
+.annonce-card--small .annonce-card-jour {
+  font-size: 28px;
+}
+
+.annonce-card--small .annonce-card-mois {
+  font-size: 10px;
+}
+
+.annonce-card--small .annonce-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.annonce-card--small .annonce-card-titre {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.annonce-card--small .annonce-card-contenu {
+  font-size: 13px;
+  -webkit-line-clamp: 2;
+}
+
+/* ── Elements communs ── */
+.annonce-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background: rgba(200, 155, 74, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  margin-bottom: 12px;
+}
+
+.annonce-card-titre {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-emerald);
+  line-height: 1.3;
+}
+
+.annonce-card-contenu {
+  font-family: var(--font-sans);
+  color: var(--texte-doux);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.annonce-card-date-small {
+  display: none;
+}
+
+.annonce-card--small .annonce-card-date-small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--texte-doux);
+  margin-top: 8px;
+}
+
+/* ── Skeleton ── */
+.annonces-skeleton {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 32px;
+}
+
+.skeleton-card {
+  background: linear-gradient(90deg, #f0ebe3 25%, #f8f5f0 50%, #f0ebe3 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+  border-radius: var(--r-lg);
+}
+
+.skeleton-card--main {
+  height: 300px;
+}
+
+.skeleton-list .skeleton-card {
+  height: 112px;
+  margin-bottom: 20px;
+}
+
+.skeleton-list .skeleton-card:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .annonces-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .annonce-card--main {
+    grid-template-columns: 1fr;
+  }
+
+  .annonce-card--main .annonce-card-img,
+  .annonce-card--main .annonce-card-date-big {
+    min-height: 200px;
+  }
+
+  .annonces-skeleton {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .annonces-section {
+    padding: 60px 0;
+  }
+
+  .annonce-card--main .annonce-card-body {
+    padding: 24px;
+  }
+
+  .annonce-card--main .annonce-card-titre {
+    font-size: 20px;
+  }
+}
