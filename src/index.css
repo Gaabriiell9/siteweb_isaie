@@ -35,20 +35,12 @@
   --color-text:      var(--encre);
   --color-border:    var(--bord);
 
-  /* Anciens aliases (deprecies, a supprimer etape 5) */
+  /* Anciens aliases (compatibilite) */
   --noir:           var(--encre);
-  --bordeaux:       var(--encre);
-  --bordeaux-clair: var(--vert);
   --or-clair:       var(--or-texte);
   --or-pale:        rgba(200, 155, 74, 0.12);
   --texte:          var(--encre);
   --texte-doux:     var(--encre-douce);
-
-  /* Aliases temporaires --home-* (a supprimer etape 5) */
-  --home-vert:      var(--vert);
-  --home-vert-nuit: var(--vert-nuit);
-  --home-vert-doux: var(--vert-doux);
-  --home-or-texte:  var(--or-texte);
 
   /* Typographie */
   --font-display:  'Fraunces', Georgia, serif;

@@ -4,7 +4,7 @@
 
 .semaine-section {
   padding: var(--home-section-py) 0;
-  background: var(--home-vert);
+  background: var(--vert);
   overflow: hidden;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .semaine-section .section-label {
-  color: var(--home-or-texte);
+  color: var(--or-texte);
   font-size: var(--home-label);
 }
 

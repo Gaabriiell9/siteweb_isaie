@@ -179,16 +179,18 @@
 
 /* ── Elements communs ── */
 .annonce-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-gold);
-  background: rgba(200, 155, 74, 0.1);
+  color: var(--or-label);
+  background: rgba(200, 155, 74, 0.15);
   padding: 4px 10px;
   border-radius: var(--r-sm);
   margin-bottom: 8px;
+  align-self: flex-start;
 }
 
 .annonce-card-titre {

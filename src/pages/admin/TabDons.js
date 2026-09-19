@@ -58,19 +58,19 @@ export default function TabDons() {
       }}>
         <div>
           <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginBottom: 4 }}>Total reussi</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--bordeaux)' }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--vert)' }}>
             {formatEuros(totalCents)}
           </div>
         </div>
         <div>
           <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginBottom: 4 }}>Nombre de dons</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--bordeaux)' }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--vert)' }}>
             {donsSucceeded.length}
           </div>
         </div>
         <div>
           <div style={{ fontSize: 11, color: 'var(--texte-doux)', marginBottom: 4 }}>Don moyen</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--bordeaux)' }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--vert)' }}>
             {donsSucceeded.length > 0 ? formatEuros(Math.round(totalCents / donsSucceeded.length)) : '0 EUR'}
           </div>
         </div>

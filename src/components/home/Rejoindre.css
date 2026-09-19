@@ -4,7 +4,7 @@
 
 .rejoindre-section {
   padding: var(--home-section-py) 0;
-  background: var(--home-vert);
+  background: var(--vert);
   text-align: center;
 }
 
@@ -19,7 +19,7 @@
   font-size: var(--home-label);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--home-or-texte);
+  color: var(--or-texte);
   margin-bottom: 16px;
 }
 
