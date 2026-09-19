@@ -1,0 +1,137 @@
+/* ============================================================
+   Tabs - Barre d'onglets responsive
+   ============================================================ */
+
+.admin-tabs {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.admin-tabs::before,
+.admin-tabs::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admin-tabs::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--creme), transparent);
+  opacity: 0;
+}
+
+.admin-tabs::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--creme), transparent);
+}
+
+.admin-tabs-container {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-bottom: 2px solid rgba(200, 134, 10, 0.15);
+  padding-bottom: 0;
+}
+
+.admin-tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tabs-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 44px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--admin-transition, 0.2s);
+  white-space: nowrap;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-tabs-btn:hover {
+  color: var(--or);
+  background: var(--or-pale);
+}
+
+.admin-tabs-btn:active {
+  background: rgba(200, 134, 10, 0.12);
+}
+
+.admin-tabs-btn--active {
+  color: var(--vert-nuit);
+  border-bottom-color: var(--vert-nuit);
+}
+
+.admin-tabs-btn--active:hover {
+  color: var(--vert-nuit);
+  background: transparent;
+}
+
+.admin-tabs-btn-label {
+  flex-shrink: 0;
+}
+
+.admin-tabs-btn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--vert-nuit);
+  color: var(--blanc);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.admin-tabs-btn--active .admin-tabs-btn-badge {
+  background: var(--or);
+  color: var(--vert-nuit);
+}
+
+/* Panel */
+.admin-tab-panel {
+  padding-top: 20px;
+  animation: tabFadeIn 0.2s ease both;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-tab-panel {
+    animation: none;
+  }
+}

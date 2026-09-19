@@ -1,0 +1,359 @@
+/* ============================================================
+   DataList - Liste responsive (tableau/cartes)
+   ============================================================ */
+
+.admin-datalist {
+  width: 100%;
+}
+
+.admin-datalist-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--encre-douce);
+  font-size: var(--admin-text, 15px);
+  background: var(--blanc);
+  border: 1px solid rgba(200, 134, 10, 0.1);
+  border-radius: 8px;
+}
+
+/* Loading skeleton */
+.admin-datalist-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-datalist-skeleton {
+  height: 60px;
+  background: linear-gradient(90deg, rgba(200, 134, 10, 0.05) 25%, rgba(200, 134, 10, 0.1) 50%, rgba(200, 134, 10, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   Vue Tableau (desktop >= 768px)
+   ============================================================ */
+
+.admin-datalist-table-wrap {
+  display: none;
+  overflow-x: auto;
+  border: 1px solid rgba(200, 134, 10, 0.12);
+  border-radius: 8px;
+  background: var(--blanc);
+}
+
+@media (min-width: 768px) {
+  .admin-datalist-table-wrap {
+    display: block;
+  }
+}
+
+.admin-datalist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--admin-text, 15px);
+}
+
+.admin-datalist-table th {
+  padding: 12px 16px;
+  text-align: left;
+  background: rgba(200, 134, 10, 0.04);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+  border-bottom: 1px solid rgba(200, 134, 10, 0.12);
+  white-space: nowrap;
+}
+
+.admin-datalist-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(200, 134, 10, 0.06);
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.admin-datalist-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-datalist-row-clickable {
+  cursor: pointer;
+  transition: background var(--admin-transition, 0.2s);
+}
+
+.admin-datalist-row-clickable:hover {
+  background: rgba(200, 134, 10, 0.04);
+}
+
+.admin-datalist-actions-col {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.admin-datalist-actions-cell {
+  white-space: nowrap;
+}
+
+/* Cacher sur mobile */
+.hide-on-phone {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-on-phone {
+    display: table-cell;
+  }
+}
+
+/* ============================================================
+   Vue Cartes (mobile < 768px)
+   ============================================================ */
+
+.admin-datalist-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-gap-phone, 12px);
+}
+
+@media (min-width: 768px) {
+  .admin-datalist-cards {
+    display: none;
+  }
+}
+
+.admin-datalist-card {
+  background: var(--blanc);
+  border: 1px solid rgba(200, 134, 10, 0.12);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color var(--admin-transition, 0.2s), box-shadow var(--admin-transition, 0.2s);
+}
+
+.admin-datalist-card-clickable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-datalist-card-clickable:active {
+  background: rgba(200, 134, 10, 0.04);
+}
+
+.admin-datalist-card-header {
+  margin-bottom: 12px;
+}
+
+.admin-datalist-card-title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--vert);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.admin-datalist-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-datalist-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(200, 134, 10, 0.06);
+}
+
+.admin-datalist-card-row:last-child {
+  border-bottom: none;
+}
+
+.admin-datalist-card-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+  flex-shrink: 0;
+}
+
+.admin-datalist-card-value {
+  font-size: 14px;
+  color: var(--texte);
+  text-align: right;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.admin-datalist-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(200, 134, 10, 0.1);
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   Actions et boutons
+   ============================================================ */
+
+.admin-datalist-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-datalist-actions--overflow {
+  position: relative;
+}
+
+.admin-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: var(--blanc);
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  border-radius: 6px;
+  color: var(--encre-douce);
+  cursor: pointer;
+  transition: all var(--admin-transition, 0.2s);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-action-btn:hover,
+.admin-action-btn:active {
+  border-color: var(--or);
+  color: var(--vert-nuit);
+  background: var(--or-pale);
+}
+
+.admin-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-action-btn--danger {
+  color: var(--statut-erreur);
+  border-color: rgba(192, 57, 43, 0.2);
+}
+
+.admin-action-btn--danger:hover,
+.admin-action-btn--danger:active {
+  color: var(--statut-erreur);
+  border-color: var(--statut-erreur);
+  background: rgba(192, 57, 43, 0.08);
+}
+
+.admin-action-btn--success {
+  color: var(--statut-ok);
+  border-color: rgba(29, 131, 72, 0.2);
+}
+
+.admin-action-btn--success:hover,
+.admin-action-btn--success:active {
+  color: var(--statut-ok);
+  border-color: var(--statut-ok);
+  background: rgba(29, 131, 72, 0.08);
+}
+
+/* Menu overflow */
+.admin-datalist-menu {
+  position: relative;
+}
+
+.admin-datalist-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: var(--blanc);
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  border-radius: 6px;
+  color: var(--encre-douce);
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all var(--admin-transition, 0.2s);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-datalist-menu-btn:hover,
+.admin-datalist-menu-btn:active {
+  border-color: var(--or);
+  color: var(--vert-nuit);
+  background: var(--or-pale);
+}
+
+.admin-datalist-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 160px;
+  background: var(--blanc);
+  border: 1px solid rgba(200, 134, 10, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.admin-datalist-menu-item {
+  padding: 0;
+}
+
+.admin-datalist-menu-item > button {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--texte);
+  cursor: pointer;
+  transition: background var(--admin-transition, 0.2s);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-datalist-menu-item > button:hover,
+.admin-datalist-menu-item > button:active {
+  background: var(--or-pale);
+}
+
+/* ============================================================
+   Badges dans les listes
+   ============================================================ */
+
+.admin-datalist-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

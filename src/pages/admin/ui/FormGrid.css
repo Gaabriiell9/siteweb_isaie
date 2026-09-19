@@ -1,0 +1,229 @@
+/* ============================================================
+   FormGrid - Grille de formulaire responsive
+   ============================================================ */
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--admin-gap-phone, 12px);
+}
+
+@media (min-width: 640px) {
+  .admin-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--admin-gap-tablet, 16px);
+  }
+}
+
+/* ============================================================
+   Field - Champ de formulaire
+   ============================================================ */
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.admin-field--full {
+  grid-column: 1 / -1;
+}
+
+.admin-field-label {
+  font-family: var(--font-ui);
+  font-size: var(--admin-label, 13px);
+  font-weight: 600;
+  color: var(--encre-douce);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-field-required {
+  color: var(--statut-erreur);
+  margin-left: 2px;
+}
+
+.admin-field-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-field-input input,
+.admin-field-input textarea,
+.admin-field-input select {
+  width: 100%;
+  padding: 12px 14px;
+  min-height: 48px;
+  border: 1px solid rgba(200, 134, 10, 0.2);
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: var(--font-ui);
+  color: var(--texte);
+  background: var(--creme);
+  outline: none;
+  transition: border-color var(--admin-transition, 0.2s), background var(--admin-transition, 0.2s);
+  box-sizing: border-box;
+  touch-action: manipulation;
+}
+
+@media (min-width: 640px) {
+  .admin-field-input input,
+  .admin-field-input textarea,
+  .admin-field-input select {
+    font-size: 14px;
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+}
+
+.admin-field-input input:focus,
+.admin-field-input textarea:focus,
+.admin-field-input select:focus {
+  border-color: var(--or);
+  background: var(--blanc);
+}
+
+.admin-field--error .admin-field-input input,
+.admin-field--error .admin-field-input textarea,
+.admin-field--error .admin-field-input select {
+  border-color: var(--statut-erreur);
+}
+
+.admin-field-input textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.admin-field-input select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234A5250' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.admin-field-error {
+  font-size: 12px;
+  color: var(--statut-erreur);
+  font-weight: 500;
+}
+
+.admin-field-hint {
+  font-size: 12px;
+  color: var(--encre-douce);
+}
+
+/* Checkbox et switch */
+.admin-field-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-field-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--vert);
+  cursor: pointer;
+}
+
+.admin-field-checkbox-label {
+  font-size: var(--admin-text, 15px);
+  color: var(--texte);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ============================================================
+   FormActions - Barre d'actions
+   ============================================================ */
+
+.admin-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-gap-phone, 12px);
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(200, 134, 10, 0.1);
+}
+
+@media (min-width: 640px) {
+  .admin-form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: var(--admin-gap-tablet, 16px);
+  }
+
+  .admin-form-actions > button:first-child:not(:last-child) {
+    order: 2;
+  }
+
+  .admin-form-actions > button:last-child {
+    order: 1;
+  }
+}
+
+/* Sticky sur mobile */
+.admin-form-actions--sticky {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--creme);
+  border-top: 1px solid rgba(200, 134, 10, 0.15);
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  margin: 16px calc(-1 * var(--admin-padding-phone, 16px)) 0;
+  z-index: 10;
+}
+
+@media (min-width: 640px) {
+  .admin-form-actions--sticky {
+    position: static;
+    margin: 8px 0 0;
+    padding: 16px 0 0;
+    padding-bottom: 0;
+    background: transparent;
+  }
+}
+
+/* Bouton primaire pleine largeur sur mobile */
+@media (max-width: 639px) {
+  .admin-form-actions > .admin-btn-primary,
+  .admin-form-actions > .af-btn--primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   FormSection - Section de formulaire
+   ============================================================ */
+
+.admin-form-section {
+  margin-bottom: 24px;
+}
+
+.admin-form-section:last-child {
+  margin-bottom: 0;
+}
+
+.admin-form-section-title {
+  font-family: var(--font-ui);
+  font-size: var(--admin-label, 13px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--or);
+}
