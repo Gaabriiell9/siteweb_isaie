@@ -47,7 +47,7 @@
 .mp-tile:hover::before, .mp-tile.today::before { opacity:1; }
 .mp-tile:active { transform: scale(0.98); }
 .mp-tile.today { background: var(--or-pale); border-bottom: 2px solid var(--or); }
-.mp-tile-initial { font-family:var(--font-display); font-size:32px; font-style:italic; color:var(--or); font-weight:400; line-height:1; transition: color 0.25s ease, transform 0.25s ease; display: inline-block; }
+.mp-tile-initial { font-family:var(--font-display); font-size:32px; font-style:italic; color:var(--or-label); font-weight:400; line-height:1; transition: color 0.25s ease, transform 0.25s ease; display: inline-block; }
 .mp-tile.today .mp-tile-initial { color: var(--vert); }
 .mp-tile-nom { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--encre-douce); margin-top:4px; }
 .mp-tile-jour { font-size:9px; color:var(--or); letter-spacing:1px; margin-top:2px; }

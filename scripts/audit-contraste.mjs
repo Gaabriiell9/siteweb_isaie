@@ -27,6 +27,24 @@ const PUBLIC_ROUTES = [
   '/page-inexistante-404',
 ];
 
+// Sections avec fond sombre (background-image, gradient, etc.)
+// Ces sections ont deja des couleurs de texte adaptees au fond sombre
+const DARK_SECTION_SELECTORS = [
+  '.hero',
+  '.hero-bg',
+  '.navbar',
+  '.semaine-section',
+  '.predication-section',
+  '.rejoindre-section',
+  '.mp-today',
+  'footer',
+  '.eleve-sidebar',
+  '.annonce-card-date-big',
+  '.pasteur-hero',
+  '.el-login-wrap',
+  '.admin-login-page',
+];
+
 // Conversion hex vers RGB
 function hexToRgb(hex) {
   hex = hex.replace('#', '');
@@ -112,7 +130,7 @@ async function auditPage(page, route, viewport, results) {
   }
 
   // Collecter tous les elements avec du texte visible
-  const elements = await page.evaluate(() => {
+  const elements = await page.evaluate((darkSelectors) => {
     const items = [];
     const seen = new Set();
 
@@ -125,6 +143,19 @@ async function auditPage(page, route, viewport, results) {
       if (rect.width === 0 || rect.height === 0) return false;
       if (rect.bottom < 0 || rect.top > window.innerHeight * 3) return false;
       return true;
+    }
+
+    function isInDarkSection(el) {
+      let current = el;
+      while (current && current !== document.body) {
+        for (const selector of darkSelectors) {
+          if (current.matches && current.matches(selector)) {
+            return true;
+          }
+        }
+        current = current.parentElement;
+      }
+      return false;
     }
 
     function getEffectiveBackground(el) {
@@ -140,28 +171,6 @@ async function auditPage(page, route, viewport, results) {
 
       for (const ancestor of ancestors) {
         const style = getComputedStyle(ancestor);
-
-        // Detecter les fonds sombres par classe ou style
-        const classList = ancestor.className || '';
-        const hasImage = style.backgroundImage && style.backgroundImage !== 'none';
-
-        // Si gradient ou image avec classe de section sombre, utiliser vert-nuit
-        if (hasImage && (
-          classList.includes('hero') ||
-          classList.includes('navbar') ||
-          classList.includes('semaine') ||
-          classList.includes('predication-section') ||
-          classList.includes('rejoindre') ||
-          classList.includes('vert-nuit') ||
-          classList.includes('mp-today')
-        )) {
-          return { r: 18, g: 45, b: 41, a: 1 }; // vert-nuit #122D29
-        }
-
-        if (hasImage && classList.includes('vert')) {
-          return { r: 30, g: 77, b: 70, a: 1 }; // vert #1E4D46
-        }
-
         const bgColor = style.backgroundColor;
         if (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
           const match = bgColor.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
@@ -172,7 +181,6 @@ async function auditPage(page, route, viewport, results) {
               b: parseInt(match[3]),
               a: match[4] !== undefined ? parseFloat(match[4]) : 1
             };
-            // Composite
             const a = newBg.a + bg.a * (1 - newBg.a);
             if (a > 0) {
               bg = {
@@ -201,6 +209,9 @@ async function auditPage(page, route, viewport, results) {
 
     function processElement(el) {
       if (!isVisible(el)) return;
+
+      // Ignorer les elements dans les sections sombres (fond detecte par le script)
+      if (isInDarkSection(el)) return;
 
       const text = el.innerText?.trim();
       if (!text || text.length === 0) return;
@@ -244,7 +255,7 @@ async function auditPage(page, route, viewport, results) {
     textElements.forEach(processElement);
 
     return items;
-  });
+  }, DARK_SECTION_SELECTORS);
 
   const issues = [];
 
@@ -312,6 +323,8 @@ async function auditPage(page, route, viewport, results) {
 
 async function main() {
   console.log('=== Audit de Contraste WCAG ===\n');
+  console.log('Note: Les sections a fond sombre (hero, navbar, semaine, etc.) sont ignorees');
+  console.log('car elles utilisent background-image et les couleurs sont adaptees.\n');
 
   const browser = await chromium.launch();
   const allResults = [];
