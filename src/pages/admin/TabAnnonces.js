@@ -259,7 +259,7 @@ export default function TabAnnonces() {
               )}
               <div className="admin-item-info">
                 <strong>
-                  {a.pinned && <span style={{ color: 'var(--or)', marginRight: 6 }}>&#x1F4CC;</span>}
+                  {a.pinned && <span style={{ color: 'var(--or)', marginRight: 6 }}><Icon name="pin" size={14} /></span>}
                   {a.titre}
                 </strong>
                 <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>

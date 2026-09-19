@@ -9,14 +9,14 @@ import { TabServices, TabPriere, TabCellules, TabVideos, TabAnnonces, TabFormati
 export const ADMIN_NAV = [
   {
     id: 'eglise',
-    label: 'Eglise',
+    label: 'Église',
     icon: 'church',
     roles: ['editor', 'admin', 'super_admin'],
     items: [
       { id: 'direct', label: 'En direct', icon: 'live', component: TabServices },
       { id: 'priere', label: LABELS.MONTAGNE_PRIERE, icon: 'mountain', component: TabPriere },
       { id: 'cellules', label: LABELS.CELLULE_BETHEL, icon: 'users', component: TabCellules },
-      { id: 'videos', label: 'Videos', icon: 'play', component: TabVideos },
+      { id: 'videos', label: 'Vidéos', icon: 'play', component: TabVideos },
       { id: 'annonces', label: 'Annonces', icon: 'megaphone', component: TabAnnonces },
     ],
   },
@@ -31,11 +31,11 @@ export const ADMIN_NAV = [
   },
   {
     id: 'parametres',
-    label: 'Parametres',
+    label: 'Paramètres',
     icon: 'settings',
     roles: ['editor', 'admin', 'super_admin'],
     items: [
-      { id: 'reglages', label: 'Reglages du site', icon: 'settings', component: TabSettings },
+      { id: 'reglages', label: 'Réglages du site', icon: 'settings', component: TabSettings },
     ],
   },
 ];

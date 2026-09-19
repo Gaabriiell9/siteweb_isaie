@@ -53,7 +53,7 @@ export default function TabVideos() {
     <div className="admin-tab">
       <h3>Ajouter une video</h3>
       <form onSubmit={handleAdd} className="admin-form">
-        <input required placeholder="Titre de la predication *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
+        <input required placeholder="Titre de la prédication *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
         <input placeholder="Legende (ex: Culte du Dimanche)" value={form.legende} onChange={e => setForm({...form, legende: e.target.value})} />
         <textarea placeholder="Description (optionnelle)" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
         <input required placeholder="Lien YouTube (https://youtube.com/watch?v=...) *" value={form.youtube_url} onChange={e => setForm({...form, youtube_url: e.target.value})} />

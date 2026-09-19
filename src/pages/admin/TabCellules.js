@@ -151,7 +151,7 @@ export default function TabCellules() {
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <input
-            placeholder="Lieu (ex: Maison, Eglise...)"
+            placeholder="Lieu (ex: Maison, Église...)"
             value={form.lieu}
             onChange={e => setForm({ ...form, lieu: e.target.value })}
             style={{ flex: 1 }}

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { getCellGroups } from '../lib/public';
+import Icon from '../components/Icon';
 import './Cellule.css';
 
 const PROG = [
   { n: '1', titre: 'Accueil et louange', duree: '15 min', desc: 'Temps de louange et d\'adoration en commun' },
-  { n: '2', titre: 'Etude de la Parole', duree: '45 min', desc: 'Etude biblique preparee par le service de predication' },
-  { n: '3', titre: 'Priere et intercession', duree: '20 min', desc: 'Priere collective pour les membres et l\'eglise' },
-  { n: '4', titre: 'Annonces et cloture', duree: '10 min', desc: 'Activites de l\'eglise et benediction finale' },
+  { n: '2', titre: 'Étude de la Parole', duree: '45 min', desc: 'Étude biblique préparée par le service de prédication' },
+  { n: '3', titre: 'Prière et intercession', duree: '20 min', desc: 'Prière collective pour les membres et l\'église' },
+  { n: '4', titre: 'Annonces et clôture', duree: '10 min', desc: 'Activités de l\'église et bénédiction finale' },
 ];
 
 const JOURS_ORDRE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
@@ -30,10 +31,10 @@ export default function Cellule() {
   return (
     <div>
       <SectionHeader
-        label="Communaute"
+        label="Communauté"
         title="Cellule"
         titleEm="Bethel"
-        subtitle="Reunions hebdomadaires par groupe"
+        subtitle="Réunions hebdomadaires par groupe"
       />
       <div className="cellule-wrap">
         <div className="container">
@@ -61,18 +62,18 @@ export default function Cellule() {
               )}
               {!loading && cellGroups.length === 0 && (
                 <p style={{ color: 'var(--texte-doux)', fontFamily: 'var(--font-display)', fontStyle: 'italic', padding: '20px 0' }}>
-                  Le programme des cellules sera publie prochainement.
+                  Le programme des cellules sera publié prochainement.
                 </p>
               )}
               {cellGroups.map(group => (
                 <div className="cellule-row carte" key={group.id}>
-                  <div className="cellule-icon">&#9671;</div>
+                  <div className="cellule-icon"><Icon name="diamond-outline" size={18} /></div>
                   <div className="cellule-info">
                     <h4>{group.nom}</h4>
                     <div className="cellule-meta">
-                      <span>&#9672; {group.jour_semaine}</span>
-                      <span>&#9672; {group.heure_debut?.slice(0, 5)} - {group.heure_fin?.slice(0, 5)}</span>
-                      {group.lieu && <span>&#9672; {group.lieu}</span>}
+                      <span><Icon name="calendar" size={12} /> {group.jour_semaine}</span>
+                      <span><Icon name="clock" size={12} /> {group.heure_debut?.slice(0, 5)} - {group.heure_fin?.slice(0, 5)}</span>
+                      {group.lieu && <span><Icon name="map-pin" size={12} /> {group.lieu}</span>}
                     </div>
                     {group.description && (
                       <p className="cellule-desc">{group.description}</p>
@@ -87,15 +88,15 @@ export default function Cellule() {
                     )}
                     {group.capacite && (
                       <span className="cellule-capacite">
-                        Capacite: {group.capacite} personnes
+                        Capacité : {group.capacite} personnes
                       </span>
                     )}
                   </div>
                 </div>
               ))}
               <div className="encart-or">
-                <span>&#10022;</span>
-                Les cellules se reunissent chaque semaine au jour et a l'heure indiques.
+                <Icon name="star" size={16} />
+                Les cellules se réunissent chaque semaine au jour et à l'heure indiqués.
               </div>
             </div>
           )}

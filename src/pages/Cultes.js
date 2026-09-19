@@ -121,7 +121,7 @@ export default function Cultes() {
               )}
               <h2 className="live-section-title">{prochainService.titre}</h2>
               {prochainService.theme && <p className="live-section-theme">{prochainService.theme}</p>}
-              {prochainService.predicateur && <p className="live-section-predicateur">Predicateur : {prochainService.predicateur}</p>}
+              {prochainService.predicateur && <p className="live-section-predicateur">Prédicateur : {prochainService.predicateur}</p>}
             </div>
 
             {embedUrl ? (
@@ -136,7 +136,7 @@ export default function Cultes() {
                 />
                 {!isPlaying && prochainStatut !== 'en_cours' && (
                   <div className="live-player-overlay" onClick={handlePlayClick}>
-                    <span className="live-player-play-btn">&#9654;</span>
+                    <span className="live-player-play-btn"><Icon name="play" size={32} /></span>
                     <span className="live-player-text">Salle d'attente YouTube</span>
                   </div>
                 )}
@@ -195,7 +195,7 @@ export default function Cultes() {
                   <div className="prog-info">
                     <span className="prog-titre">{c.titre}</span>
                     <span className="prog-sub">
-                      {c.theme ? c.theme : 'Louange - Adoration - Predication'}
+                      {c.theme ? c.theme : 'Louange - Adoration - Prédication'}
                       {c.predicateur && ` - ${c.predicateur}`}
                     </span>
                   </div>
@@ -243,7 +243,7 @@ export default function Cultes() {
                       {ytId && <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt={c.titre} />}
                       {hasReplay && (
                         <div className="replay-play-overlay">
-                          <span className="replay-play-btn">&#9654;</span>
+                          <span className="replay-play-btn"><Icon name="play" size={24} /></span>
                         </div>
                       )}
                     </div>

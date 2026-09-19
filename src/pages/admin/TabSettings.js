@@ -5,19 +5,19 @@ import { getSiteSettings } from '../../lib/public';
 const FUSEAUX_HORAIRES = [
   { value: 'Europe/Paris', label: 'Europe/Paris (France, Belgique)' },
   { value: 'America/Cayenne', label: 'America/Cayenne (Guyane)' },
-  { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (Bresil)' },
+  { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (Brésil)' },
   { value: 'Africa/Douala', label: 'Africa/Douala (Cameroun)' },
   { value: 'UTC', label: 'UTC' },
 ];
 
 const SETTINGS_CONFIG = [
-  { cle: 'nom_eglise', label: 'Nom de l\'eglise', type: 'text', placeholder: 'Eglise Temple de la Celebration' },
-  { cle: 'fuseau_horaire', label: 'Fuseau horaire', type: 'select', help: 'Fuseau utilise pour les heures des cultes', options: FUSEAUX_HORAIRES },
+  { cle: 'nom_eglise', label: 'Nom de l\'église', type: 'text', placeholder: 'Église Temple de la Célébration' },
+  { cle: 'fuseau_horaire', label: 'Fuseau horaire', type: 'select', help: 'Fuseau utilisé pour les heures des cultes', options: FUSEAUX_HORAIRES },
   { cle: 'facebook_url', label: 'URL Facebook', type: 'url', placeholder: 'https://facebook.com/...' },
   { cle: 'youtube_url', label: 'URL YouTube', type: 'url', placeholder: 'https://youtube.com/@...' },
   { cle: 'instagram_url', label: 'URL Instagram', type: 'url', placeholder: 'https://instagram.com/...' },
   { cle: 'email_contact', label: 'Email de contact', type: 'email', placeholder: 'contact@eglise.com' },
-  { cle: 'telephone', label: 'Telephone', type: 'tel', placeholder: '+33 1 23 45 67 89' },
+  { cle: 'telephone', label: 'Téléphone', type: 'tel', placeholder: '+33 1 23 45 67 89' },
 ];
 
 function isValidUrl(str) {

@@ -16,7 +16,7 @@ const YouTubeIcon = () => (
 
 export default function Footer() {
   const [settings, setSettings] = useState({
-    nom_eglise: 'Eglise Temple de la Celebration',
+    nom_eglise: 'Église Temple de la Célébration',
     facebook_url: '',
     youtube_url: '',
   });
@@ -45,7 +45,7 @@ export default function Footer() {
         <div style={{ flex: 1, maxWidth: 60, height: 1, background: 'linear-gradient(90deg,rgba(200,134,10,0.3),transparent)' }} />
       </div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--or-clair)', marginBottom: 8 }}>
-        {settings.nom_eglise || 'Eglise Temple de la Celebration'}
+        {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
       <div style={{ fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(255,248,240,0.25)', fontWeight: 400 }}>
         E . T . C &nbsp;.&nbsp; Dieu par l'adoration et la louange
@@ -90,7 +90,7 @@ export default function Footer() {
       )}
 
       <div style={{ marginTop: 20, fontSize: 11, color: 'rgba(255,248,240,0.15)' }}>
-        &copy; {new Date().getFullYear()} {settings.nom_eglise || 'Eglise Temple de la Celebration'}
+        &copy; {new Date().getFullYear()} {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
       <div style={{ marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 14 }}>
         <Link to="/eleve/login" style={{
@@ -101,7 +101,7 @@ export default function Footer() {
           onMouseEnter={e => e.target.style.color = 'rgba(255,248,240,0.5)'}
           onMouseLeave={e => e.target.style.color = 'rgba(255,248,240,0.2)'}
         >
-          Espace eleve
+          Espace élève
         </Link>
       </div>
     </footer>

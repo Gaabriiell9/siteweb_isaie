@@ -57,7 +57,7 @@ export default function TabPriere() {
 
   return (
     <div className="admin-tab">
-      <h3>{editing ? 'Modifier le message' : 'Ajouter un message de priere'}</h3>
+      <h3>{editing ? 'Modifier le message' : 'Ajouter un message de prière'}</h3>
       <form onSubmit={handleSave} className="admin-form">
         <div className="admin-form-row">
           <select value={form.famille} onChange={e => setForm({...form, famille: e.target.value})}>
@@ -72,8 +72,8 @@ export default function TabPriere() {
           </select>
         </div>
         <input required placeholder="Titre du message *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
-        <input placeholder="Verset de reference (ex: Genese 49:3)" value={form.verset} onChange={e => setForm({...form, verset: e.target.value})} />
-        <textarea required rows={6} placeholder="Contenu du message de priere *" value={form.contenu} onChange={e => setForm({...form, contenu: e.target.value})} />
+        <input placeholder="Verset de référence (ex: Genèse 49:3)" value={form.verset} onChange={e => setForm({...form, verset: e.target.value})} />
+        <textarea required rows={6} placeholder="Contenu du message de prière *" value={form.contenu} onChange={e => setForm({...form, contenu: e.target.value})} />
         {msg && <div className={`admin-msg ${msg.includes('Erreur') || msg.includes('non autorisee') ? 'err' : 'ok'}`}>{msg}</div>}
         <div className="admin-form-row">
           <button type="submit" className="admin-btn-primary" disabled={saving}>{saving ? 'Enregistrement...' : editing ? 'Mettre a jour' : 'Publier le message'}</button>
@@ -81,7 +81,7 @@ export default function TabPriere() {
         </div>
       </form>
 
-      <h3 style={{ marginTop: 24 }}>Messages publies ({messages.length})</h3>
+      <h3 style={{ marginTop: 24 }}>Messages publiés ({messages.length})</h3>
       <div className="admin-list">
         {messages.map(m => (
           <div className="admin-item" key={m.id}>
@@ -111,7 +111,7 @@ export default function TabPriere() {
             </div>
           </div>
         ))}
-        {messages.length === 0 && <p className="admin-empty">Aucun message de priere pour l'instant.</p>}
+        {messages.length === 0 && <p className="admin-empty">Aucun message de prière pour l'instant.</p>}
       </div>
     </div>
   );

@@ -7,8 +7,8 @@ import './Navbar.css';
 const links = [
   { to: '/', label: 'Accueil' },
   { to: '/cultes', label: 'Cultes' },
-  { to: '/montagne-priere', label: 'Montagne de Priere' },
-  { to: '/predication', label: 'Predication' },
+  { to: '/montagne-priere', label: 'Montagne de Prière' },
+  { to: '/predication', label: 'Prédication' },
   { to: '/cellule', label: LABELS.CELLULE_BETHEL },
   { to: '/formation', label: 'Formation' },
   { to: '/dons', label: 'Dons' },
