@@ -22,7 +22,8 @@
     "test:week": "node scripts/test-week.mjs",
     "test:responsive": "node scripts/check-responsive.mjs",
     "test:contrast": "node scripts/check-contrast.mjs",
-    "test:scroll": "node scripts/check-scroll.mjs"
+    "test:scroll": "node scripts/check-scroll.mjs",
+    "test:contraste-pages": "node scripts/audit-contraste.mjs"
   },
   "browserslist": {
     "production": [

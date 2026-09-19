@@ -35,7 +35,7 @@
   font-family: var(--font-display); font-size: 28px; font-weight: 400;
   color: var(--vert); margin-bottom: 20px;
 }
-.mp-grid-title em { font-style: italic; color: var(--or-clair); }
+.mp-grid-title em { font-style: italic; color: var(--or-label); }
 .mp-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(200,134,10,0.1); border: 1px solid rgba(200,134,10,0.1); margin-bottom: 32px; }
 @media(max-width:600px){ .mp-grid { grid-template-columns: repeat(2,1fr); } }
 .mp-tile {

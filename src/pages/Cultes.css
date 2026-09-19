@@ -35,7 +35,7 @@
   font-family: var(--font-display); font-size: 36px; font-weight: 400;
   color: var(--vert); margin: 0 0 6px; line-height: 1.15;
 }
-.live-titre em { font-style: italic; color: var(--or-clair); }
+.live-titre em { font-style: italic; color: var(--or-label); }
 .live-sous-titre {
   font-size: 11px; color: var(--encre-douce);
   letter-spacing: .5px; margin: 0 0 16px;
@@ -283,7 +283,7 @@
   font-family: var(--font-display); font-size: 28px; font-weight: 400;
   color: var(--vert); margin-bottom: 20px;
 }
-.replays-titre em { font-style: italic; color: var(--or-clair); }
+.replays-titre em { font-style: italic; color: var(--or-label); }
 
 .replays-grid {
   display: grid;

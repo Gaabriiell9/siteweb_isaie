@@ -2,6 +2,11 @@
    E-T-C Church — Design System Modern
    Aesthetic: Refined Sacred · Ink & Gold
    Fonts: Fraunces (display/headings) · Inter (body) · IBM Plex Mono (labels)
+   ============================================================
+   THEMES DE FOND : fond clair (creme, vert-doux) vs fond sombre (vert, vert-nuit)
+   - Fond clair : titres en --vert, accents em en --or-label, textes en --encre/--encre-douce
+   - Fond sombre : titres en --creme, accents em en --or-texte, textes en creme 85%/70%
+   - Utiliser --or-label (pas --or-texte) pour les accents sur fond clair (contraste 3.6:1)
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -156,8 +161,9 @@ img { max-width: 100%; display: block; }
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
-.section-title em { font-style: italic; color: var(--color-gold); }
+.section-title em { font-style: italic; color: var(--or-label); }
 .section-title.light { color: var(--color-parchment); }
+.section-title.light em { color: var(--or-texte); }
 
 /* Container */
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }

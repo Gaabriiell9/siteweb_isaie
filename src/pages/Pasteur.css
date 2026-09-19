@@ -18,7 +18,7 @@
   font-family: var(--font-display); font-size: clamp(40px,6vw,68px);
   font-weight: 400; color: var(--creme); line-height: 1; margin-bottom: 6px;
 }
-.pasteur-titre em { font-style:italic; color:var(--or-clair); }
+.pasteur-titre em { font-style:italic; color:var(--or-label); }
 .pasteur-role {
   font-size:9px; letter-spacing:3px; text-transform:uppercase;
   color:rgba(255,248,240,0.65); margin-bottom:24px; margin-top:4px;

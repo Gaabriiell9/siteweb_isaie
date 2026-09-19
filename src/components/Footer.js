@@ -47,7 +47,7 @@ export default function Footer() {
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--or)', marginBottom: 8 }}>
         {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
-      <div style={{ fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(250,247,241,0.45)', fontWeight: 400 }}>
+      <div style={{ fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(250,247,241,0.7)', fontWeight: 400 }}>
         E . T . C &nbsp;.&nbsp; Dieu par l'adoration et la louange
       </div>
 
@@ -91,17 +91,20 @@ export default function Footer() {
         </div>
       )}
 
-      <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(250,247,241,0.5)' }}>
+      <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(250,247,241,0.7)' }}>
         &copy; {new Date().getFullYear()} {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
       <div style={{ marginTop: 16, borderTop: '1px solid rgba(200,155,74,0.15)', paddingTop: 14 }}>
         <Link to="/eleve/login" style={{
-          fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: '2px',
-          textTransform: 'uppercase', color: 'rgba(250,247,241,0.4)',
-          textDecoration: 'none', transition: 'color 0.2s',
+          fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: '1.5px',
+          textTransform: 'uppercase', color: 'var(--or)',
+          textDecoration: 'none', transition: 'color 0.2s, text-decoration 0.2s',
+          padding: '12px 16px',
+          display: 'inline-block',
+          minHeight: 44,
         }}
-          onMouseEnter={e => e.target.style.color = 'var(--or-texte)'}
-          onMouseLeave={e => e.target.style.color = 'rgba(250,247,241,0.4)'}
+          onMouseEnter={e => { e.target.style.color = 'var(--or-texte)'; e.target.style.textDecoration = 'underline'; }}
+          onMouseLeave={e => { e.target.style.color = 'var(--or)'; e.target.style.textDecoration = 'none'; }}
         >
           Espace élève
         </Link>
