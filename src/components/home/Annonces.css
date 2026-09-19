@@ -3,31 +3,33 @@
 ══════════════════════════════════════════ */
 
 .annonces-section {
-  padding: 80px 0;
+  padding: var(--home-section-py) 0;
   background: var(--color-parchment);
 }
 
 .annonces-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--home-container-px);
 }
 
 .annonces-section .section-label {
   text-align: center;
   margin-bottom: 8px;
+  font-size: var(--home-label);
 }
 
 .annonces-section .section-title {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
+  font-size: var(--home-titre-section);
 }
 
 /* ── Grille ── */
 .annonces-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 32px;
+  gap: var(--home-gap);
   align-items: start;
 }
 
@@ -39,7 +41,7 @@
 .annonces-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--home-gap);
 }
 
 /* ── Carte ── */
@@ -65,7 +67,7 @@
 
 .annonce-card--main .annonce-card-img {
   height: 100%;
-  min-height: 300px;
+  min-height: 240px;
 }
 
 .annonce-card--main .annonce-card-img img {
@@ -79,53 +81,53 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-ink) 0%, #1a1816 100%);
+  background: linear-gradient(135deg, var(--home-vert, #1E4D46) 0%, var(--home-vert-nuit, #122D29) 100%);
   padding: 40px;
 }
 
 .annonce-card-jour {
   font-family: var(--font-display);
-  font-size: 72px;
+  font-size: clamp(40px, 10vw, 72px);
   font-weight: 900;
-  color: var(--color-gold);
+  color: var(--home-or-texte, #D4AD5C);
   line-height: 1;
 }
 
 .annonce-card-mois {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(250, 247, 241, 0.6);
 }
 
 .annonce-card--main .annonce-card-body {
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .annonce-card--main .annonce-card-titre {
-  font-size: 24px;
-  margin-bottom: 16px;
+  font-size: clamp(18px, 4vw, 24px);
+  margin-bottom: 12px;
 }
 
 .annonce-card--main .annonce-card-contenu {
-  font-size: 15px;
-  -webkit-line-clamp: 4;
+  font-size: var(--home-texte);
+  -webkit-line-clamp: 3;
 }
 
 /* ── Carte petite ── */
 .annonce-card--small {
   display: flex;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 12px;
 }
 
 .annonce-card--small .annonce-card-img {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   border-radius: var(--r-sm);
   overflow: hidden;
@@ -138,23 +140,23 @@
 }
 
 .annonce-card--small .annonce-card-date-big {
-  width: 80px;
-  height: 80px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--color-ink);
+  background: var(--home-vert, #1E4D46);
   border-radius: var(--r-sm);
 }
 
 .annonce-card--small .annonce-card-jour {
-  font-size: 28px;
+  font-size: 18px;
 }
 
 .annonce-card--small .annonce-card-mois {
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .annonce-card--small .annonce-card-body {
@@ -163,13 +165,16 @@
 }
 
 .annonce-card--small .annonce-card-titre {
-  font-size: 15px;
-  margin-bottom: 4px;
+  font-size: 14px;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .annonce-card--small .annonce-card-contenu {
-  font-size: 13px;
-  -webkit-line-clamp: 2;
+  display: none;
 }
 
 /* ── Elements communs ── */
@@ -183,7 +188,7 @@
   background: rgba(200, 155, 74, 0.1);
   padding: 4px 10px;
   border-radius: var(--r-sm);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .annonce-card-titre {
@@ -211,14 +216,14 @@
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--texte-doux);
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 /* ── Skeleton ── */
 .annonces-skeleton {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 32px;
+  gap: var(--home-gap);
 }
 
 .skeleton-card {
@@ -229,12 +234,12 @@
 }
 
 .skeleton-card--main {
-  height: 300px;
+  height: 240px;
 }
 
 .skeleton-list .skeleton-card {
-  height: 112px;
-  margin-bottom: 20px;
+  height: 68px;
+  margin-bottom: var(--home-gap);
 }
 
 .skeleton-list .skeleton-card:last-child {
@@ -247,7 +252,7 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .annonces-grid {
     grid-template-columns: 1fr;
   }
@@ -256,26 +261,46 @@
     grid-template-columns: 1fr;
   }
 
-  .annonce-card--main .annonce-card-img,
+  .annonce-card--main .annonce-card-img {
+    aspect-ratio: 16 / 9;
+    max-height: 180px;
+    min-height: auto;
+  }
+
   .annonce-card--main .annonce-card-date-big {
-    min-height: 200px;
+    padding: 24px;
+    min-height: auto;
+    aspect-ratio: 16 / 9;
+    max-height: 120px;
+  }
+
+  .annonce-card--main .annonce-card-titre {
+    font-size: 20px;
   }
 
   .annonces-skeleton {
     grid-template-columns: 1fr;
   }
+
+  .skeleton-card--main {
+    height: 180px;
+  }
 }
 
 @media (max-width: 480px) {
-  .annonces-section {
-    padding: 60px 0;
+  .annonces-section .section-title {
+    margin-bottom: 24px;
   }
 
   .annonce-card--main .annonce-card-body {
-    padding: 24px;
+    padding: 16px;
   }
 
   .annonce-card--main .annonce-card-titre {
-    font-size: 20px;
+    font-size: 18px;
+  }
+
+  .annonce-card-jour {
+    font-size: 40px;
   }
 }

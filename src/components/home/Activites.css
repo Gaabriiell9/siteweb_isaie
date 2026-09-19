@@ -3,31 +3,33 @@
 ══════════════════════════════════════════ */
 
 .activites-section {
-  padding: 80px 0;
+  padding: var(--home-section-py) 0;
   background: var(--home-vert-doux, #F5FAF9);
 }
 
 .activites-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--home-container-px);
 }
 
 .activites-section .section-label {
   text-align: center;
   margin-bottom: 8px;
+  font-size: var(--home-label);
 }
 
 .activites-section .section-title {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
+  font-size: var(--home-titre-section);
 }
 
 /* ── Grille asymétrique ── */
 .activites-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--home-gap);
 }
 
 /* ── Tuile ── */
@@ -165,27 +167,41 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
-  .activites-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
-@media (max-width: 540px) {
-  .activites-section {
-    padding: 60px 0;
-  }
-
+@media (max-width: 768px) {
   .activites-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
 
   .activite-tuile {
-    padding: 24px 20px 20px;
+    flex-direction: row;
+    align-items: center;
+    padding: 16px;
+    min-height: 64px;
   }
 
   .activite-num {
-    font-size: 36px;
+    display: none;
+  }
+
+  .activite-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0;
+    margin-right: 12px;
+  }
+
+  .activite-titre {
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+
+  .activite-dynamique {
+    display: none;
+  }
+
+  .activite-arrow {
+    margin-top: 0;
+    margin-left: auto;
   }
 }

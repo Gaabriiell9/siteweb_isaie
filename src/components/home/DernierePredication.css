@@ -3,14 +3,14 @@
 ══════════════════════════════════════════ */
 
 .predication-section {
-  padding: 80px 0;
+  padding: var(--home-section-py) 0;
   background: var(--home-vert);
 }
 
 .predication-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--home-container-px);
 }
 
 .predication-header {
@@ -24,10 +24,12 @@
 
 .predication-section .section-label {
   color: var(--home-or-texte);
+  font-size: var(--home-label);
 }
 
 .predication-section .section-title {
   color: var(--color-parchment);
+  font-size: var(--home-titre-section);
 }
 
 .predication-link {
@@ -173,19 +175,17 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .predication-section {
-    padding: 60px 0;
-  }
-
   .predication-header {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 24px;
+    gap: var(--home-gap);
   }
 
   .predication-card {
     grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 16px;
+    gap: var(--home-gap);
+    padding: var(--home-container-px);
   }
 
   .predication-info {
@@ -193,6 +193,11 @@
   }
 
   .predication-titre {
-    font-size: 20px;
+    font-size: 18px;
+  }
+
+  .predication-play {
+    width: 56px;
+    height: 56px;
   }
 }

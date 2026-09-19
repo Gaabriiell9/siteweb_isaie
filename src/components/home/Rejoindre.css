@@ -3,7 +3,7 @@
 ══════════════════════════════════════════ */
 
 .rejoindre-section {
-  padding: 80px 0;
+  padding: var(--home-section-py) 0;
   background: var(--home-vert);
   text-align: center;
 }
@@ -11,12 +11,12 @@
 .rejoindre-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--home-container-px);
 }
 
 .rejoindre-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--home-label);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--home-or-texte);
@@ -36,9 +36,9 @@
 .rejoindre-btns {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: var(--home-gap);
   flex-wrap: wrap;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .rejoindre-btn {
@@ -130,10 +130,6 @@
 
 /* ── Responsive ── */
 @media (max-width: 540px) {
-  .rejoindre-section {
-    padding: 60px 0;
-  }
-
   .rejoindre-btns {
     flex-direction: column;
   }
@@ -141,5 +137,14 @@
   .rejoindre-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .rejoindre-socials {
+    gap: var(--home-gap);
+  }
+
+  .rejoindre-social {
+    width: 44px;
+    height: 44px;
   }
 }

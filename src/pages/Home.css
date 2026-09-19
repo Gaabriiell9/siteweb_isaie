@@ -1,14 +1,39 @@
 /* ══════════════════════════════════════════
    HOME - Page d'accueil
-   Tokens de couleur derives du vert existant
+   Tokens de couleur et echelle responsive
 ══════════════════════════════════════════ */
 
 .home {
-  /* --color-emerald: #1E4D46 du site */
+  /* Couleurs */
   --home-vert: var(--color-emerald);           /* #1E4D46 - vert profond du site */
   --home-vert-nuit: #122D29;                   /* 35% plus sombre */
   --home-vert-doux: #F5FAF9;                   /* 6% de vert sur creme */
-  --home-or-texte: #D4AD5C;                    /* or plus clair pour texte sur vert */
+  --home-or-texte: #D4AD5C;                    /* or clair pour texte sur vert */
+
+  /* Typographie responsive */
+  --home-titre-hero: clamp(2rem, 8.5vw, 4.5rem);
+  --home-titre-section: clamp(1.6rem, 5.5vw, 2.6rem);
+  --home-texte: 15px;
+  --home-label: 11px;
+
+  /* Espacements */
+  --home-section-py: clamp(2.75rem, 7vw, 6rem);
+  --home-container-px: 16px;
+  --home-gap: 12px;
 
   overflow-x: hidden;
+}
+
+@media (min-width: 481px) {
+  .home {
+    --home-texte: 16px;
+    --home-container-px: 24px;
+    --home-gap: 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .home {
+    --home-gap: 24px;
+  }
 }

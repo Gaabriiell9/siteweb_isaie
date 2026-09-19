@@ -3,7 +3,7 @@
 ══════════════════════════════════════════ */
 
 .semaine-section {
-  padding: 80px 0;
+  padding: var(--home-section-py) 0;
   background: var(--home-vert);
   overflow: hidden;
 }
@@ -11,7 +11,7 @@
 .semaine-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--home-container-px);
 }
 
 .semaine-header {
@@ -25,10 +25,12 @@
 
 .semaine-section .section-label {
   color: var(--home-or-texte);
+  font-size: var(--home-label);
 }
 
 .semaine-section .section-title {
   color: var(--color-parchment);
+  font-size: var(--home-titre-section);
 }
 
 .semaine-priere-link {
@@ -79,12 +81,12 @@
 
 /* ── Carte jour ── */
 .jour-card {
-  flex: 0 0 200px;
-  min-width: 200px;
+  flex: 0 0 160px;
+  min-width: 160px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(200, 155, 74, 0.15);
   border-radius: var(--r-lg);
-  padding: 20px;
+  padding: 16px;
   scroll-snap-align: center;
   transition: all 0.3s;
 }
@@ -200,13 +202,11 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .semaine-section {
-    padding: 60px 0;
-  }
-
   .semaine-header {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 24px;
+    gap: var(--home-gap);
   }
 
   .semaine-priere-link {
@@ -214,16 +214,23 @@
     justify-content: center;
   }
 
-  .jour-card {
-    flex: 0 0 180px;
-    min-width: 180px;
+  .semaine-scroll {
+    margin: 0 calc(-1 * var(--home-container-px));
+    padding-left: var(--home-container-px);
+    padding-right: var(--home-container-px);
   }
-}
 
-@media (max-width: 480px) {
   .jour-card {
-    flex: 0 0 160px;
-    min-width: 160px;
-    padding: 16px;
+    flex: 0 0 140px;
+    min-width: 140px;
+    padding: 12px;
+  }
+
+  .jour-card-nom {
+    font-size: 14px;
+  }
+
+  .jour-event-titre {
+    font-size: 12px;
   }
 }
