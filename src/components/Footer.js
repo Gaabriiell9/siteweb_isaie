@@ -34,20 +34,20 @@ export default function Footer() {
 
   return (
     <footer style={{
-      background: 'var(--noir)',
-      borderTop: '1px solid rgba(200,134,10,0.15)',
+      background: 'var(--vert-nuit)',
+      borderTop: '1px solid rgba(200,155,74,0.2)',
       padding: '40px 24px 32px',
       textAlign: 'center',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 16 }}>
-        <div style={{ flex: 1, maxWidth: 60, height: 1, background: 'linear-gradient(90deg,transparent,rgba(200,134,10,0.3))' }} />
-        <div style={{ width: 6, height: 6, border: '1px solid var(--or)', transform: 'rotate(45deg)' }} />
-        <div style={{ flex: 1, maxWidth: 60, height: 1, background: 'linear-gradient(90deg,rgba(200,134,10,0.3),transparent)' }} />
+        <div style={{ flex: 1, maxWidth: 60, height: 1, background: 'linear-gradient(90deg,transparent,rgba(200,155,74,0.4))' }} />
+        <div style={{ width: 6, height: 6, border: '1px solid var(--or)', transform: 'rotate(45deg)', background: 'rgba(200,155,74,0.2)' }} />
+        <div style={{ flex: 1, maxWidth: 60, height: 1, background: 'linear-gradient(90deg,rgba(200,155,74,0.4),transparent)' }} />
       </div>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--or-clair)', marginBottom: 8 }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontStyle: 'italic', color: 'var(--or)', marginBottom: 8 }}>
         {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
-      <div style={{ fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(255,248,240,0.25)', fontWeight: 400 }}>
+      <div style={{ fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(250,247,241,0.45)', fontWeight: 400 }}>
         E . T . C &nbsp;.&nbsp; Dieu par l'adoration et la louange
       </div>
 
@@ -62,25 +62,27 @@ export default function Footer() {
               title={social.name}
               aria-label={social.name}
               style={{
-                color: 'rgba(255,248,240,0.35)',
-                transition: 'color 0.2s, transform 0.2s',
+                color: 'var(--or)',
+                transition: 'color 0.2s, transform 0.2s, border-color 0.2s',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 borderRadius: '50%',
-                border: '1px solid rgba(200,134,10,0.2)',
+                border: '1px solid rgba(200,155,74,0.3)',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--or-clair)';
+                e.currentTarget.style.color = 'var(--or-texte)';
                 e.currentTarget.style.borderColor = 'var(--or)';
                 e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.background = 'rgba(200,155,74,0.1)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.color = 'rgba(255,248,240,0.35)';
-                e.currentTarget.style.borderColor = 'rgba(200,134,10,0.2)';
+                e.currentTarget.style.color = 'var(--or)';
+                e.currentTarget.style.borderColor = 'rgba(200,155,74,0.3)';
                 e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.background = 'transparent';
               }}
             >
               {social.icon}
@@ -89,17 +91,17 @@ export default function Footer() {
         </div>
       )}
 
-      <div style={{ marginTop: 20, fontSize: 11, color: 'rgba(255,248,240,0.15)' }}>
+      <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(250,247,241,0.5)' }}>
         &copy; {new Date().getFullYear()} {settings.nom_eglise || 'Église Temple de la Célébration'}
       </div>
-      <div style={{ marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 14 }}>
+      <div style={{ marginTop: 16, borderTop: '1px solid rgba(200,155,74,0.15)', paddingTop: 14 }}>
         <Link to="/eleve/login" style={{
           fontFamily: 'var(--font-ui)', fontSize: 9, letterSpacing: '2px',
-          textTransform: 'uppercase', color: 'rgba(255,248,240,0.2)',
+          textTransform: 'uppercase', color: 'rgba(250,247,241,0.4)',
           textDecoration: 'none', transition: 'color 0.2s',
         }}
-          onMouseEnter={e => e.target.style.color = 'rgba(255,248,240,0.5)'}
-          onMouseLeave={e => e.target.style.color = 'rgba(255,248,240,0.2)'}
+          onMouseEnter={e => e.target.style.color = 'var(--or-texte)'}
+          onMouseLeave={e => e.target.style.color = 'rgba(250,247,241,0.4)'}
         >
           Espace élève
         </Link>
