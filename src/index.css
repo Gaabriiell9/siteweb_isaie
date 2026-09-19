@@ -22,10 +22,10 @@
 
   /* Statuts semantiques (distincts du vert de marque) */
   --statut-direct:  #B42318;                      /* Rouge - EN DIRECT */
-  --statut-ok:      #27AE60;                      /* Vert succes */
-  --statut-alerte:  #E67E22;                      /* Orange alerte */
+  --statut-ok:      #1D8348;                      /* Vert succes (assombri pour contraste) */
+  --statut-alerte:  #B35F00;                      /* Orange alerte (assombri pour contraste) */
   --statut-erreur:  #C0392B;                      /* Rouge erreur */
-  --statut-info:    #2980B9;                      /* Bleu info */
+  --statut-info:    #1F6091;                      /* Bleu info (assombri pour contraste) */
 
   /* Aliases de compatibilite */
   --color-ink:       var(--encre);

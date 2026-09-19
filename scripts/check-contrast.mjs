@@ -31,25 +31,55 @@ function getContrastRatio(color1, color2) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// Couleurs du site
+// Palette du site (variables de index.css)
 const COLORS = {
-  creme: '#FAF7F1',
   vert: '#1E4D46',
   vertNuit: '#122D29',
+  vertDoux: '#F5FAF9',
   or: '#C89B4A',
-  orTexte: '#D4AD5C',  // Or plus clair pour texte sur fond sombre
-  orLabel: '#A07C38',  // Or plus fonce pour labels sur fond clair
-  ink: '#14110E',
+  orTexte: '#D4AD5C',
+  orLabel: '#A07C38',
+  creme: '#FAF7F1',
+  encre: '#1A1F1E',
+  encreDouce: '#4A5250',
+  bord: '#D8E0DC',
+  blanc: '#FFFFFF',
+  statutDirect: '#B42318',
+  statutOk: '#1D8348',
+  statutAlerte: '#B35F00',
+  statutErreur: '#C0392B',
+  statutInfo: '#1F6091',
 };
 
 // Paires a verifier (labels en majuscules >= 14px sont "grand texte" -> min 3:1)
 const PAIRS = [
-  { fg: 'creme', bg: 'vert', name: 'Texte creme sur vert', minRatio: 4.5 },
-  { fg: 'orTexte', bg: 'vert', name: 'Or (texte) sur vert', minRatio: 3 },  // Grand texte
-  { fg: 'orTexte', bg: 'vertNuit', name: 'Or (texte) sur vert nuit', minRatio: 3 },
-  { fg: 'orLabel', bg: 'creme', name: 'Or label sur creme', minRatio: 3 },  // Labels majuscules
+  // Textes sur fonds sombres
+  { fg: 'creme', bg: 'vert', name: 'Creme sur vert', minRatio: 4.5 },
+  { fg: 'creme', bg: 'vertNuit', name: 'Creme sur vert nuit', minRatio: 4.5 },
+  { fg: 'orTexte', bg: 'vert', name: 'Or texte sur vert', minRatio: 3 },
+  { fg: 'orTexte', bg: 'vertNuit', name: 'Or texte sur vert nuit', minRatio: 3 },
+  { fg: 'or', bg: 'vertNuit', name: 'Or sur vert nuit', minRatio: 3 },
+
+  // Textes sur fonds clairs
   { fg: 'vert', bg: 'creme', name: 'Vert sur creme', minRatio: 4.5 },
-  { fg: 'ink', bg: 'or', name: 'Texte bouton (ink sur or)', minRatio: 4.5 },
+  { fg: 'encre', bg: 'creme', name: 'Encre sur creme', minRatio: 4.5 },
+  { fg: 'encreDouce', bg: 'creme', name: 'Encre douce sur creme', minRatio: 4.5 },
+  { fg: 'orLabel', bg: 'creme', name: 'Or label sur creme', minRatio: 3 },
+
+  // Boutons
+  { fg: 'encre', bg: 'or', name: 'Texte bouton (encre sur or)', minRatio: 4.5 },
+  { fg: 'creme', bg: 'vert', name: 'Texte bouton (creme sur vert)', minRatio: 4.5 },
+
+  // Liens Footer sur vert nuit
+  { fg: 'creme', bg: 'vertNuit', name: 'Liens footer (creme 50% sur vert nuit)', minRatio: 3 },
+
+  // Statuts sur leurs fonds
+  { fg: 'statutDirect', bg: 'creme', name: 'Statut direct sur creme', minRatio: 4.5 },
+  { fg: 'statutOk', bg: 'creme', name: 'Statut ok sur creme', minRatio: 3 },
+  { fg: 'statutAlerte', bg: 'creme', name: 'Statut alerte sur creme', minRatio: 3 },
+  { fg: 'statutErreur', bg: 'creme', name: 'Statut erreur sur creme', minRatio: 4.5 },
+  { fg: 'statutInfo', bg: 'creme', name: 'Statut info sur creme', minRatio: 4.5 },
+  { fg: 'blanc', bg: 'statutDirect', name: 'Blanc sur statut direct', minRatio: 4.5 },
 ];
 
 console.log('=== Verification du contraste WCAG AA ===\n');
