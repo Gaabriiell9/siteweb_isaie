@@ -566,21 +566,21 @@ function SubTabEleves({ filterPays, onClearFilter }) {
             <tbody>
               {filtered.map(e => (
                 <tr key={e.id} className="af-table-row" onClick={() => setSelectedEleve(e)}>
-                  <td>
+                  <td data-label="">
                     <div className="af-table-eleve">
                       <div className="af-table-avatar">{initiales(e.prenom, e.nom)}</div>
                       <span>{e.prenom} {e.nom}</span>
                     </div>
                   </td>
-                  <td className="af-table-email">
+                  <td data-label="Email" className="af-table-email">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       <span>{e.email}</span>
                       <BadgeEmail confirmedAt={e.email_confirmed_at} />
                     </div>
                   </td>
-                  <td>{e.pays || '—'}</td>
-                  <td><BadgeFormule formule={e.formule} /></td>
-                  <td>
+                  <td data-label="Pays">{e.pays || '—'}</td>
+                  <td data-label="Formule"><BadgeFormule formule={e.formule} /></td>
+                  <td data-label="Progression">
                     <div className="af-prog-wrap">
                       <div className="af-prog-bar">
                         <div className="af-prog-fill" style={{ width: `${e.progression_pct || 0}%` }} />
@@ -588,9 +588,9 @@ function SubTabEleves({ filterPays, onClearFilter }) {
                       <span className="af-prog-pct">{e.progression_pct || 0}%</span>
                     </div>
                   </td>
-                  <td>{formatRelative(e.derniere_connexion)}</td>
-                  <td><BadgeStatut statut={e.statut} /></td>
-                  <td>
+                  <td data-label="Connexion">{formatRelative(e.derniere_connexion)}</td>
+                  <td data-label="Statut"><BadgeStatut statut={e.statut} /></td>
+                  <td data-label="">
                     <button className="af-btn af-btn--sm" onClick={ev => { ev.stopPropagation(); setSelectedEleve(e); }}>
                       Voir
                     </button>
