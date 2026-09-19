@@ -12,7 +12,7 @@
 /* ── Sidebar ── */
 .eleve-sidebar {
   width: 240px; flex-shrink: 0;
-  background: var(--bordeaux);
+  background: var(--vert-nuit);
   display: flex; flex-direction: column;
   position: sticky; top: 0; height: 100vh;
   overflow-y: auto;
@@ -74,7 +74,7 @@
   display: none;
   align-items: center; justify-content: space-between;
   height: 52px; padding: 0 16px;
-  background: var(--bordeaux);
+  background: var(--vert-nuit);
   border-bottom: 1px solid rgba(200,134,10,0.2);
   position: sticky; top: 0; z-index: 100;
 }
@@ -121,13 +121,13 @@
 /* ── Page header ── */
 .eleve-page-title {
   font-family: var(--font-display); font-size: clamp(28px,4vw,38px);
-  font-weight: 400; color: var(--bordeaux-clair);
+  font-weight: 400; color: var(--vert);
   margin-bottom: 4px; line-height: 1.1;
 }
 .eleve-page-title em { font-style: italic; color: var(--or-clair); }
 .eleve-page-sub {
   font-family: var(--font-ui); font-size: 10px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--texte-doux); margin-bottom: 32px;
+  text-transform: uppercase; color: var(--encre-douce); margin-bottom: 32px;
 }
 
 /* ── Card blanche ── */
@@ -155,11 +155,11 @@
 }
 .eleve-stat-label {
   font-family: var(--font-ui); font-size: 8px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--texte-doux); margin-bottom: 8px;
+  text-transform: uppercase; color: var(--encre-douce); margin-bottom: 8px;
 }
 .eleve-stat-value {
   font-family: var(--font-display); font-size: 32px; font-weight: 400;
-  color: var(--bordeaux-clair); line-height: 1;
+  color: var(--vert); line-height: 1;
 }
 .eleve-stat-unit { font-size: 16px; color: var(--or); }
 
@@ -181,7 +181,7 @@
 /* ── Titre de section interne ── */
 .eleve-section-titre {
   font-family: var(--font-display); font-size: 20px; font-weight: 400;
-  color: var(--bordeaux-clair); margin-bottom: 16px;
+  color: var(--vert); margin-bottom: 16px;
 }
 .eleve-section-titre em { font-style: italic; color: var(--or-clair); }
 
@@ -192,18 +192,18 @@
 }
 .eleve-table th {
   font-family: var(--font-ui); font-size: 8px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--texte-doux);
+  text-transform: uppercase; color: var(--encre-douce);
   padding: 10px 14px; text-align: left;
   border-bottom: 1px solid rgba(200,134,10,0.15);
   white-space: nowrap;
 }
 .eleve-table td {
-  padding: 13px 14px; font-size: 13px; color: var(--texte-doux);
+  padding: 13px 14px; font-size: 13px; color: var(--encre-douce);
   border-bottom: 1px solid rgba(200,134,10,0.07);
 }
 .eleve-table tr:last-child td { border-bottom: none; }
 .eleve-table tr:hover td { background: rgba(200,134,10,0.02); }
-.eleve-table td strong { color: var(--bordeaux-clair); font-family: var(--font-heading); }
+.eleve-table td strong { color: var(--vert); font-family: var(--font-heading); }
 
 /* ── Badges statuts ── */
 .eleve-badge {
@@ -212,9 +212,9 @@
   letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
 }
 .eleve-badge--green  { background: #EAF3DE; color: #27500A; }
-.eleve-badge--blue   { background: #E3EBF6; color: var(--bleu); }
-.eleve-badge--gold   { background: var(--or-pale); color: var(--bordeaux-clair); }
-.eleve-badge--grey   { background: #F0EDE8; color: var(--texte-doux); }
+.eleve-badge--var(--statut-info)   { background: #E3EBF6; color: var(--bleu); }
+.eleve-badge--gold   { background: var(--or-pale); color: var(--vert); }
+.eleve-badge--var(--encre-douce)   { background: #F0EDE8; color: var(--encre-douce); }
 .eleve-badge--red    { background: #FCEBEB; color: #791F1F; }
 .eleve-badge--orange { background: #FEF3E2; color: #854D0E; }
 
@@ -224,7 +224,7 @@
 
 .eleve-greeting {
   font-family: var(--font-display); font-size: clamp(28px,5vw,42px);
-  font-weight: 400; color: var(--bordeaux-clair); margin-bottom: 6px;
+  font-weight: 400; color: var(--vert); margin-bottom: 6px;
 }
 .eleve-greeting em { font-style: italic; color: var(--or-clair); }
 
@@ -252,21 +252,21 @@
 }
 .eleve-next-titre {
   font-family: var(--font-heading); font-size: 18px; font-weight: 700;
-  color: var(--bordeaux-clair); margin-bottom: 6px;
+  color: var(--vert); margin-bottom: 6px;
 }
 .eleve-next-desc {
   font-family: var(--font-sans);
-  font-size: 13px; color: var(--texte-doux); line-height: 1.7;
+  font-size: 13px; color: var(--encre-douce); line-height: 1.7;
 }
 
 .eleve-last-evals { background: var(--blanc); border: 1px solid rgba(200,134,10,0.12); padding: 24px; box-shadow: 0 2px 12px rgba(28,10,0,0.05); }
 .eleve-eval-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(200,134,10,0.07); }
 .eleve-eval-row:last-child { border-bottom: none; }
 .eleve-eval-info { display: flex; flex-direction: column; gap: 2px; }
-.eleve-eval-titre { font-size: 13px; color: var(--bordeaux-clair); font-weight: 600; font-family: var(--font-heading); }
-.eleve-eval-module { font-size: 10px; color: var(--texte-doux); letter-spacing: 0.5px; }
+.eleve-eval-titre { font-size: 13px; color: var(--vert); font-weight: 600; font-family: var(--font-heading); }
+.eleve-eval-module { font-size: 10px; color: var(--encre-douce); letter-spacing: 0.5px; }
 .eleve-eval-note { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--or); }
-.eleve-eval-note small { font-size: 12px; color: var(--texte-doux); }
+.eleve-eval-note small { font-size: 12px; color: var(--encre-douce); }
 
 /* ────────────────────────────────────────────────────────────
    MODULES
@@ -296,11 +296,11 @@
 }
 .eleve-module-titre {
   font-family: var(--font-heading); font-size: 17px; font-weight: 700;
-  color: var(--bordeaux-clair); margin-bottom: 4px; line-height: 1.3;
+  color: var(--vert); margin-bottom: 4px; line-height: 1.3;
 }
 .eleve-module-desc {
   font-family: var(--font-sans);
-  font-size: 13px; color: var(--texte-doux); line-height: 1.5;
+  font-size: 13px; color: var(--encre-douce); line-height: 1.5;
 }
 
 .eleve-module-right {
@@ -309,7 +309,7 @@
 }
 
 .eleve-module-lock {
-  color: var(--texte-doux); opacity: 0.4;
+  color: var(--encre-douce); opacity: 0.4;
 }
 
 /* Mobile */
@@ -338,12 +338,12 @@
 }
 .eleve-moyenne-num {
   font-family: var(--font-display); font-size: 64px; font-weight: 400;
-  color: var(--bordeaux-clair); line-height: 1;
+  color: var(--vert); line-height: 1;
 }
 .eleve-moyenne-num small { font-size: 28px; color: var(--or); }
 .eleve-moyenne-label {
   font-family: var(--font-ui); font-size: 10px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--texte-doux);
+  text-transform: uppercase; color: var(--encre-douce);
 }
 
 /* ── Mini graphique barres ── */
@@ -355,7 +355,7 @@
   min-height: 4px; transition: opacity 0.2s;
 }
 .eleve-chart-bar:hover { opacity: 1; }
-.eleve-chart-label { font-size: 9px; color: var(--texte-doux); text-align: center; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
+.eleve-chart-label { font-size: 9px; color: var(--encre-douce); text-align: center; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
 
 /* ────────────────────────────────────────────────────────────
    PAIEMENTS
@@ -367,7 +367,7 @@
 }
 .eleve-planning-titre {
   font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.15em;
-  text-transform: uppercase; color: var(--texte-doux); margin-bottom: 16px;
+  text-transform: uppercase; color: var(--encre-douce); margin-bottom: 16px;
 }
 .eleve-planning-row {
   display: flex; align-items: center; gap: 12px;
@@ -378,8 +378,8 @@
   font-family: var(--font-display); font-size: 18px; font-weight: 400;
   color: var(--or); flex-shrink: 0; min-width: 28px;
 }
-.eleve-planning-date { flex: 1; font-size: 13px; color: var(--texte-doux); }
-.eleve-planning-amount { font-family: var(--font-ui); font-size: 13px; font-weight: 600; color: var(--bordeaux-clair); }
+.eleve-planning-date { flex: 1; font-size: 13px; color: var(--encre-douce); }
+.eleve-planning-amount { font-family: var(--font-ui); font-size: 13px; font-weight: 600; color: var(--vert); }
 
 /* ────────────────────────────────────────────────────────────
    PROFIL
@@ -395,7 +395,7 @@
 }
 .eleve-profil-section-titre {
   font-family: var(--font-display); font-size: 18px; font-weight: 400;
-  color: var(--bordeaux-clair); margin-bottom: 4px;
+  color: var(--vert); margin-bottom: 4px;
 }
 .eleve-profil-section-titre::after {
   content: ''; display: block; width: 28px; height: 1px;
@@ -407,7 +407,7 @@
 .eleve-profil-field { display: flex; flex-direction: column; gap: 5px; }
 .eleve-profil-label {
   font-family: var(--font-ui); font-size: 9px; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--bordeaux); font-weight: 500;
+  text-transform: uppercase; color: var(--vert-nuit); font-weight: 500;
 }
 .eleve-profil-form input,
 .eleve-profil-form select {
@@ -421,14 +421,14 @@
 .eleve-profil-form select:focus { border-color: var(--or); background: var(--blanc); }
 
 .eleve-profil-submit {
-  background: var(--bordeaux-clair); color: var(--creme);
+  background: var(--vert); color: var(--creme);
   border: none; padding: 13px 28px;
   font-family: var(--font-ui); font-size: 10px;
   font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
   cursor: pointer; transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
   align-self: flex-start;
 }
-.eleve-profil-submit:hover:not(:disabled) { background: var(--bordeaux); transform: translateY(-1px); }
+.eleve-profil-submit:hover:not(:disabled) { background: var(--vert-nuit); transform: translateY(-1px); }
 .eleve-profil-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .eleve-profil-ok {
@@ -439,7 +439,7 @@
 
 /* ── Sidebar badge ── */
 .eleve-sb-badge {
-  background: #dc3232;
+  background: var(--statut-erreur);
   color: white;
   border-radius: 10px;
   padding: 1px 6px;
@@ -455,7 +455,7 @@
   50% { transform: scale(1.5); opacity: 0.5; }
 }
 .eleve-cours-card {
-  background: linear-gradient(135deg, var(--bordeaux) 0%, var(--bordeaux-clair) 100%);
+  background: linear-gradient(135deg, var(--vert-nuit) 0%, var(--vert) 100%);
   color: white;
   border-radius: 12px;
   padding: 20px 24px;
@@ -510,7 +510,7 @@
   align-items: center;
   gap: 6px;
   background: white;
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
   text-decoration: none;
   border-radius: 6px;
   padding: 9px 18px;
@@ -538,11 +538,11 @@
   color: var(--texte);
 }
 .eleve-msg-banner-icon { font-size: 1.2rem; flex-shrink: 0; }
-.eleve-msg-banner strong { color: var(--bordeaux); }
+.eleve-msg-banner strong { color: var(--vert-nuit); }
 .eleve-msg-banner-btn {
   margin-left: auto;
   flex-shrink: 0;
-  color: var(--bordeaux-clair);
+  color: var(--vert);
   text-decoration: none;
   font-family: var(--font-ui);
   font-size: 0.75rem;
@@ -551,7 +551,7 @@
   text-transform: uppercase;
   transition: color 0.2s;
 }
-.eleve-msg-banner-btn:hover { color: var(--bordeaux); }
+.eleve-msg-banner-btn:hover { color: var(--vert-nuit); }
 
 /* ── Ressources module ── */
 .eleve-module-ressources {
@@ -577,7 +577,7 @@
   border-radius: 4px;
   background: var(--or-pale);
 }
-.eleve-module-ressources-toggle:hover { color: var(--bordeaux); background: rgba(200, 134, 10, 0.15); }
+.eleve-module-ressources-toggle:hover { color: var(--vert-nuit); background: rgba(200, 134, 10, 0.15); }
 .eleve-module-ressources-list {
   display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
 }
@@ -595,5 +595,5 @@
 .eleve-ressource-item:hover { background: rgba(200, 134, 10, 0.15); border-color: rgba(200, 134, 10, 0.3); }
 .eleve-ressource-type { color: var(--or); flex-shrink: 0; }
 .eleve-ressource-titre { font-size: 0.85rem; font-weight: 600; color: var(--texte); }
-.eleve-ressource-desc { font-size: 0.75rem; color: var(--texte-doux); margin-top: 2px; }
-.eleve-ressource-size { font-size: 0.72rem; color: var(--texte-doux); font-family: var(--font-ui); margin-left: auto; flex-shrink: 0; }
+.eleve-ressource-desc { font-size: 0.75rem; color: var(--encre-douce); margin-top: 2px; }
+.eleve-ressource-size { font-size: 0.72rem; color: var(--encre-douce); font-family: var(--font-ui); margin-left: auto; flex-shrink: 0; }

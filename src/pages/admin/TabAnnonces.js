@@ -268,7 +268,7 @@ export default function TabAnnonces() {
                 <span className="admin-date">
                   {new Date(a.date_publi).toLocaleDateString('fr-FR')}
                   {a.date_fin && ` - ${new Date(a.date_fin).toLocaleDateString('fr-FR')}`}
-                  {!a.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masquee)</span>}
+                  {!a.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masquee)</span>}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 4, marginRight: 8 }}>

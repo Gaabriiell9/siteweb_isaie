@@ -310,7 +310,7 @@ export default function TabServices() {
                         padding: '2px 8px',
                         borderRadius: 3,
                         background: 'rgba(180,35,24,0.1)',
-                        color: '#b42318',
+                        color: 'var(--statut-direct)',
                         fontWeight: 700,
                       }}>EN DIRECT</span>
                     )}
@@ -329,8 +329,8 @@ export default function TabServices() {
                         padding: '2px 8px',
                         borderRadius: 3,
                         background: 'transparent',
-                        color: '#999',
-                        border: '1px solid #ddd',
+                        color: 'var(--encre-douce)',
+                        border: '1px solid var(--bord)',
                       }}>TERMINE</span>
                     )}
                     {hasLive && (
@@ -339,7 +339,7 @@ export default function TabServices() {
                         padding: '2px 8px',
                         borderRadius: 3,
                         background: 'rgba(39,174,96,0.1)',
-                        color: '#27ae60',
+                        color: 'var(--statut-ok)',
                       }}>Live pret</span>
                     )}
                   </strong>
@@ -351,7 +351,7 @@ export default function TabServices() {
                     {new Date(s.date_service).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     {' '}
                     {s.heure_debut?.slice(0, 5)} - {s.heure_fin?.slice(0, 5)}
-                    {!s.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masque)</span>}
+                    {!s.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masque)</span>}
                   </span>
                 </div>
                 <AdminActionButtons

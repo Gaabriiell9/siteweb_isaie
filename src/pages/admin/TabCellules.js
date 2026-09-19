@@ -269,7 +269,7 @@ export default function TabCellules() {
                 <span className="admin-date">
                   {c.jour_semaine} {c.heure_debut?.slice(0, 5)} - {c.heure_fin?.slice(0, 5)}
                   {c.capacite && ` (${c.capacite} places)`}
-                  {!c.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masquee)</span>}
+                  {!c.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masquee)</span>}
                 </span>
               </div>
               <AdminActionButtons

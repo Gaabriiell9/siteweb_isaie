@@ -133,13 +133,13 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
         </div>
         <div className="af-pay-summary-row">
           <span>Total payé</span>
-          <strong style={{ color: totalPayeEuros >= prixTotalEuros ? '#27ae60' : 'inherit' }}>
+          <strong style={{ color: totalPayeEuros >= prixTotalEuros ? 'var(--statut-ok)' : 'inherit' }}>
             {totalPayeEuros} € / {prixTotalEuros} €
           </strong>
         </div>
         <div className="af-pay-summary-row">
           <span>Restant dû</span>
-          <strong style={{ color: restantDuEuros > 0 ? '#e74c3c' : '#27ae60' }}>
+          <strong style={{ color: restantDuEuros > 0 ? 'var(--statut-erreur)' : 'var(--statut-ok)' }}>
             {restantDuEuros} €
           </strong>
         </div>
@@ -973,7 +973,7 @@ function SubTabCours() {
     navigator.clipboard.writeText(url).then(() => showMsg('Lien copié ✓'));
   };
 
-  const statusColor = { programme: '#C8860A', en_cours: '#dc3232', termine: '#888', annule: '#888' };
+  const statusColor = { programme: '#C8860A', en_cours: 'var(--statut-erreur)', termine: 'var(--encre-douce)', annule: 'var(--encre-douce)' };
   const statusLabel = { programme: 'Programmé', en_cours: '● En cours', termine: 'Terminé', annule: 'Annulé' };
   const getStatut = (s) => s.statut === 'annule' ? 'annule' : getSessionStatut(s);
 
@@ -1018,7 +1018,7 @@ function SubTabCours() {
                 {getStatut(s) === 'programme' && (
                   <button className="af-btn af-btn--sm af-btn--danger" onClick={() => handleCancel(s.id)}>Annuler</button>
                 )}
-                <button className="af-btn af-btn--sm" onClick={() => handleDelete(s.id)} style={{marginLeft:'auto', color:'#888'}}><Icon name="trash" size={14} /></button>
+                <button className="af-btn af-btn--sm" onClick={() => handleDelete(s.id)} style={{marginLeft:'auto', color:'var(--encre-douce)'}}><Icon name="trash" size={14} /></button>
               </div>
             </div>
           ))}
@@ -1723,7 +1723,7 @@ function SubTabRessources() {
                 </span>
                 <button
                   className="af-module-pencil-btn"
-                  style={{color:'#c0392b', marginLeft:6, flexShrink:0}}
+                  style={{color:'var(--statut-erreur)', marginLeft:6, flexShrink:0}}
                   onClick={e => { e.stopPropagation(); handleDeleteModule(m.id); }}
                   title="Supprimer ce module"
                 >

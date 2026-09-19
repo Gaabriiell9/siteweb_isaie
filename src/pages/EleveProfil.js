@@ -91,7 +91,7 @@ export default function EleveProfil() {
             </div>
             <div>
               <div className="eleve-profil-label">Inscrit le</div>
-              <div style={{ fontSize: 13, color: 'var(--texte-doux)', marginTop: 6 }}>
+              <div style={{ fontSize: 13, color: 'var(--encre-douce)', marginTop: 6 }}>
                 {eleve?.date_inscription ? new Date(eleve.date_inscription).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
               </div>
             </div>

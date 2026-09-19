@@ -7,9 +7,9 @@ const TYPE_CSS   = { partiel: 'eleve-badge--blue', final: 'eleve-badge--gold', d
 
 function noteColor(note, max) {
   const pct = note / max * 20;
-  if (pct >= 16) return '#27500A';
-  if (pct >= 12) return 'var(--bordeaux-clair)';
-  return '#791F1F';
+  if (pct >= 16) return 'var(--statut-ok)';
+  if (pct >= 12) return 'var(--vert)';
+  return 'var(--statut-erreur)';
 }
 
 export default function EleveEvaluations() {
@@ -38,7 +38,7 @@ export default function EleveEvaluations() {
           <div className="eleve-moyenne-num">{moyenne}<small>/20</small></div>
           <div>
             <div className="eleve-moyenne-label">Note moyenne générale</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--texte-doux)', marginTop: 4 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--encre-douce)', marginTop: 4 }}>
               Sur {evals.length} évaluation{evals.length > 1 ? 's' : ''}
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function EleveEvaluations() {
                 <div className="eleve-chart-bar-wrap">
                   <div
                     className="eleve-chart-bar"
-                    style={{ height: `${(ev.note / ev.note_max) * 100}%`, background: noteColor(ev.note, ev.note_max) === '#27500A' ? '#4a8a18' : noteColor(ev.note, ev.note_max) === '#791F1F' ? '#E24B4A' : 'var(--or)' }}
+                    style={{ height: `${(ev.note / ev.note_max) * 100}%`, background: noteColor(ev.note, ev.note_max) }}
                     title={`${ev.titre} : ${ev.note}/${ev.note_max}`}
                   />
                 </div>
@@ -69,7 +69,7 @@ export default function EleveEvaluations() {
       {/* ── Tableau ── */}
       <div className="eleve-card" style={{ padding: 0 }}>
         {evals.length === 0 ? (
-          <p style={{ padding: 32, fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--texte-doux)', textAlign: 'center', fontSize: 16 }}>
+          <p style={{ padding: 32, fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--encre-douce)', textAlign: 'center', fontSize: 16 }}>
             Aucune évaluation pour l'instant.
           </p>
         ) : (
@@ -89,10 +89,10 @@ export default function EleveEvaluations() {
                 {evals.map(ev => (
                   <tr key={ev.id}>
                     <td style={{ whiteSpace: 'nowrap' }}>{ev.module_titre}</td>
-                    <td><span className={`eleve-badge ${TYPE_CSS[ev.type] || 'eleve-badge--grey'}`}>{TYPE_LABEL[ev.type] || ev.type}</span></td>
+                    <td><span className={`eleve-badge ${TYPE_CSS[ev.type] || 'eleve-badge--encre-douce'}`}>{TYPE_LABEL[ev.type] || ev.type}</span></td>
                     <td><strong>{ev.titre}</strong></td>
                     <td style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: noteColor(ev.note, ev.note_max), whiteSpace: 'nowrap' }}>
-                      {ev.note} <span style={{ fontSize: 11, color: 'var(--texte-doux)' }}>/{ev.note_max}</span>
+                      {ev.note} <span style={{ fontSize: 11, color: 'var(--encre-douce)' }}>/{ev.note_max}</span>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>{new Date(ev.date_eval).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                     <td style={{ fontStyle: 'italic', fontSize: 12, maxWidth: 200 }}>{ev.commentaire || '—'}</td>

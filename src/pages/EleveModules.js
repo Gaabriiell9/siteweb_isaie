@@ -20,7 +20,7 @@ const IcoCheck = () => (
 function getStatut(m) {
   if (m.complete)  return { label: 'Complété',   css: 'eleve-badge--green' };
   if (m.debloque)  return { label: 'En cours',   css: 'eleve-badge--blue' };
-  return              { label: 'Verrouillé', css: 'eleve-badge--grey' };
+  return              { label: 'Verrouillé', css: 'eleve-badge--encre-douce' };
 }
 
 export default function EleveModules() {
@@ -73,19 +73,19 @@ export default function EleveModules() {
                 <div className="eleve-module-titre">{m.titre}</div>
                 <div className="eleve-module-desc">{m.description}</div>
                 {m.date_debloque && (
-                  <div style={{ fontSize: 10, color: 'var(--texte-doux)', marginTop: 4, fontFamily: 'var(--font-ui)', letterSpacing: '0.5px' }}>
+                  <div style={{ fontSize: 10, color: 'var(--encre-douce)', marginTop: 4, fontFamily: 'var(--font-ui)', letterSpacing: '0.5px' }}>
                     Débloqué le {new Date(m.date_debloque).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </div>
                 )}
                 {m.date_complete && (
-                  <div style={{ fontSize: 10, color: '#27500A', marginTop: 2, fontFamily: 'var(--font-ui)' }}>
+                  <div style={{ fontSize: 10, color: 'var(--statut-ok)', marginTop: 2, fontFamily: 'var(--font-ui)' }}>
                     Complété le {new Date(m.date_complete).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </div>
                 )}
               </div>
               <div className="eleve-module-right">
                 <span className={`eleve-badge ${statut.css}`}>{statut.label}</span>
-                {m.complete && <span style={{ color: '#27500A' }}><IcoCheck /></span>}
+                {m.complete && <span style={{ color: 'var(--statut-ok)' }}><IcoCheck /></span>}
                 {!m.debloque && <span className="eleve-module-lock"><IcoLock /></span>}
               </div>
               {/* Ressources */}
@@ -135,7 +135,7 @@ export default function EleveModules() {
 
       {eleve?.formule === 'echelonne' && (
         <div style={{ marginTop: 28, padding: '16px 20px', background: 'var(--or-pale)', border: '1px solid rgba(200,134,10,0.2)', borderLeft: '3px solid var(--or)' }}>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--bordeaux-clair)', lineHeight: 1.6 }}>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--vert)', lineHeight: 1.6 }}>
             <strong>Formule échelonnée</strong> — Les modules se débloquent au fur et à mesure de vos mensualités.
             Chaque paiement validé débloque le module correspondant.
           </p>

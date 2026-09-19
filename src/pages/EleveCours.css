@@ -11,7 +11,7 @@
   padding: 8px 18px;
   border: 1px solid rgba(200, 134, 10, 0.25);
   background: transparent;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
@@ -22,13 +22,13 @@
   transition: all 0.2s;
 }
 .ec-filter-btn.active {
-  background: var(--bordeaux);
+  background: var(--vert-nuit);
   color: white;
-  border-color: var(--bordeaux);
+  border-color: var(--vert-nuit);
 }
 .ec-filter-btn:not(.active):hover {
   border-color: var(--or);
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
 }
 
 /* ── Session card ── */
@@ -59,7 +59,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #dc3232, #ff6b6b);
+  background: linear-gradient(90deg, var(--statut-erreur), #ff6b6b);
 }
 .ec-session-card--past {
   opacity: 0.65;
@@ -79,7 +79,7 @@
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
   line-height: 1;
 }
 .ec-session-date-month {
@@ -88,7 +88,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   margin-top: 2px;
 }
 
@@ -98,7 +98,7 @@
   font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--bordeaux-clair);
+  color: var(--vert);
   margin-bottom: 4px;
 }
 .ec-session-meta {
@@ -106,7 +106,7 @@
   flex-wrap: wrap;
   gap: 6px 16px;
   font-size: 0.8rem;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   margin-bottom: 10px;
   font-family: var(--font-ui);
 }
@@ -126,8 +126,8 @@
   text-transform: uppercase;
 }
 .ec-badge--module { background: rgba(200, 134, 10, 0.1); color: var(--or); border: 1px solid rgba(200, 134, 10, 0.25); }
-.ec-badge--live { background: rgba(220, 50, 50, 0.1); color: #dc3232; border: 1px solid rgba(220, 50, 50, 0.25); }
-.ec-badge--coming { background: rgba(107, 26, 46, 0.08); color: var(--bordeaux); border: 1px solid rgba(107, 26, 46, 0.2); }
+.ec-badge--live { background: rgba(220, 50, 50, 0.1); color: var(--statut-erreur); border: 1px solid rgba(220, 50, 50, 0.25); }
+.ec-badge--coming { background: rgba(107, 26, 46, 0.08); color: var(--vert-nuit); border: 1px solid rgba(107, 26, 46, 0.2); }
 .ec-badge--done { background: rgba(39, 80, 10, 0.08); color: #1a5f1a; border: 1px solid rgba(39, 80, 10, 0.2); }
 
 /* Actions */
@@ -159,7 +159,7 @@
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   border: 1px solid rgba(200, 134, 10, 0.25);
   border-radius: 6px;
   padding: 8px 14px;
@@ -171,7 +171,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.ec-btn-ics:hover { border-color: var(--or); color: var(--bordeaux); }
+.ec-btn-ics:hover { border-color: var(--or); color: var(--vert-nuit); }
 
 /* Pulsating dot for live */
 @keyframes ec-pulse {
@@ -182,7 +182,7 @@
   display: inline-block;
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: #dc3232;
+  background: var(--statut-erreur);
   animation: ec-pulse 1.4s ease-in-out infinite;
   margin-right: 4px;
 }
@@ -191,14 +191,14 @@
 .ec-countdown {
   font-family: var(--font-ui);
   font-size: 0.75rem;
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
   letter-spacing: 0.05em;
 }
 
 .ec-empty {
   text-align: center;
   padding: 48px 20px;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   font-family: var(--font-display);
   font-style: italic;
   font-size: 1rem;
