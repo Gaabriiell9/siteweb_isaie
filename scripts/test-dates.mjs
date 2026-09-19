@@ -5,19 +5,9 @@
  */
 
 /**
- * Convertit une date/heure locale dans un fuseau en timestamp UTC
- * Approche: on utilise toLocaleString pour trouver l'offset du fuseau
+ * Obtient les composants de date/heure dans un fuseau donne
  */
-function parseLocalDateTime(dateStr, timeStr, tz) {
-  if (!dateStr) return new Date(NaN);
-
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const [hour, minute] = (timeStr || '00:00').split(':').map(Number);
-
-  // Creer une date "candidate" en UTC
-  const utcCandidate = Date.UTC(year, month - 1, day, hour, minute, 0);
-
-  // Obtenir l'heure dans le fuseau cible pour cette date UTC
+function getPartsInTimezone(date, tz) {
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
     year: 'numeric',
@@ -27,34 +17,51 @@ function parseLocalDateTime(dateStr, timeStr, tz) {
     minute: '2-digit',
     hour12: false,
   });
+  const parts = formatter.formatToParts(date);
+  const get = (type) => parseInt(parts.find(p => p.type === type)?.value || '0', 10);
+  return {
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    hour: get('hour') === 24 ? 0 : get('hour'),
+    minute: get('minute'),
+  };
+}
 
-  const parts = formatter.formatToParts(new Date(utcCandidate));
-  const get = (type) => parseInt(parts.find(p => p.type === type)?.value || '0');
+/**
+ * Convertit une date/heure locale dans un fuseau en timestamp UTC
+ */
+function parseLocalDateTime(dateStr, timeStr, tz) {
+  if (!dateStr) return new Date(NaN);
 
-  const tzYear = get('year');
-  const tzMonth = get('month');
-  const tzDay = get('day');
-  const tzHour = get('hour') === 24 ? 0 : get('hour');
-  const tzMinute = get('minute');
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const [hour, minute] = (timeStr || '00:00').split(':').map(Number);
 
-  // Calculer la difference entre ce qu'on veut et ce qu'on a
-  const wantedMinutes = day * 24 * 60 + hour * 60 + minute;
-  const gotMinutes = tzDay * 24 * 60 + tzHour * 60 + tzMinute;
+  let estimate = Date.UTC(year, month - 1, day, hour, minute, 0);
+  let parts = getPartsInTimezone(new Date(estimate), tz);
 
-  // Ajuster en tenant compte du mois/annee
-  let diffMinutes = wantedMinutes - gotMinutes;
+  const targetMinutes = hour * 60 + minute;
+  let gotMinutes = parts.hour * 60 + parts.minute;
 
-  // Si le jour est different d'un mois, ajuster
-  if (tzMonth !== month || tzYear !== year) {
-    // Cas de changement de mois, simplifier
-    if (tzDay > 20 && day < 10) {
-      diffMinutes += 30 * 24 * 60; // Ajouter environ un mois
-    } else if (tzDay < 10 && day > 20) {
-      diffMinutes -= 30 * 24 * 60;
+  if (parts.day !== day || parts.month !== month || parts.year !== year) {
+    if (parts.day < day || parts.month < month || parts.year < year) {
+      gotMinutes -= 24 * 60;
+    } else {
+      gotMinutes += 24 * 60;
     }
   }
 
-  return new Date(utcCandidate + diffMinutes * 60 * 1000);
+  const diffMinutes = targetMinutes - gotMinutes;
+  estimate += diffMinutes * 60 * 1000;
+
+  parts = getPartsInTimezone(new Date(estimate), tz);
+  if (parts.hour !== hour || parts.minute !== minute) {
+    gotMinutes = parts.hour * 60 + parts.minute;
+    const diff2 = targetMinutes - gotMinutes;
+    estimate += diff2 * 60 * 1000;
+  }
+
+  return new Date(estimate);
 }
 
 function getServiceStatut(event, tz, nowOverride) {
@@ -74,10 +81,9 @@ function getServiceStatut(event, tz, nowOverride) {
 
   let fin;
   if (finMinutes <= debutMinutes) {
-    // La fin est le lendemain
     const [year, month, day] = dateStr.split('-').map(Number);
-    const nextDay = new Date(year, month - 1, day + 1);
-    const nextDateStr = `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getDate()).padStart(2, '0')}`;
+    const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+    const nextDateStr = `${nextDay.getUTCFullYear()}-${String(nextDay.getUTCMonth() + 1).padStart(2, '0')}-${String(nextDay.getUTCDate()).padStart(2, '0')}`;
     fin = parseLocalDateTime(nextDateStr, heureFin, tz);
   } else {
     fin = parseLocalDateTime(dateStr, heureFin, tz);
@@ -164,23 +170,30 @@ test(
 console.log('\n--- Service 2026-09-19 23:00-01:00 (America/Cayenne, UTC-3) ---');
 
 const tz2 = 'America/Cayenne';
+const service2Cayenne = { date_service: '2026-09-19', heure_debut: '23:00', heure_fin: '01:00' };
 
 test(
   'a 22:59 Cayenne = a_venir',
-  getServiceStatut(service2, tz2, parseLocalDateTime('2026-09-19', '22:59', tz2)),
+  getServiceStatut(service2Cayenne, tz2, parseLocalDateTime('2026-09-19', '22:59', tz2)),
   'a_venir'
 );
 
 test(
   'a 23:30 Cayenne = en_cours',
-  getServiceStatut(service2, tz2, parseLocalDateTime('2026-09-19', '23:30', tz2)),
+  getServiceStatut(service2Cayenne, tz2, parseLocalDateTime('2026-09-19', '23:30', tz2)),
   'en_cours'
 );
 
 test(
   'a 00:30 le 20 Cayenne = en_cours',
-  getServiceStatut(service2, tz2, parseLocalDateTime('2026-09-20', '00:30', tz2)),
+  getServiceStatut(service2Cayenne, tz2, parseLocalDateTime('2026-09-20', '00:30', tz2)),
   'en_cours'
+);
+
+test(
+  'a 01:00 le 20 Cayenne = termine',
+  getServiceStatut(service2Cayenne, tz2, parseLocalDateTime('2026-09-20', '01:00', tz2)),
+  'termine'
 );
 
 console.log('\n--- Service standard 10:00-11:30 (Europe/Paris) ---');
@@ -210,6 +223,14 @@ test(
   getServiceStatut(service3, tz1, parseLocalDateTime('2026-09-20', '11:30', tz1)),
   'termine'
 );
+
+console.log('\n--- Verification conversion fuseau (debug) ---');
+
+const parisTime = parseLocalDateTime('2026-09-19', '01:15', 'Europe/Paris');
+const cayenneTime = parseLocalDateTime('2026-09-19', '01:15', 'America/Cayenne');
+console.log(`01:15 Paris  = ${parisTime.toISOString()} (UTC)`);
+console.log(`01:15 Cayenne = ${cayenneTime.toISOString()} (UTC)`);
+console.log(`Difference = ${(cayenneTime - parisTime) / (1000 * 60 * 60)} heures (attendu: ~5h car Paris UTC+2, Cayenne UTC-3)`);
 
 console.log('\n===========================================');
 console.log(`RESULTATS: ${passed} OK, ${failed} ECHEC`);

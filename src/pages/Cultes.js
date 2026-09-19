@@ -95,7 +95,7 @@ export default function Cultes() {
   return (
     <div>
       <SectionHeader label="Programme" title="Cultes" titleEm="dominicaux"
-        subtitle="Chaque dimanche - 10h00 - 11h30 - En ligne" />
+        subtitle="Rejoignez-nous en direct ou en replay" />
 
       <div className="cultes-wrap">
 

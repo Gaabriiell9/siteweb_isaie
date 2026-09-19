@@ -6,7 +6,35 @@
 const DEFAULT_TIMEZONE = 'Europe/Paris';
 
 /**
+ * Obtient les composants de date/heure dans un fuseau donne
+ * @param {Date} date
+ * @param {string} tz
+ * @returns {{year: number, month: number, day: number, hour: number, minute: number}}
+ */
+function getPartsInTimezone(date, tz) {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+  const get = (type) => parseInt(parts.find(p => p.type === type)?.value || '0', 10);
+  return {
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    hour: get('hour') === 24 ? 0 : get('hour'),
+    minute: get('minute'),
+  };
+}
+
+/**
  * Convertit une date/heure locale dans un fuseau en timestamp UTC
+ * Approche: recherche binaire de l'instant UTC qui correspond a l'heure locale desiree
  * @param {string} dateStr - Date au format YYYY-MM-DD
  * @param {string} timeStr - Heure au format HH:MM
  * @param {string} tz - Fuseau horaire
@@ -18,45 +46,40 @@ export function parseLocalDateTime(dateStr, timeStr, tz = DEFAULT_TIMEZONE) {
   const [year, month, day] = dateStr.split('-').map(Number);
   const [hour, minute] = (timeStr || '00:00').split(':').map(Number);
 
-  // Creer une date "candidate" en UTC
-  const utcCandidate = Date.UTC(year, month - 1, day, hour, minute, 0);
+  // Estimation initiale: supposer que le fuseau est a +0
+  // Puis ajuster en comparant ce qu'on obtient vs ce qu'on veut
+  let estimate = Date.UTC(year, month - 1, day, hour, minute, 0);
 
-  // Obtenir l'heure dans le fuseau cible pour cette date UTC
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+  // Obtenir l'heure dans le fuseau cible pour cette estimation
+  let parts = getPartsInTimezone(new Date(estimate), tz);
 
-  const parts = formatter.formatToParts(new Date(utcCandidate));
-  const get = (type) => parseInt(parts.find(p => p.type === type)?.value || '0');
+  // Calculer la difference en minutes
+  const targetMinutes = hour * 60 + minute;
+  let gotMinutes = parts.hour * 60 + parts.minute;
 
-  const tzYear = get('year');
-  const tzMonth = get('month');
-  const tzDay = get('day');
-  const tzHour = get('hour') === 24 ? 0 : get('hour');
-  const tzMinute = get('minute');
-
-  // Calculer la difference entre ce qu'on veut et ce qu'on a
-  const wantedMinutes = day * 24 * 60 + hour * 60 + minute;
-  const gotMinutes = tzDay * 24 * 60 + tzHour * 60 + tzMinute;
-
-  let diffMinutes = wantedMinutes - gotMinutes;
-
-  // Si le jour est different d'un mois, ajuster
-  if (tzMonth !== month || tzYear !== year) {
-    if (tzDay > 20 && day < 10) {
-      diffMinutes += 30 * 24 * 60;
-    } else if (tzDay < 10 && day > 20) {
-      diffMinutes -= 30 * 24 * 60;
+  // Ajuster pour le jour
+  if (parts.day !== day || parts.month !== month || parts.year !== year) {
+    // Le jour est different, on doit ajuster de +/- 24h
+    if (parts.day < day || parts.month < month || parts.year < year) {
+      gotMinutes -= 24 * 60;
+    } else {
+      gotMinutes += 24 * 60;
     }
   }
 
-  return new Date(utcCandidate + diffMinutes * 60 * 1000);
+  const diffMinutes = targetMinutes - gotMinutes;
+  estimate += diffMinutes * 60 * 1000;
+
+  // Verification finale
+  parts = getPartsInTimezone(new Date(estimate), tz);
+  if (parts.hour !== hour || parts.minute !== minute) {
+    // Cas rare (changement d'heure DST), on refait un ajustement
+    gotMinutes = parts.hour * 60 + parts.minute;
+    const diff2 = targetMinutes - gotMinutes;
+    estimate += diff2 * 60 * 1000;
+  }
+
+  return new Date(estimate);
 }
 
 /**
@@ -74,12 +97,13 @@ export function formatInTimezone(date, tz = DEFAULT_TIMEZONE, options = {}) {
  * Calcule le statut d'un service par rapport a l'heure actuelle
  * @param {Object} event - { date_service, heure_debut, heure_fin }
  * @param {string} tz - Fuseau horaire
+ * @param {Date} [nowOverride] - Pour les tests, permet de simuler l'heure actuelle
  * @returns {'a_venir' | 'en_cours' | 'termine'}
  */
-export function getServiceStatut(event, tz = DEFAULT_TIMEZONE) {
+export function getServiceStatut(event, tz = DEFAULT_TIMEZONE, nowOverride = null) {
   if (!event?.date_service) return 'termine';
 
-  const now = new Date();
+  const now = nowOverride || new Date();
   const dateStr = event.date_service;
   const heureDeb = event.heure_debut || '10:00';
   const heureFin = event.heure_fin || '11:30';
@@ -95,8 +119,8 @@ export function getServiceStatut(event, tz = DEFAULT_TIMEZONE) {
   if (finMinutes <= debutMinutes) {
     // La fin est le lendemain
     const [year, month, day] = dateStr.split('-').map(Number);
-    const nextDay = new Date(year, month - 1, day + 1);
-    const nextDateStr = `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getDate()).padStart(2, '0')}`;
+    const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+    const nextDateStr = `${nextDay.getUTCFullYear()}-${String(nextDay.getUTCMonth() + 1).padStart(2, '0')}-${String(nextDay.getUTCDate()).padStart(2, '0')}`;
     fin = parseLocalDateTime(nextDateStr, heureFin, tz);
   } else {
     fin = parseLocalDateTime(dateStr, heureFin, tz);
