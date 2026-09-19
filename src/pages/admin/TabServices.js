@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllServices, addService, updateService, deleteService } from '../../lib/admin';
-import Icon from '../../components/Icon';
+import AdminActionButtons from '../../components/AdminActionButtons';
+import { getServiceStatut } from '../../lib/dateUtils';
 
 const TYPES = [
   { value: 'culte', label: 'Culte' },
@@ -151,7 +152,7 @@ export default function TabServices() {
 
   return (
     <div className="admin-tab">
-      <h3>{editingId ? 'Modifier le service' : 'Nouveau service'}</h3>
+      <h3>{editingId ? 'Modifier le culte' : 'Programmer un culte'}</h3>
 
       <form onSubmit={handleSubmit} className="admin-form">
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -244,7 +245,7 @@ export default function TabServices() {
           />
         </div>
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={form.visible}
@@ -287,50 +288,83 @@ export default function TabServices() {
         <p className="admin-empty">Aucun service.</p>
       ) : (
         <div className="admin-list">
-          {filteredServices.map(s => (
-            <div className={`admin-item ${!s.visible ? 'admin-item--inactive' : ''}`} key={s.id}>
-              <div className="admin-item-info">
-                <strong>
-                  <span style={{
-                    fontSize: 9,
-                    padding: '2px 6px',
-                    borderRadius: 3,
-                    background: s.type === 'culte' ? 'var(--or-pale)' : '#E8F5E9',
-                    color: s.type === 'culte' ? 'var(--bordeaux)' : '#2E7D32',
-                    marginRight: 8
-                  }}>
-                    {s.type?.toUpperCase()}
+          {filteredServices.map(s => {
+            const statut = getServiceStatut(s);
+            const hasLive = s.lien_live && s.lien_live.trim();
+            return (
+              <div className={`admin-item ${!s.visible ? 'admin-item--inactive' : ''}`} key={s.id}>
+                <div className="admin-item-info">
+                  <strong style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{
+                      fontSize: 9,
+                      padding: '2px 6px',
+                      borderRadius: 3,
+                      background: s.type === 'culte' ? 'var(--or-pale)' : '#E8F5E9',
+                      color: s.type === 'culte' ? 'var(--bordeaux)' : '#2E7D32',
+                    }}>
+                      {s.type?.toUpperCase()}
+                    </span>
+                    {s.titre}
+                    {statut === 'en_cours' && (
+                      <span style={{
+                        fontSize: 9,
+                        padding: '2px 8px',
+                        borderRadius: 3,
+                        background: 'rgba(180,35,24,0.1)',
+                        color: '#b42318',
+                        fontWeight: 700,
+                      }}>EN DIRECT</span>
+                    )}
+                    {statut === 'a_venir' && (
+                      <span style={{
+                        fontSize: 9,
+                        padding: '2px 8px',
+                        borderRadius: 3,
+                        background: 'rgba(100,100,100,0.08)',
+                        color: 'var(--texte-doux)',
+                      }}>A VENIR</span>
+                    )}
+                    {statut === 'termine' && (
+                      <span style={{
+                        fontSize: 9,
+                        padding: '2px 8px',
+                        borderRadius: 3,
+                        background: 'transparent',
+                        color: '#999',
+                        border: '1px solid #ddd',
+                      }}>TERMINE</span>
+                    )}
+                    {hasLive && (
+                      <span style={{
+                        fontSize: 9,
+                        padding: '2px 8px',
+                        borderRadius: 3,
+                        background: 'rgba(39,174,96,0.1)',
+                        color: '#27ae60',
+                      }}>Live pret</span>
+                    )}
+                  </strong>
+                  <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>
+                    {s.theme && `Theme: ${s.theme} - `}
+                    {s.predicateur && `${s.predicateur}`}
                   </span>
-                  {s.titre}
-                </strong>
-                <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>
-                  {s.theme && `Theme: ${s.theme} - `}
-                  {s.predicateur && `${s.predicateur}`}
-                </span>
-                <span className="admin-date">
-                  {new Date(s.date_service).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-                  {' '}
-                  {s.heure_debut?.slice(0, 5)} - {s.heure_fin?.slice(0, 5)}
-                  {!s.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masque)</span>}
-                </span>
+                  <span className="admin-date">
+                    {new Date(s.date_service).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                    {' '}
+                    {s.heure_debut?.slice(0, 5)} - {s.heure_fin?.slice(0, 5)}
+                    {!s.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masque)</span>}
+                  </span>
+                </div>
+                <AdminActionButtons
+                  item={s}
+                  onToggleVisible={toggleVisible}
+                  onEdit={startEdit}
+                  onDelete={handleDelete}
+                  deleteLabel="Supprimer ce service"
+                />
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button
-                  className="admin-btn-icon"
-                  onClick={() => toggleVisible(s)}
-                  title={s.visible ? 'Masquer' : 'Afficher'}
-                >
-                  <Icon name={s.visible ? 'eye' : 'eye-off'} size={14} />
-                </button>
-                <button className="admin-btn-icon" onClick={() => startEdit(s)} title="Modifier">
-                  <Icon name="pencil" size={14} />
-                </button>
-                <button className="admin-btn-delete" onClick={() => handleDelete(s.id)} title="Supprimer">
-                  <Icon name="x" size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

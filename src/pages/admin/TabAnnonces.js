@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllAnnouncements, addAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../lib/admin';
 import { supabase } from '../../lib/client';
+import AdminActionButtons from '../../components/AdminActionButtons';
 import Icon from '../../components/Icon';
 
 export default function TabAnnonces() {
@@ -243,6 +244,9 @@ export default function TabAnnonces() {
       </form>
 
       <h3 style={{ marginTop: 24 }}>Annonces ({annonces.length})</h3>
+      <p style={{ fontSize: 12, color: 'var(--texte-doux)', marginBottom: 16, fontStyle: 'italic' }}>
+        S'affichent sur la page d'accueil, 3 maximum, les epinglees en premier.
+      </p>
       {loading ? (
         <p className="admin-empty">Chargement...</p>
       ) : annonces.length === 0 ? (
@@ -268,28 +272,24 @@ export default function TabAnnonces() {
                   {!a.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masquee)</span>}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 4, marginRight: 8 }}>
                 <button
-                  className="admin-btn-icon"
+                  className="admin-action-btn"
                   onClick={() => togglePinned(a)}
                   title={a.pinned ? 'Desepingler' : 'Epingler'}
+                  aria-label={a.pinned ? 'Desepingler' : 'Epingler'}
+                  style={{ width: 44, height: 44, minWidth: 44, background: 'none', border: '1px solid rgba(200,134,10,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <Icon name={a.pinned ? 'pin' : 'pin-off'} size={14} />
-                </button>
-                <button
-                  className="admin-btn-icon"
-                  onClick={() => toggleVisible(a)}
-                  title={a.visible ? 'Masquer' : 'Afficher'}
-                >
-                  <Icon name={a.visible ? 'eye' : 'eye-off'} size={14} />
-                </button>
-                <button className="admin-btn-icon" onClick={() => startEdit(a)} title="Modifier">
-                  <Icon name="pencil" size={14} />
-                </button>
-                <button className="admin-btn-delete" onClick={() => handleDelete(a.id)} title="Supprimer">
-                  <Icon name="x" size={14} />
+                  <Icon name={a.pinned ? 'pin' : 'pin-off'} size={16} />
                 </button>
               </div>
+              <AdminActionButtons
+                item={a}
+                onToggleVisible={toggleVisible}
+                onEdit={startEdit}
+                onDelete={handleDelete}
+                deleteLabel="Supprimer cette annonce"
+              />
             </div>
           ))}
         </div>

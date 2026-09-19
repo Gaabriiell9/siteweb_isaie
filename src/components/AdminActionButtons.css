@@ -1,0 +1,39 @@
+.admin-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.admin-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: 1px solid rgba(200, 134, 10, 0.15);
+  color: var(--texte-doux);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.admin-action-btn:hover {
+  background: rgba(200, 134, 10, 0.08);
+  border-color: var(--or);
+  color: var(--bordeaux-clair);
+}
+
+.admin-action-btn--delete {
+  border-color: rgba(192, 57, 43, 0.15);
+  color: #c0392b;
+}
+
+.admin-action-btn--delete:hover {
+  background: rgba(192, 57, 43, 0.06);
+  border-color: rgba(192, 57, 43, 0.35);
+  color: #c0392b;
+}

@@ -113,14 +113,16 @@ const IconDons = () => (
   </svg>
 );
 
+const SHOW_DONS = false;
+
 const TABS = [
   { id: 'annonces',  label: 'Annonces',           icon: <IconAnnonce />,   roles: ['editor', 'admin', 'super_admin'] },
-  { id: 'services',  label: 'Services',           icon: <IconCal />,       roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'services',  label: 'En direct',          icon: <IconPlay />,      roles: ['editor', 'admin', 'super_admin'] },
   { id: 'cellules',  label: 'Cellules',           icon: <IconCroix />,     roles: ['editor', 'admin', 'super_admin'] },
-  { id: 'videos',    label: 'Videos',             icon: <IconPlay />,      roles: ['editor', 'admin', 'super_admin'] },
+  { id: 'videos',    label: 'Videos',             icon: <IconCal />,       roles: ['editor', 'admin', 'super_admin'] },
   { id: 'priere',    label: 'Messages priere',    icon: <IconCroix />,     roles: ['editor', 'admin', 'super_admin'] },
   { id: 'settings',  label: 'Reglages',           icon: <IconSettings />,  roles: ['editor', 'admin', 'super_admin'] },
-  { id: 'dons',      label: 'Dons',               icon: <IconDons />,      roles: ['admin', 'super_admin'] },
+  ...(SHOW_DONS ? [{ id: 'dons', label: 'Dons', icon: <IconDons />, roles: ['admin', 'super_admin'] }] : []),
   { id: 'formation', label: 'Formation',          icon: <IconFormation />, roles: ['admin', 'super_admin'] },
 ];
 

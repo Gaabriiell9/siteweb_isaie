@@ -2,8 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { updateSiteSetting } from '../../lib/admin';
 import { getSiteSettings } from '../../lib/public';
 
+const FUSEAUX_HORAIRES = [
+  { value: 'Europe/Paris', label: 'Europe/Paris (France, Belgique)' },
+  { value: 'America/Cayenne', label: 'America/Cayenne (Guyane)' },
+  { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (Bresil)' },
+  { value: 'Africa/Douala', label: 'Africa/Douala (Cameroun)' },
+  { value: 'UTC', label: 'UTC' },
+];
+
 const SETTINGS_CONFIG = [
   { cle: 'nom_eglise', label: 'Nom de l\'eglise', type: 'text', placeholder: 'Eglise Temple de la Celebration' },
+  { cle: 'fuseau_horaire', label: 'Fuseau horaire', type: 'select', help: 'Fuseau utilise pour les heures des cultes', options: FUSEAUX_HORAIRES },
   { cle: 'facebook_url', label: 'URL Facebook', type: 'url', placeholder: 'https://facebook.com/...' },
   { cle: 'youtube_url', label: 'URL YouTube', type: 'url', placeholder: 'https://youtube.com/@...' },
   { cle: 'instagram_url', label: 'URL Instagram', type: 'url', placeholder: 'https://instagram.com/...' },
@@ -119,19 +128,43 @@ export default function TabSettings() {
               }}>
                 {config.label}
               </label>
-              <input
-                type={config.type === 'url' ? 'text' : config.type}
-                placeholder={config.placeholder}
-                value={settings[config.cle] || ''}
-                onChange={e => handleChange(config.cle, e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  fontSize: 13,
-                  border: errors[config.cle] ? '1px solid #E24B4A' : '1px solid rgba(200, 134, 10, 0.2)',
-                  borderRadius: 4
-                }}
-              />
+              {config.type === 'select' ? (
+                <select
+                  value={settings[config.cle] || 'Europe/Paris'}
+                  onChange={e => handleChange(config.cle, e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    fontSize: 13,
+                    border: '1px solid rgba(200, 134, 10, 0.2)',
+                    borderRadius: 4,
+                    background: 'white'
+                  }}
+                >
+                  {config.options.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={config.type === 'url' ? 'text' : config.type}
+                  placeholder={config.placeholder}
+                  value={settings[config.cle] || ''}
+                  onChange={e => handleChange(config.cle, e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    fontSize: 13,
+                    border: errors[config.cle] ? '1px solid #E24B4A' : '1px solid rgba(200, 134, 10, 0.2)',
+                    borderRadius: 4
+                  }}
+                />
+              )}
+              {config.help && (
+                <span style={{ fontSize: 11, color: 'var(--texte-doux)', marginTop: 4, display: 'block', fontStyle: 'italic' }}>
+                  {config.help}
+                </span>
+              )}
               {errors[config.cle] && (
                 <span style={{ fontSize: 11, color: '#E24B4A', marginTop: 4, display: 'block' }}>
                   {errors[config.cle]}
