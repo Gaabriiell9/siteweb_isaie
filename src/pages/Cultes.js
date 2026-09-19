@@ -3,11 +3,12 @@ import SectionHeader from '../components/SectionHeader';
 import { getServices, getAnciensServices, getProchainService } from '../lib/public';
 import { parseDateParis, formatDateParis } from '../lib/client';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../lib/youtube';
-import { getServiceStatut, getServiceStartTime, getCountdown } from '../lib/dateUtils';
+import { getServiceStatut, getServiceStartTime, getCountdown, formatInTimezone } from '../lib/dateUtils';
 import './Cultes.css';
 import Icon from '../components/Icon';
 
 const MOIS = ['Jan','Fev','Mar','Avr','Mai','Jun','Jul','Aou','Sep','Oct','Nov','Dec'];
+const FIFTEEN_MIN_MS = 15 * 60 * 1000;
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -33,7 +34,6 @@ export default function Cultes() {
     }
   }, []);
 
-  // Chargement initial
   useEffect(() => {
     const loadData = async () => {
       const [servicesData, anciensData, prochainData] = await Promise.all([
@@ -49,7 +49,6 @@ export default function Cultes() {
     loadData();
   }, []);
 
-  // Rafraichissement du statut et countdown toutes les 30 secondes
   useEffect(() => {
     const updateCountdown = () => {
       if (prochainService) {
@@ -64,7 +63,6 @@ export default function Cultes() {
     return () => clearInterval(interval);
   }, [prochainService]);
 
-  // Pause automatique quand le player sort de l'ecran
   useEffect(() => {
     const container = liveContainerRef.current;
     if (!container) return;
@@ -92,6 +90,14 @@ export default function Cultes() {
     setIsPlaying(true);
   };
 
+  const prochainStatut = prochainService ? getServiceStatut(prochainService) : null;
+  const prochainStartTime = prochainService ? getServiceStartTime(prochainService) : null;
+  const timeToStart = prochainStartTime ? prochainStartTime.getTime() - Date.now() : Infinity;
+  const showLiveSection = prochainStatut === 'en_cours' || (prochainStatut === 'a_venir' && timeToStart <= FIFTEEN_MIN_MS && timeToStart > 0);
+
+  const hasLiveLink = prochainService?.lien_live?.trim();
+  const embedUrl = hasLiveLink ? getYoutubeEmbedUrl(prochainService.lien_live) : null;
+
   return (
     <div>
       <SectionHeader label="Programme" title="Cultes" titleEm="dominicaux"
@@ -99,11 +105,62 @@ export default function Cultes() {
 
       <div className="cultes-wrap">
 
+        {/* Section Live en haut */}
+        {showLiveSection && prochainService && (
+          <section className="live-section" id="live" ref={liveContainerRef}>
+            <div className="live-section-header">
+              {prochainStatut === 'en_cours' ? (
+                <span className="live-badge live-badge--active">
+                  <span className="live-badge-dot" />
+                  EN DIRECT
+                </span>
+              ) : (
+                <span className="live-badge live-badge--soon">
+                  Commence dans {pad(Math.floor(timeToStart / 60000))}:{pad(Math.floor((timeToStart / 1000) % 60))}
+                </span>
+              )}
+              <h2 className="live-section-title">{prochainService.titre}</h2>
+              {prochainService.theme && <p className="live-section-theme">{prochainService.theme}</p>}
+              {prochainService.predicateur && <p className="live-section-predicateur">Predicateur : {prochainService.predicateur}</p>}
+            </div>
+
+            {embedUrl ? (
+              <div className="live-player">
+                <iframe
+                  ref={livePlayerRef}
+                  src={`${embedUrl}&autoplay=1`}
+                  title={prochainService.titre}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+                {!isPlaying && prochainStatut !== 'en_cours' && (
+                  <div className="live-player-overlay" onClick={handlePlayClick}>
+                    <span className="live-player-play-btn">&#9654;</span>
+                    <span className="live-player-text">Salle d'attente YouTube</span>
+                  </div>
+                )}
+              </div>
+            ) : hasLiveLink ? (
+              <div className="live-external">
+                <p>Ce culte est diffuse sur une plateforme externe.</p>
+                <a
+                  href={prochainService.lien_live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="live-external-btn"
+                >
+                  Rejoindre
+                </a>
+              </div>
+            ) : null}
+          </section>
+        )}
+
         {/* Programme editorial */}
         <div className="prog-section">
 
-          {/* Badge countdown centre - base sur le prochain service */}
-          {prochainService && countdown.total > 0 && (
+          {prochainService && countdown.total > 0 && !showLiveSection && (
             <div className="prog-countdown-wrap">
               <div className="prog-countdown">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--or)" strokeWidth="1.5" strokeLinecap="round">
@@ -119,7 +176,6 @@ export default function Cultes() {
             </div>
           )}
 
-          {/* Liste des cultes */}
           {!loading && cultes.length === 0 && (
             <p className="prog-empty">Aucun culte programme pour l'instant.</p>
           )}
@@ -129,10 +185,9 @@ export default function Cultes() {
               const heure = `${(c.heure_debut || '10:00').slice(0,5)} - ${(c.heure_fin || '11:30').slice(0,5)}`;
               const hasLive = c.lien_live && c.lien_live.trim();
               const statut = getServiceStatut(c);
-              const embedUrl = hasLive ? getYoutubeEmbedUrl(c.lien_live) : null;
 
               return (
-                <div className={`prog-row ${statut === 'en_cours' && hasLive ? 'prog-row--live' : ''}`} key={c.id || i}>
+                <div className={`prog-row ${statut === 'en_cours' ? 'prog-row--live' : ''}`} key={c.id || i}>
                   <div className="prog-date">
                     <span className="prog-day">{day}</span>
                     <span className="prog-month">{MOIS[month - 1]}</span>
@@ -146,58 +201,20 @@ export default function Cultes() {
                   </div>
                   <div className="prog-heure">{heure}</div>
 
-                  {/* Badge selon statut */}
                   {statut === 'a_venir' && hasLive && (
-                    <span className="prog-live-badge">Live prevu</span>
+                    <span className="prog-status-badge prog-status-badge--live-ready">Live prevu</span>
                   )}
                   {statut === 'a_venir' && !hasLive && (
                     <span className="prog-status-badge prog-status-badge--upcoming">A venir</span>
                   )}
-                  {statut === 'en_cours' && hasLive && (
-                    <span className="prog-live-badge prog-live-badge--active">
-                      <span className="prog-live-dot" />En direct
+                  {statut === 'en_cours' && (
+                    <span className="prog-status-badge prog-status-badge--live">
+                      <span className="prog-live-dot" />
+                      EN DIRECT
                     </span>
                   )}
                   {statut === 'termine' && (
                     <span className="prog-status-badge prog-status-badge--ended">Termine</span>
-                  )}
-
-                  {/* Lecteur YouTube integre pour le culte en cours */}
-                  {statut === 'en_cours' && embedUrl && (
-                    <div className="prog-player-wrap" ref={liveContainerRef} id="live">
-                      <div className="prog-player">
-                        <iframe
-                          ref={livePlayerRef}
-                          src={embedUrl}
-                          title={c.titre}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                        {!isPlaying && (
-                          <div className="prog-player-overlay" onClick={handlePlayClick}>
-                            <span className="prog-player-play-btn">&#9654;</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bouton externe si en cours mais pas YouTube (Zoom, etc.) */}
-                  {statut === 'en_cours' && hasLive && !embedUrl && (
-                    <div className="prog-player-wrap" id="live">
-                      <p style={{ marginBottom: 12, color: 'var(--texte-doux)', fontSize: 13 }}>
-                        Ce culte est diffuse sur une plateforme externe.
-                      </p>
-                      <a
-                        href={c.lien_live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prog-external-btn"
-                      >
-                        Rejoindre le live
-                      </a>
-                    </div>
                   )}
                 </div>
               );
@@ -215,17 +232,25 @@ export default function Cultes() {
                 const ytId = extractYoutubeId(replayUrl);
                 const dateParis = parseDateParis(c.date_service, '12:00');
                 const dateLabel = formatDateParis(dateParis, { day: 'numeric', month: 'long', year: 'numeric' });
+                const hasReplay = replayUrl && replayUrl.trim();
                 return (
-                  <div className="replay-card" key={c.id} onClick={() => setSelectedCulte({ ...c, replay_url: replayUrl })}>
+                  <div
+                    className={`replay-card ${hasReplay ? 'replay-card--clickable' : ''}`}
+                    key={c.id}
+                    onClick={() => hasReplay && setSelectedCulte({ ...c, replay_url: replayUrl })}
+                  >
                     <div className="replay-thumb">
                       {ytId && <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt={c.titre} />}
-                      <div className="replay-play-overlay">
-                        <span className="replay-play-btn">&#9654;</span>
-                      </div>
+                      {hasReplay && (
+                        <div className="replay-play-overlay">
+                          <span className="replay-play-btn">&#9654;</span>
+                        </div>
+                      )}
                     </div>
                     <div className="replay-info">
                       <span className="replay-date">{dateLabel}</span>
                       <span className="replay-title">{c.titre}</span>
+                      {hasReplay && <span className="replay-cta">Revoir</span>}
                     </div>
                   </div>
                 );
