@@ -63,10 +63,29 @@ function LoginForm({ onLogin }) {
 function AdminNav({ userRole, activePath, onNavigate, mobileOpen, onMobileClose }) {
   const authorizedNav = getAuthorizedNav(userRole);
   const activeGroupId = activePath?.split('/')[0];
+  const [openGroups, setOpenGroups] = useState(() => {
+    return activeGroupId ? [activeGroupId] : [];
+  });
+
+  useEffect(() => {
+    if (activeGroupId && !openGroups.includes(activeGroupId)) {
+      setOpenGroups(prev => [...prev, activeGroupId]);
+    }
+  }, [activeGroupId]);
+
+  const toggleGroup = (groupId) => {
+    setOpenGroups(prev =>
+      prev.includes(groupId)
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId]
+    );
+  };
 
   const handleGroupClick = (group) => {
     if (group.items.length === 1) {
       onNavigate(`${group.id}/${group.items[0].id}`);
+    } else {
+      toggleGroup(group.id);
     }
   };
 
@@ -79,6 +98,7 @@ function AdminNav({ userRole, activePath, onNavigate, mobileOpen, onMobileClose 
     <nav className={`admin-nav ${mobileOpen ? 'admin-nav--open' : ''}`}>
       {authorizedNav.map(group => {
         const isActive = group.id === activeGroupId;
+        const isOpen = openGroups.includes(group.id);
         const isSingleItem = group.items.length === 1;
 
         return (
@@ -86,20 +106,20 @@ function AdminNav({ userRole, activePath, onNavigate, mobileOpen, onMobileClose 
             <button
               className={`admin-nav-group-btn ${isActive ? 'active' : ''}`}
               onClick={() => handleGroupClick(group)}
-              aria-expanded={isActive}
+              aria-expanded={isOpen}
             >
               <Icon name={group.icon} size={16} />
               <span>{group.label}</span>
               {!isSingleItem && (
                 <Icon
-                  name={isActive ? 'chevron-up' : 'chevron-down'}
+                  name={isOpen ? 'chevron-up' : 'chevron-down'}
                   size={14}
                   className="admin-nav-chevron"
                 />
               )}
             </button>
 
-            {!isSingleItem && isActive && (
+            {!isSingleItem && isOpen && (
               <div className="admin-nav-items">
                 {group.items.map(item => {
                   const itemPath = `${group.id}/${item.id}`;
