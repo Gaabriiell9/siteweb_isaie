@@ -7,25 +7,48 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Nouvelle Palette */
-  --color-ink:       #14110E;
-  --color-parchment: #FAF7F1;
-  --color-gold:      #C89B4A;
-  --color-emerald:   #1E4D46;
-  --color-text:      #262220;
-  --color-border:    #E4DAC8;
-
-  /* Aliases pour compatibilité (transition progressive) */
-  --noir:           var(--color-ink);
-  --bordeaux:       var(--color-ink);
-  --bordeaux-clair: var(--color-emerald);
-  --or:             var(--color-gold);
-  --or-clair:       #D4AD5C;
-  --or-pale:        rgba(200, 155, 74, 0.12);
-  --creme:          var(--color-parchment);
-  --texte:          var(--color-text);
-  --texte-doux:     #5C5450;
+  /* Palette principale */
+  --vert:           #1E4D46;                      /* Vert profond - couleur de marque */
+  --vert-nuit:      #122D29;                      /* Vert nuit - 35% plus sombre */
+  --vert-doux:      #F5FAF9;                      /* Vert pale - 6% de vert sur creme */
+  --or:             #C89B4A;                      /* Or principal */
+  --or-texte:       #D4AD5C;                      /* Or clair pour texte sur fond sombre */
+  --or-label:       #A07C38;                      /* Or fonce pour labels sur fond clair */
+  --creme:          #FAF7F1;                      /* Fond principal */
+  --encre:          #1A1F1E;                      /* Texte principal - vert tres fonce */
+  --encre-douce:    #4A5250;                      /* Texte secondaire - gris teinte vert */
+  --bord:           #D8E0DC;                      /* Bordures - teinte vert pale */
   --blanc:          #FFFFFF;
+
+  /* Statuts semantiques (distincts du vert de marque) */
+  --statut-direct:  #B42318;                      /* Rouge - EN DIRECT */
+  --statut-ok:      #27AE60;                      /* Vert succes */
+  --statut-alerte:  #E67E22;                      /* Orange alerte */
+  --statut-erreur:  #C0392B;                      /* Rouge erreur */
+  --statut-info:    #2980B9;                      /* Bleu info */
+
+  /* Aliases de compatibilite */
+  --color-ink:       var(--encre);
+  --color-parchment: var(--creme);
+  --color-gold:      var(--or);
+  --color-emerald:   var(--vert);
+  --color-text:      var(--encre);
+  --color-border:    var(--bord);
+
+  /* Anciens aliases (deprecies, a supprimer etape 5) */
+  --noir:           var(--encre);
+  --bordeaux:       var(--encre);
+  --bordeaux-clair: var(--vert);
+  --or-clair:       var(--or-texte);
+  --or-pale:        rgba(200, 155, 74, 0.12);
+  --texte:          var(--encre);
+  --texte-doux:     var(--encre-douce);
+
+  /* Aliases temporaires --home-* (a supprimer etape 5) */
+  --home-vert:      var(--vert);
+  --home-vert-nuit: var(--vert-nuit);
+  --home-vert-doux: var(--vert-doux);
+  --home-or-texte:  var(--or-texte);
 
   /* Typographie */
   --font-display:  'Fraunces', Georgia, serif;
@@ -48,6 +71,17 @@
 
   /* Halo radial (signature visuelle) */
   --halo-gold: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200, 155, 74, 0.15) 0%, transparent 70%);
+}
+
+/* Selection */
+::selection {
+  background: var(--vert-nuit);
+  color: var(--or-texte);
+}
+
+/* Accent natif (checkboxes, radios, sliders) */
+:root {
+  accent-color: var(--vert);
 }
 
 html { scroll-behavior: smooth; }

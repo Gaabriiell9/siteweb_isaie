@@ -4,12 +4,6 @@
 ══════════════════════════════════════════ */
 
 .home {
-  /* Couleurs */
-  --home-vert: var(--color-emerald);           /* #1E4D46 - vert profond du site */
-  --home-vert-nuit: #122D29;                   /* 35% plus sombre */
-  --home-vert-doux: #F5FAF9;                   /* 6% de vert sur creme */
-  --home-or-texte: #D4AD5C;                    /* or clair pour texte sur vert */
-
   /* Typographie responsive */
   --home-titre-hero: clamp(2rem, 8.5vw, 4.5rem);
   --home-titre-section: clamp(1.6rem, 5.5vw, 2.6rem);
