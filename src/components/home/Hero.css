@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+  padding: var(--home-section-py) 0;
 }
 
 .hero-bg {
@@ -27,10 +28,10 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  gap: var(--home-gap);
   max-width: 1440px;
   margin: 0 auto;
-  padding: 60px 72px;
+  padding: 0 var(--home-container-px);
   align-items: center;
 }
 
@@ -52,7 +53,7 @@
 
 .hero-titre {
   font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: var(--home-titre-hero);
   font-weight: 900;
   color: var(--color-parchment);
   line-height: 1.1;
@@ -69,10 +70,10 @@
 
 .hero-soustitre {
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--home-texte);
   line-height: 1.7;
   color: rgba(250, 247, 241, 0.75);
-  margin-bottom: 36px;
+  margin-bottom: 32px;
   max-width: 480px;
   opacity: 0;
   animation: heroFadeUp 0.6s 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -81,7 +82,7 @@
 /* ── Boutons ── */
 .hero-btns {
   display: flex;
-  gap: 16px;
+  gap: var(--home-gap);
   flex-wrap: wrap;
   opacity: 0;
   animation: heroFadeUp 0.6s 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -90,17 +91,18 @@
 .hero-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: var(--home-label);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 16px 32px;
+  padding: 14px 28px;
   border-radius: var(--r-md);
   text-decoration: none;
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  min-height: 52px;
+  min-height: 48px;
   min-width: 44px;
 }
 
@@ -189,6 +191,7 @@
   left: -40px;
   width: 140px;
   height: 140px;
+  z-index: 2;
 }
 
 .hero-sceau-svg {
@@ -240,28 +243,23 @@
   }
 }
 
-/* ── Mobile ── */
+/* ── Tablet ── */
 @media (max-width: 1024px) {
-  .hero-content {
-    padding: 48px 48px;
-    gap: 40px;
-  }
-
   .hero-arche {
     max-width: 360px;
   }
 }
 
+/* ── Mobile ── */
 @media (max-width: 768px) {
   .hero {
     min-height: auto;
-    padding: 40px 0 60px;
+    padding: 32px 0 var(--home-section-py);
   }
 
   .hero-content {
     grid-template-columns: 1fr;
-    padding: 24px;
-    gap: 48px;
+    gap: 32px;
   }
 
   .hero-text {
@@ -270,17 +268,12 @@
     max-width: 100%;
   }
 
-  .hero-titre {
-    font-size: clamp(28px, 8vw, 42px);
-  }
-
   .hero-titre em {
     display: inline;
   }
 
   .hero-soustitre {
     max-width: 100%;
-    font-size: 15px;
   }
 
   .hero-btns {
@@ -292,14 +285,15 @@
   }
 
   .hero-arche {
-    max-width: 280px;
+    width: 72vw;
+    max-width: 300px;
   }
 
   .hero-sceau {
-    width: 100px;
-    height: 100px;
-    bottom: -10px;
-    left: -20px;
+    width: 72px;
+    height: 72px;
+    bottom: -8px;
+    left: -16px;
   }
 }
 
@@ -311,6 +305,5 @@
 
   .hero-btn {
     width: 100%;
-    justify-content: center;
   }
 }
