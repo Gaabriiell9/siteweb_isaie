@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import logoPng from '../assets/logoe-eglise.png';
 import { signIn, signOut, getSession, checkIsAdmin } from '../lib/auth';
 import { ADMIN_NAV, findItemByPath, getFirstAuthorizedItem, getAuthorizedNav } from './admin/nav';
+import './admin/admin.css';
 import './Admin.css';
 import Icon from '../components/Icon';
 
@@ -40,16 +41,30 @@ function LoginForm({ onLogin }) {
       <div className="admin-login-card">
         <div className="admin-login-logo">E-T-C</div>
         <h2>Espace Administration</h2>
-        <p>Église Temple de la Célébration</p>
+        <p>Eglise Temple de la Celebration</p>
         <form onSubmit={handleSubmit} className="admin-login-form">
-          <input
-            type="email" placeholder="Email administrateur"
-            value={email} onChange={e => setEmail(e.target.value)} required
-          />
-          <input
-            type="password" placeholder="Mot de passe"
-            value={password} onChange={e => setPassword(e.target.value)} required
-          />
+          <div className="admin-login-field">
+            <label className="admin-login-label" htmlFor="admin-email">Email</label>
+            <input
+              id="admin-email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <div className="admin-login-field">
+            <label className="admin-login-label" htmlFor="admin-password">Mot de passe</label>
+            <input
+              id="admin-password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+          </div>
           {error && <div className="admin-error">{error}</div>}
           <button type="submit" className="admin-btn-primary" disabled={loading}>
             {loading ? 'Connexion...' : 'Se connecter'}
@@ -60,18 +75,77 @@ function LoginForm({ onLogin }) {
   );
 }
 
-function AdminNav({ userRole, activePath, onNavigate, mobileOpen, onMobileClose }) {
+function AdminNav({ userRole, activePath, onNavigate, isOpen, onClose, onLogout }) {
   const authorizedNav = getAuthorizedNav(userRole);
   const activeGroupId = activePath?.split('/')[0];
   const [openGroups, setOpenGroups] = useState(() => {
     return activeGroupId ? [activeGroupId] : [];
   });
+  const navRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const firstFocusableRef = useRef(null);
 
   useEffect(() => {
     if (activeGroupId && !openGroups.includes(activeGroupId)) {
       setOpenGroups(prev => [...prev, activeGroupId]);
     }
   }, [activeGroupId]);
+
+  // Focus trap et gestion du clavier
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Focus le bouton de fermeture a l'ouverture
+    setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 100);
+
+    // Verrouiller le scroll de la page
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      // Focus trap
+      if (e.key === 'Tab' && navRef.current) {
+        const focusables = navRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  // Gestion du bouton retour navigateur
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePopState = () => {
+      onClose();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isOpen, onClose]);
 
   const toggleGroup = (groupId) => {
     setOpenGroups(prev =>
@@ -91,58 +165,86 @@ function AdminNav({ userRole, activePath, onNavigate, mobileOpen, onMobileClose 
 
   const handleItemClick = (groupId, itemId) => {
     onNavigate(`${groupId}/${itemId}`);
-    if (mobileOpen) onMobileClose();
   };
 
+  const roleLabel = userRole === 'super_admin' ? 'Super Admin' : userRole === 'admin' ? 'Admin' : 'Editeur';
+
   return (
-    <nav className={`admin-nav ${mobileOpen ? 'admin-nav--open' : ''}`}>
-      {authorizedNav.map(group => {
-        const isActive = group.id === activeGroupId;
-        const isOpen = openGroups.includes(group.id);
-        const isSingleItem = group.items.length === 1;
+    <nav
+      ref={navRef}
+      className={`admin-nav ${isOpen ? 'admin-nav--open' : ''}`}
+      aria-label="Navigation administration"
+      role="navigation"
+    >
+      {/* Bouton fermeture (mobile) */}
+      <div className="admin-nav-close">
+        <button
+          ref={closeButtonRef}
+          className="admin-nav-close-btn"
+          onClick={onClose}
+          aria-label="Fermer le menu"
+        >
+          <Icon name="x" size={20} />
+        </button>
+      </div>
 
-        return (
-          <div key={group.id} className="admin-nav-group">
-            <button
-              className={`admin-nav-group-btn ${isActive ? 'active' : ''}`}
-              onClick={() => handleGroupClick(group)}
-              aria-expanded={isOpen}
-            >
-              <Icon name={group.icon} size={16} />
-              <span>{group.label}</span>
-              {!isSingleItem && (
-                <Icon
-                  name={isOpen ? 'chevron-up' : 'chevron-down'}
-                  size={14}
-                  className="admin-nav-chevron"
-                />
+      {/* Contenu navigation */}
+      <div className="admin-nav-content">
+        {authorizedNav.map(group => {
+          const isActive = group.id === activeGroupId;
+          const isGroupOpen = openGroups.includes(group.id);
+          const isSingleItem = group.items.length === 1;
+
+          return (
+            <div key={group.id} className="admin-nav-group">
+              <button
+                className={`admin-nav-group-btn ${isActive ? 'active' : ''}`}
+                onClick={() => handleGroupClick(group)}
+                aria-expanded={isSingleItem ? undefined : isGroupOpen}
+                aria-controls={isSingleItem ? undefined : `nav-items-${group.id}`}
+              >
+                <Icon name={group.icon} size={18} />
+                <span>{group.label}</span>
+                {!isSingleItem && (
+                  <Icon
+                    name={isGroupOpen ? 'chevron-up' : 'chevron-down'}
+                    size={14}
+                    className="admin-nav-chevron"
+                  />
+                )}
+              </button>
+
+              {!isSingleItem && isGroupOpen && (
+                <div id={`nav-items-${group.id}`} className="admin-nav-items">
+                  {group.items.map(item => {
+                    const itemPath = `${group.id}/${item.id}`;
+                    const isItemActive = activePath === itemPath;
+                    return (
+                      <button
+                        key={item.id}
+                        className={`admin-nav-item ${isItemActive ? 'active' : ''}`}
+                        onClick={() => handleItemClick(group.id, item.id)}
+                        aria-current={isItemActive ? 'page' : undefined}
+                      >
+                        <Icon name={item.icon} size={16} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               )}
-            </button>
+            </div>
+          );
+        })}
+      </div>
 
-            {!isSingleItem && isOpen && (
-              <div className="admin-nav-items">
-                {group.items.map(item => {
-                  const itemPath = `${group.id}/${item.id}`;
-                  const isItemActive = activePath === itemPath;
-                  return (
-                    <button
-                      key={item.id}
-                      className={`admin-nav-item ${isItemActive ? 'active' : ''}`}
-                      onClick={() => handleItemClick(group.id, item.id)}
-                    >
-                      <Icon name={item.icon} size={14} />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      <div className="admin-role-badge">
-        {userRole === 'super_admin' ? 'Super Admin' : userRole === 'admin' ? 'Admin' : 'Editeur'}
+      {/* Pied du menu */}
+      <div className="admin-nav-footer">
+        <div className="admin-role-badge">{roleLabel}</div>
+        <button className="admin-nav-logout" onClick={onLogout}>
+          <Icon name="log-out" size={16} />
+          Deconnexion
+        </button>
       </div>
     </nav>
   );
@@ -154,6 +256,7 @@ export default function Admin() {
   const [activePath, setActivePath] = useState('');
   const [animKey, setAnimKey] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef(null);
 
   const userRole = adminInfo?.role || null;
 
@@ -172,6 +275,19 @@ export default function Admin() {
     setAnimKey(k => k + 1);
     setMobileMenuOpen(false);
   }, [setHashPath]);
+
+  const handleCloseMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+    // Rendre le focus au bouton menu
+    setTimeout(() => {
+      menuButtonRef.current?.focus();
+    }, 100);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    await signOut();
+    setSession(null);
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -243,44 +359,53 @@ export default function Admin() {
 
   return (
     <div className="admin-wrap">
-      <div className="admin-header">
+      <header className="admin-header">
         <div className="admin-header-left">
           <button
+            ref={menuButtonRef}
             className="admin-menu-btn"
             onClick={() => setMobileMenuOpen(o => !o)}
-            aria-label="Menu"
+            aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="admin-nav"
           >
-            <Icon name="menu" size={20} />
+            <Icon name={mobileMenuOpen ? 'x' : 'menu'} size={22} />
           </button>
           <div className="admin-header-brand">
-            <img src={logoPng} alt="E-T-C" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+            <img src={logoPng} alt="" aria-hidden="true" />
             <span>Administration</span>
           </div>
+          {pageTitle && <span className="admin-header-title">{pageTitle}</span>}
         </div>
-        <button className="admin-btn-secondary" onClick={async () => { await signOut(); setSession(null); }}>
+        <button className="admin-header-logout" onClick={handleLogout}>
+          <Icon name="log-out" size={16} />
           Deconnexion
         </button>
-      </div>
+      </header>
 
       <div className="admin-layout">
-        {mobileMenuOpen && (
-          <div className="admin-nav-backdrop" onClick={() => setMobileMenuOpen(false)} />
-        )}
+        {/* Voile assombri (mobile) */}
+        <div
+          className={`admin-nav-backdrop ${mobileMenuOpen ? 'admin-nav-backdrop--visible' : ''}`}
+          onClick={handleCloseMenu}
+          aria-hidden="true"
+        />
 
         <AdminNav
           userRole={userRole}
           activePath={activePath}
           onNavigate={navigate}
-          mobileOpen={mobileMenuOpen}
-          onMobileClose={() => setMobileMenuOpen(false)}
+          isOpen={mobileMenuOpen}
+          onClose={handleCloseMenu}
+          onLogout={handleLogout}
         />
 
-        <div className="admin-content">
-          {pageTitle && <h2 className="admin-page-title">{pageTitle}</h2>}
+        <main className="admin-content">
+          {pageTitle && <h1 className="admin-page-title">{pageTitle}</h1>}
           <div key={animKey} style={{ animation: 'adminFadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both' }}>
             {CurrentComponent && <CurrentComponent />}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
