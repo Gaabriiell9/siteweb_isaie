@@ -42,8 +42,8 @@ export default function Hero({ serviceEnCours, prochainService }) {
           <div className="hero-arche">
             <picture>
               <source
-                srcSet="/pr_img.webp 800w, /pr_img.webp 1200w, /pr_img.webp 1600w"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                srcSet="/pr_img_800.webp 800w, /pr_img_1200.webp 1200w, /pr_img_1600.webp 1600w"
+                sizes="(max-width: 768px) 280px, (max-width: 1024px) 360px, 420px"
                 type="image/webp"
               />
               <img

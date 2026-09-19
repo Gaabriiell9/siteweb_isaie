@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import LiveBanner from './components/LiveBanner';
+import SEO from './components/SEO';
 
 const Home = lazy(() => import('./pages/Home'));
 const Cultes = lazy(() => import('./pages/Cultes'));
@@ -58,6 +59,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
+    <SEO />
     <BrowserRouter>
       <Suspense fallback={fallback}>
         <Routes>
