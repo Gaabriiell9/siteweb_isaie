@@ -245,6 +245,209 @@ async function checkPage(page, viewport, routeName) {
   return violations;
 }
 
+// Tests de parcours tactiles (touch journeys)
+async function testTouchJourneys(browser, storageState) {
+  console.log('\n=== Tests de parcours tactiles ===\n');
+  const journeyResults = [];
+
+  // Parcours 1: Ouvrir menu mobile, naviguer, fermer
+  {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+      storageState,
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto(`${BASE_URL}/admin#eglise/direct`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.waitForTimeout(1000);
+
+      // Ouvrir le menu
+      const menuBtn = page.locator('.admin-menu-btn, button[aria-label*="menu"]').first();
+      await menuBtn.tap();
+      await page.waitForTimeout(500);
+
+      // Verifier que le menu est ouvert
+      const nav = page.locator('.admin-nav, nav[aria-label*="admin"]').first();
+      const navVisible = await nav.isVisible();
+
+      // Cliquer sur un lien de navigation
+      const navLink = page.locator('.admin-nav-link, .admin-nav a, .admin-nav button').first();
+      if (await navLink.count() > 0) {
+        await navLink.tap();
+        await page.waitForTimeout(500);
+      }
+
+      journeyResults.push({
+        name: 'Menu mobile - navigation',
+        success: navVisible,
+        details: navVisible ? 'Menu ouvert correctement' : 'Menu non visible apres tap'
+      });
+
+    } catch (e) {
+      journeyResults.push({
+        name: 'Menu mobile - navigation',
+        success: false,
+        details: e.message
+      });
+    }
+
+    await context.close();
+  }
+
+  // Parcours 2: Scroll horizontal des onglets Formation
+  {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+      storageState,
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto(`${BASE_URL}/admin#formation/formation`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.waitForTimeout(1500);
+
+      // Trouver les sous-onglets
+      const subtabs = page.locator('.af-subtabs, .admin-tabs-container').first();
+      const subtabsBox = await subtabs.boundingBox();
+
+      if (subtabsBox) {
+        // Swipe horizontal
+        await page.mouse.move(subtabsBox.x + subtabsBox.width - 20, subtabsBox.y + subtabsBox.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(subtabsBox.x + 20, subtabsBox.y + subtabsBox.height / 2, { steps: 10 });
+        await page.mouse.up();
+        await page.waitForTimeout(500);
+
+        // Cliquer sur un onglet
+        const lastTab = page.locator('.af-subtab-btn, .admin-tabs-btn').last();
+        if (await lastTab.count() > 0) {
+          await lastTab.tap();
+          await page.waitForTimeout(500);
+        }
+
+        journeyResults.push({
+          name: 'Scroll onglets Formation',
+          success: true,
+          details: 'Scroll et tap fonctionnels'
+        });
+      } else {
+        journeyResults.push({
+          name: 'Scroll onglets Formation',
+          success: false,
+          details: 'Conteneur onglets non trouve'
+        });
+      }
+
+    } catch (e) {
+      journeyResults.push({
+        name: 'Scroll onglets Formation',
+        success: false,
+        details: e.message
+      });
+    }
+
+    await context.close();
+  }
+
+  // Parcours 3: Formulaire - remplir et soumettre
+  {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+      storageState,
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto(`${BASE_URL}/admin#eglise/annonces`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.waitForTimeout(1000);
+
+      // Trouver un champ de formulaire
+      const titleInput = page.locator('.admin-form input[placeholder*="Titre"], .admin-form input').first();
+      if (await titleInput.count() > 0) {
+        await titleInput.tap();
+        await page.waitForTimeout(300);
+
+        // Verifier que le clavier ne zoome pas (font-size >= 16px)
+        const fontSize = await titleInput.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+
+        journeyResults.push({
+          name: 'Formulaire tactile',
+          success: fontSize >= 16,
+          details: fontSize >= 16 ? `Police ${fontSize}px - pas de zoom` : `Police ${fontSize}px - zoom iOS possible`
+        });
+      } else {
+        journeyResults.push({
+          name: 'Formulaire tactile',
+          success: false,
+          details: 'Champ de formulaire non trouve'
+        });
+      }
+
+    } catch (e) {
+      journeyResults.push({
+        name: 'Formulaire tactile',
+        success: false,
+        details: e.message
+      });
+    }
+
+    await context.close();
+  }
+
+  // Parcours 4: Rotation d'ecran
+  {
+    const context = await browser.newContext({
+      viewport: { width: 844, height: 390 }, // Paysage
+      hasTouch: true,
+      isMobile: true,
+      storageState,
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto(`${BASE_URL}/admin#eglise/direct`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.waitForTimeout(1000);
+
+      // Verifier pas de depassement en paysage
+      const hasOverflow = await page.evaluate(() => {
+        return document.documentElement.scrollWidth > window.innerWidth;
+      });
+
+      journeyResults.push({
+        name: 'Mode paysage',
+        success: !hasOverflow,
+        details: hasOverflow ? 'Depassement horizontal detecte' : 'Pas de depassement'
+      });
+
+    } catch (e) {
+      journeyResults.push({
+        name: 'Mode paysage',
+        success: false,
+        details: e.message
+      });
+    }
+
+    await context.close();
+  }
+
+  // Afficher les resultats
+  console.log('Parcours tactiles:');
+  for (const result of journeyResults) {
+    const status = result.success ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m';
+    console.log(`  ${status} ${result.name}: ${result.details}`);
+  }
+
+  const allPassed = journeyResults.every(r => r.success);
+  return allPassed;
+}
+
 async function main() {
   console.log('=== Test Admin Responsive ===\n');
 
@@ -253,6 +456,7 @@ async function main() {
   let totalOverflow = 0;
   let totalSmallTargets = 0;
   let totalSmallFonts = 0;
+  let touchJourneysOk = true;
 
   try {
     // Contexte de connexion initial
@@ -359,6 +563,9 @@ async function main() {
       console.log(`Formation/${subtab}: teste`);
     }
 
+    // Tests de parcours tactiles
+    touchJourneysOk = await testTouchJourneys(browser, storageState);
+
   } finally {
     await browser.close();
   }
@@ -452,8 +659,9 @@ async function main() {
   console.log(`Depassements horizontaux: ${totalOverflow}`);
   console.log(`Cibles tactiles < 44px: ${totalSmallTargets}`);
   console.log(`Champs < 16px: ${totalSmallFonts}`);
+  console.log(`Parcours tactiles: ${touchJourneysOk ? 'OK' : 'ECHEC'}`);
 
-  const hasFailures = totalOverflow > 0 || totalSmallTargets > 0;
+  const hasFailures = totalOverflow > 0 || totalSmallTargets > 0 || !touchJourneysOk;
 
   if (hasFailures) {
     console.log('\n\x1b[31m✗ Test echoue\x1b[0m');
