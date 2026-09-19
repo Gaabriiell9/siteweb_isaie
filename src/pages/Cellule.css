@@ -6,7 +6,7 @@
   color:var(--encre-douce); cursor:pointer; transition: all var(--t);
   border-bottom:2px solid transparent;
 }
-.c-tab.active { color:var(--or); border-bottom-color:var(--or); }
+.c-tab.active { color:var(--vert-nuit); border-bottom-color:var(--or); }
 .c-tab:hover:not(.active) { color:var(--vert); }
 .cellule-list { display:flex; flex-direction:column; gap:2px; margin-bottom:24px; }
 .cellule-row {

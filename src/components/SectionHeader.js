@@ -25,7 +25,7 @@ export default function SectionHeader({ label, title, titleEm, subtitle, dark = 
         <p style={{
           fontFamily: 'var(--font-ui)',
           fontSize: 11, letterSpacing: '3px', textTransform: 'uppercase',
-          color: dark ? 'var(--or-texte)' : 'var(--or-label)', fontWeight: 500, marginBottom: 12,
+          color: dark ? 'var(--or-texte)' : 'var(--vert)', fontWeight: 500, marginBottom: 12,
         }}>{label}</p>
       )}
       <h2 style={{

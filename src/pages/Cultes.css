@@ -130,7 +130,7 @@
 }
 .prog-day {
   font-family: var(--font-display); font-size: 32px; font-weight: 400;
-  color: var(--or); line-height: 1;
+  color: var(--or-label); line-height: 1;
 }
 .prog-month {
   font-family: var(--font-ui); font-size: 9px;

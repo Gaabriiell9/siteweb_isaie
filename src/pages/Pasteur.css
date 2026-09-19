@@ -21,11 +21,11 @@
 .pasteur-titre em { font-style:italic; color:var(--or-label); }
 .pasteur-role {
   font-size:9px; letter-spacing:3px; text-transform:uppercase;
-  color:rgba(255,248,240,0.65); margin-bottom:24px; margin-top:4px;
+  color:rgba(250,247,241,0.85); margin-bottom:24px; margin-top:4px;
 }
 .pasteur-devise {
   font-family:var(--font-display); font-style:italic; font-size:18px;
-  color:rgba(255,248,240,0.78); line-height:1.6;
+  color:rgba(250,247,241,0.9); line-height:1.6;
   border-left:2px solid var(--or); padding-left:18px;
 }
 .pasteur-photo-col { position:relative; align-self:end; }
@@ -46,14 +46,14 @@
 @media(max-width:600px){ .pasteur-vision { grid-template-columns:1fr; } }
 .pasteur-vision-label {
   font-family:var(--font-display); font-style:italic; font-size:32px; font-weight:400;
-  color:var(--or-clair); line-height:1.1;
+  color:var(--or-label); line-height:1.1;
 }
 .pasteur-vision-texte { font-size:14px; color:var(--encre-douce); line-height:1.85; }
 .pasteur-vision-texte p + p { margin-top:14px; }
 .pasteur-contact { background:var(--vert); padding:32px 28px; text-align:center; }
 .pasteur-contact h3 { font-family:var(--font-display); font-size:28px; font-weight:400; font-style:italic; color:var(--creme); margin-bottom:18px; }
 .pasteur-contact-btn {
-  display:inline-block; border:1px solid rgba(200,134,10,0.4); color:var(--or-clair);
+  display:inline-block; border:1px solid rgba(200,155,74,0.5); color:var(--or-texte);
   font-size:10px; letter-spacing:2.5px; text-transform:uppercase;
   padding:12px 28px; transition: all var(--t); font-family:var(--font-ui);
 }

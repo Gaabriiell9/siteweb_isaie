@@ -49,14 +49,14 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1.5px solid var(--or);
+    border: 1.5px solid var(--vert);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 600;
-    color: var(--or);
+    color: var(--vert);
     letter-spacing: 1px;
     margin: 0 auto 20px;
 }

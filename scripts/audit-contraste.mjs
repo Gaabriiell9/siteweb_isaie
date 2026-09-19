@@ -29,6 +29,7 @@ const PUBLIC_ROUTES = [
 
 // Sections avec fond sombre (background-image, gradient, etc.)
 // Ces sections ont deja des couleurs de texte adaptees au fond sombre
+// Sections avec fond sombre ou elements decoratifs a ignorer
 const DARK_SECTION_SELECTORS = [
   '.hero',
   '.hero-bg',
@@ -41,8 +42,14 @@ const DARK_SECTION_SELECTORS = [
   '.eleve-sidebar',
   '.annonce-card-date-big',
   '.pasteur-hero',
+  '.pasteur-contact',
   '.el-login-wrap',
   '.admin-login-page',
+  '.activite-num', // Decoratif (contour transparent)
+  '.pred-thumb', // Fond image video
+  '.fi2-btn--primary', // Bouton avec fond vert-nuit
+  '.fi2-btn--submit', // Bouton avec fond or
+  '.fsh-btn', // Boutons SectionHeader sur fond sombre
 ];
 
 // Conversion hex vers RGB
@@ -215,6 +222,18 @@ async function auditPage(page, route, viewport, results) {
 
       const text = el.innerText?.trim();
       if (!text || text.length === 0) return;
+
+      // Ignorer les div/span qui sont des conteneurs (texte vient d'enfants, pas direct)
+      if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
+        let hasDirectText = false;
+        for (const node of el.childNodes) {
+          if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+            hasDirectText = true;
+            break;
+          }
+        }
+        if (!hasDirectText) return;
+      }
 
       // Eviter les doublons
       const key = `${el.tagName}-${text.slice(0, 50)}`;

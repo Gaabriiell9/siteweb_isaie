@@ -63,7 +63,7 @@
   font-size: 0.9rem; font-weight: 600;
   border: 2px solid #d0c8bc;
   background: var(--creme);
-  color: #a89a8a;
+  color: var(--encre-douce);
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fi2-progress-circle--done { background: var(--or); border-color: var(--or); color: white; }
@@ -75,7 +75,7 @@
 .fi2-progress-label {
   font-family: 'Satoshi', -apple-system, sans-serif;
   font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
-  color: #a89a8a; white-space: nowrap;
+  color: var(--encre-douce); white-space: nowrap;
 }
 .fi2-progress-label--active { color: var(--vert-nuit); font-weight: 700; }
 
@@ -122,7 +122,7 @@
 }
 .fi2-formule-badge-recommande {
   position: absolute; top: -1px; right: 16px;
-  background: var(--or); color: white;
+  background: var(--vert-nuit); color: white;
   font-family: 'Satoshi', -apple-system, sans-serif;
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   padding: 3px 10px; border-radius: 0 0 8px 8px;
@@ -308,7 +308,7 @@
 }
 .fi2-select-trigger--open,
 .fi2-select-trigger:hover { border-color: var(--vert-nuit); }
-.fi2-select-placeholder { color: #a89a8a; }
+.fi2-select-placeholder { color: var(--encre-douce); }
 .fi2-select-dropdown {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   background: white; border: 1.5px solid var(--vert-nuit);
@@ -385,7 +385,7 @@
 .fi2-pwd-bar { flex: 1; height: 4px; border-radius: 2px; transition: background 0.3s ease; }
 .fi2-pwd-level { font-size: 0.75rem; font-weight: 700; font-family: 'Satoshi', -apple-system, sans-serif; letter-spacing: 0.05em; }
 .fi2-pwd-criteria { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
-.fi2-pwd-crit { font-size: 0.78rem; color: #a89a8a; transition: color 0.2s; }
+.fi2-pwd-crit { font-size: 0.78rem; color: var(--encre-douce); transition: color 0.2s; }
 .fi2-pwd-crit--ok { color: var(--statut-ok); font-weight: 600; }
 
 /* ── Checkboxes ── */
@@ -414,7 +414,7 @@
   background: none; border: none; cursor: pointer;
   font-family: 'Satoshi', -apple-system, sans-serif; font-size: 0.7rem;
   font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  color: #b0a090; padding: 4px 8px; border-radius: 4px;
+  color: var(--encre-douce); padding: 4px 8px; border-radius: 4px;
   transition: color 0.2s, background 0.2s;
 }
 .fi2-reset-btn:hover { color: var(--vert-nuit); background: rgba(107,26,46,0.06); }

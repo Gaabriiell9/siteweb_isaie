@@ -22,10 +22,10 @@
 
 .el-login-logo {
   width: 52px; height: 52px; border-radius: 50%;
-  border: 1.5px solid var(--or);
+  border: 1.5px solid var(--vert);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-size: 11px; font-weight: 600;
-  color: var(--or); letter-spacing: 1px;
+  color: var(--vert); letter-spacing: 1px;
   margin: 0 auto 20px;
 }
 
@@ -81,7 +81,7 @@
 .el-login-forgot { font-size: 11px; color: var(--encre-douce); }
 .el-login-back {
   font-family: var(--font-ui); font-size: 10px; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--or); transition: opacity 0.2s;
+  text-transform: uppercase; color: var(--vert); transition: opacity 0.2s;
 }
 .el-login-back:hover { opacity: 0.7; }
 
