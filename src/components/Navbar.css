@@ -16,6 +16,15 @@
   box-shadow: 0 4px 24px rgba(20, 17, 14, 0.2);
 }
 
+/* Variante verte pour la page d'accueil */
+.navbar.navbar--home {
+  background: rgba(30, 77, 70, 0.85); /* --color-emerald #1E4D46 */
+}
+.navbar.navbar--home.scrolled {
+  background: rgba(30, 77, 70, 0.95);
+  box-shadow: 0 4px 24px rgba(30, 77, 70, 0.3);
+}
+
 .navbar-brand { display: flex; align-items: center; gap: 14px; }
 
 .navbar-monogram {
@@ -88,6 +97,10 @@
     padding: 20px 24px 24px; gap: 4px;
     border-bottom: 1px solid rgba(200, 155, 74, 0.2);
     box-shadow: 0 8px 32px rgba(20, 17, 14, 0.3);
+  }
+  .navbar--home .navbar-links {
+    background: rgba(30, 77, 70, 0.98);
+    box-shadow: 0 8px 32px rgba(30, 77, 70, 0.3);
   }
   .navbar-links.open { display: flex; }
   .nav-link {

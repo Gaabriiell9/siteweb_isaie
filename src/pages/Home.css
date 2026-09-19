@@ -1,7 +1,14 @@
 /* ══════════════════════════════════════════
-   HOME - Page d'accueil (conteneur)
+   HOME - Page d'accueil
+   Tokens de couleur derives du vert existant
 ══════════════════════════════════════════ */
 
 .home {
+  /* --color-emerald: #1E4D46 du site */
+  --home-vert: var(--color-emerald);           /* #1E4D46 - vert profond du site */
+  --home-vert-nuit: #122D29;                   /* 35% plus sombre */
+  --home-vert-doux: #F5FAF9;                   /* 6% de vert sur creme */
+  --home-or-texte: #D4AD5C;                    /* or plus clair pour texte sur vert */
+
   overflow-x: hidden;
 }

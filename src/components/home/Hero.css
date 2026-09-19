@@ -13,10 +13,11 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: var(--color-ink);
+  background: linear-gradient(135deg, var(--home-vert) 0%, var(--home-vert-nuit) 100%);
   background-image:
     radial-gradient(ellipse 80% 60% at 30% 50%, rgba(200, 155, 74, 0.08) 0%, transparent 60%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, var(--home-vert) 0%, var(--home-vert-nuit) 100%);
   background-blend-mode: overlay;
   opacity: 0.98;
 }
@@ -43,7 +44,7 @@
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-gold);
+  color: var(--home-or-texte);
   margin-bottom: 20px;
   opacity: 0;
   animation: heroFadeUp 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -62,7 +63,7 @@
 
 .hero-titre em {
   font-style: italic;
-  color: var(--color-gold);
+  color: var(--home-or-texte);
   display: block;
 }
 

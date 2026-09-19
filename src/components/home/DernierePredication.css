@@ -4,7 +4,7 @@
 
 .predication-section {
   padding: 80px 0;
-  background: var(--color-ink);
+  background: var(--home-vert);
 }
 
 .predication-container {
@@ -23,7 +23,7 @@
 }
 
 .predication-section .section-label {
-  color: var(--color-gold);
+  color: var(--home-or-texte);
 }
 
 .predication-section .section-title {

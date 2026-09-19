@@ -19,7 +19,9 @@
     "eject": "react-scripts eject",
     "test:smoke": "node --env-file=.env.local scripts/smoke-test.mjs",
     "test:dates": "node scripts/test-dates.mjs",
-    "test:week": "node scripts/test-week.mjs"
+    "test:week": "node scripts/test-week.mjs",
+    "test:responsive": "node scripts/check-responsive.mjs",
+    "test:contrast": "node scripts/check-contrast.mjs"
   },
   "browserslist": {
     "production": [
@@ -34,6 +36,7 @@
     ]
   },
   "devDependencies": {
+    "playwright": "^1.63.0",
     "sharp": "^0.35.4"
   }
 }
