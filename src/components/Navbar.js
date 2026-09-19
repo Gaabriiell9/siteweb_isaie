@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import logo from '../assets/logoe-eglise.png';
+import { LABELS } from '../lib/constants';
 import './Navbar.css';
 
 const links = [
   { to: '/', label: 'Accueil' },
   { to: '/cultes', label: 'Cultes' },
-  { to: '/montagne-priere', label: 'Montagne de Prière' },
-  { to: '/predication', label: 'Prédication' },
-  { to: '/cellule', label: 'Cellule Bethel' },
+  { to: '/montagne-priere', label: 'Montagne de Priere' },
+  { to: '/predication', label: 'Predication' },
+  { to: '/cellule', label: LABELS.CELLULE_BETHEL },
   { to: '/formation', label: 'Formation' },
   { to: '/dons', label: 'Dons' },
   { to: '/pasteur', label: 'Pasteur' },
