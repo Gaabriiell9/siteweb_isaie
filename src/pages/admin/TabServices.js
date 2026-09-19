@@ -94,7 +94,7 @@ export default function TabServices() {
       if (result.error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + result.error.message);
+        showMsg('Erreur : ' + result.error.message);
       }
       return;
     }
@@ -123,13 +123,12 @@ export default function TabServices() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer ce service ?')) return;
     const { error } = await deleteService(id);
     if (error) {
       if (error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + error.message);
+        showMsg('Erreur : ' + error.message);
       }
       return;
     }
@@ -140,7 +139,7 @@ export default function TabServices() {
   const toggleVisible = async (s) => {
     const { error } = await updateService(s.id, { visible: !s.visible });
     if (error) {
-      showMsg('Erreur: ' + error.message);
+      showMsg('Erreur : ' + error.message);
       return;
     }
     load();
@@ -269,7 +268,7 @@ export default function TabServices() {
       </form>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
-        <h3>Services ({filteredServices.length})</h3>
+        <h3>Cultes programmes ({filteredServices.length})</h3>
         <select
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
@@ -345,7 +344,7 @@ export default function TabServices() {
                     )}
                   </strong>
                   <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>
-                    {s.theme && `Theme: ${s.theme} - `}
+                    {s.theme && `Theme : ${s.theme} - `}
                     {s.predicateur && `${s.predicateur}`}
                   </span>
                   <span className="admin-date">

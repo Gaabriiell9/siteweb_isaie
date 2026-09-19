@@ -30,7 +30,7 @@ export default function TabPriere() {
     } else if (error.code === '42501') {
       showMsg('Action non autorisee');
     } else {
-      showMsg('Erreur: ' + error.message);
+      showMsg('Erreur : ' + error.message);
     }
     setSaving(false);
   };
@@ -48,7 +48,7 @@ export default function TabPriere() {
       if (error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + error.message);
+        showMsg('Erreur : ' + error.message);
       }
       return;
     }
@@ -91,8 +91,24 @@ export default function TabPriere() {
               <span>{m.titre}</span>
               <span className="admin-date">{m.verset}</span>
             </div>
-            <button className="admin-btn-secondary admin-btn-sm" onClick={() => handleEdit(m)}><Icon name="pencil" size={14} /></button>
-            <button className="admin-btn-delete" onClick={() => handleDelete(m.id)}><Icon name="x" size={14} /></button>
+            <div className="admin-actions">
+              <button
+                className="admin-action-btn"
+                onClick={() => handleEdit(m)}
+                title="Modifier"
+                aria-label="Modifier"
+              >
+                <Icon name="pencil" size={16} />
+              </button>
+              <button
+                className="admin-action-btn admin-action-btn--delete"
+                onClick={() => handleDelete(m.id)}
+                title="Supprimer"
+                aria-label="Supprimer"
+              >
+                <Icon name="trash" size={16} />
+              </button>
+            </div>
           </div>
         ))}
         {messages.length === 0 && <p className="admin-empty">Aucun message de priere pour l'instant.</p>}

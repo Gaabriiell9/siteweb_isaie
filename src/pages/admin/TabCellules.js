@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllCellGroups, addCellGroup, updateCellGroup, deleteCellGroup } from '../../lib/admin';
-import Icon from '../../components/Icon';
+import AdminActionButtons from '../../components/AdminActionButtons';
+import { LABELS } from '../../lib/constants';
 
 const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
@@ -86,7 +87,7 @@ export default function TabCellules() {
       if (result.error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + result.error.message);
+        showMsg('Erreur : ' + result.error.message);
       }
       return;
     }
@@ -114,13 +115,12 @@ export default function TabCellules() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer cette cellule ?')) return;
     const { error } = await deleteCellGroup(id);
     if (error) {
       if (error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + error.message);
+        showMsg('Erreur : ' + error.message);
       }
       return;
     }
@@ -131,7 +131,7 @@ export default function TabCellules() {
   const toggleVisible = async (c) => {
     const { error } = await updateCellGroup(c.id, { visible: !c.visible });
     if (error) {
-      showMsg('Erreur: ' + error.message);
+      showMsg('Erreur : ' + error.message);
       return;
     }
     load();
@@ -227,7 +227,7 @@ export default function TabCellules() {
           onChange={e => setForm({ ...form, description: e.target.value })}
         />
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, cursor: 'pointer' }}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={form.visible}
@@ -264,7 +264,7 @@ export default function TabCellules() {
                 <strong>{c.nom}</strong>
                 <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>
                   {c.lieu && `${c.lieu} - `}
-                  {c.responsable_nom && `Resp: ${c.responsable_nom}`}
+                  {c.responsable_nom && `Resp : ${c.responsable_nom}`}
                 </span>
                 <span className="admin-date">
                   {c.jour_semaine} {c.heure_debut?.slice(0, 5)} - {c.heure_fin?.slice(0, 5)}
@@ -272,21 +272,13 @@ export default function TabCellules() {
                   {!c.visible && <span style={{ marginLeft: 8, color: '#999' }}>(masquee)</span>}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button
-                  className="admin-btn-icon"
-                  onClick={() => toggleVisible(c)}
-                  title={c.visible ? 'Masquer' : 'Afficher'}
-                >
-                  <Icon name={c.visible ? 'eye' : 'eye-off'} size={14} />
-                </button>
-                <button className="admin-btn-icon" onClick={() => startEdit(c)} title="Modifier">
-                  <Icon name="pencil" size={14} />
-                </button>
-                <button className="admin-btn-delete" onClick={() => handleDelete(c.id)} title="Supprimer">
-                  <Icon name="x" size={14} />
-                </button>
-              </div>
+              <AdminActionButtons
+                item={c}
+                onToggleVisible={toggleVisible}
+                onEdit={startEdit}
+                onDelete={handleDelete}
+                deleteLabel="Supprimer cette cellule"
+              />
             </div>
           ))}
         </div>

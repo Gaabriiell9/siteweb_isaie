@@ -125,13 +125,12 @@ export default function TabAnnonces() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer cette annonce ?')) return;
     const { error } = await deleteAnnouncement(id);
     if (error) {
       if (error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + error.message);
+        showMsg('Erreur : ' + error.message);
       }
       return;
     }

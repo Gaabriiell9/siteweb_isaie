@@ -25,7 +25,7 @@ export default function TabVideos() {
     } else if (error.code === '42501') {
       showMsg('Action non autorisee');
     } else {
-      showMsg('Erreur: ' + error.message);
+      showMsg('Erreur : ' + error.message);
     }
     setSaving(false);
   };
@@ -37,7 +37,7 @@ export default function TabVideos() {
       if (error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
-        showMsg('Erreur: ' + error.message);
+        showMsg('Erreur : ' + error.message);
       }
       return;
     }
@@ -58,7 +58,7 @@ export default function TabVideos() {
         <textarea placeholder="Description (optionnelle)" rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
         <input required placeholder="Lien YouTube (https://youtube.com/watch?v=...) *" value={form.youtube_url} onChange={e => setForm({...form, youtube_url: e.target.value})} />
         <input type="date" value={form.date_publi} onChange={e => setForm({...form, date_publi: e.target.value})} />
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--texte-doux)', cursor: 'pointer' }}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--texte-doux)', cursor: 'pointer' }}>
           <input type="checkbox" checked={form.is_live} onChange={e => setForm({...form, is_live: e.target.checked})} style={{ accentColor: 'var(--rouge)' }} />
           Video en direct ?
         </label>
@@ -84,7 +84,14 @@ export default function TabVideos() {
                 {v.is_live && <span style={{ marginLeft: 8, color: 'var(--rouge)', fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>EN DIRECT</span>}
               </span>
             </div>
-            <button className="admin-btn-delete" onClick={() => handleDelete(v.id)}><Icon name="x" size={14} /></button>
+            <button
+              className="admin-action-btn admin-action-btn--delete"
+              onClick={() => handleDelete(v.id)}
+              title="Supprimer"
+              aria-label="Supprimer"
+            >
+              <Icon name="trash" size={16} />
+            </button>
           </div>
         ))}
         {videos.length === 0 && <p className="admin-empty">Aucune video pour l'instant.</p>}
