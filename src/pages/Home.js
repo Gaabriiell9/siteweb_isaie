@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useHomeData } from '../hooks/useHomeData';
 import { getServiceStatut, getServiceStartTime } from '../lib/dateUtils';
 import {
@@ -17,6 +18,29 @@ const FIFTEEN_MIN_MS = 15 * 60 * 1000;
 
 export default function Home() {
   const data = useHomeData();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Desactive la restauration automatique du navigateur
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // Scroll en haut sauf si hash present
+    const hash = location.hash.replace('#', '');
+    if (hash) {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'auto' });
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+    return () => {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'auto';
+      }
+    };
+  }, [location.pathname, location.hash]);
 
   const fuseau = data.settings.data?.fuseau_horaire || 'Europe/Paris';
   const prochainService = data.services.items?.[0] || null;

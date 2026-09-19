@@ -10,11 +10,16 @@ export default function Semaine({ services = [], cellules = [], fuseau = 'Europe
   const week = buildWeek({ services, cellules, fuseau });
 
   useEffect(() => {
-    if (scrollRef.current) {
-      const todayEl = scrollRef.current.querySelector('.jour-card--today');
-      if (todayEl) {
-        todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
+    const container = scrollRef.current;
+    if (!container) return;
+    const todayEl = container.querySelector('.jour-card--today');
+    if (!todayEl) return;
+    // Scroll horizontal uniquement, sans deplacer la page
+    const containerRect = container.getBoundingClientRect();
+    const todayRect = todayEl.getBoundingClientRect();
+    const scrollLeft = todayRect.left - containerRect.left + container.scrollLeft - (containerRect.width / 2) + (todayRect.width / 2);
+    if (container.scrollWidth > container.clientWidth) {
+      container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'auto' });
     }
   }, [week]);
 

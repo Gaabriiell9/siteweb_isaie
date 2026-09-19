@@ -16,6 +16,7 @@
   --home-gap: 12px;
 
   overflow-x: hidden;
+  overflow-anchor: none;
 }
 
 @media (min-width: 481px) {

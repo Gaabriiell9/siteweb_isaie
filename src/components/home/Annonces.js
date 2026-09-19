@@ -65,7 +65,7 @@ export default function Annonces({ annonces = [], loading = false }) {
   const hasRest = rest.length > 0;
 
   return (
-    <section className="annonces-section">
+    <section className="annonces-section" id="actualites">
       <div className="annonces-container">
         <p className="section-label">Actualités</p>
         <h2 className="section-title">À la <em>une</em></h2>
