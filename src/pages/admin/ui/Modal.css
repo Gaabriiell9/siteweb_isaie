@@ -180,7 +180,7 @@
 }
 
 .admin-btn--danger:hover {
-  background: #a82a1f;
+  filter: brightness(0.85);
 }
 
 /* ============================================================
