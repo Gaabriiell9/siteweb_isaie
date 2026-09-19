@@ -1878,3 +1878,499 @@
 .af-formule-avantages li {
   padding: 2px 0;
 }
+
+/* ============================================================
+   RESPONSIVE - Mobile-first pour tous les composants admin
+   ============================================================ */
+
+/* ====== Admin Tab - Phone ====== */
+@media (max-width: 639px) {
+  .admin-tab h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .admin-form {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* Forcer les flex wrappables en colonne sur mobile */
+  .admin-form > div[style*="flex"][style*="gap"] {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Tous les inputs/selects prennent la largeur complete */
+  .admin-form input[style*="flex"],
+  .admin-form select[style*="flex"] {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Label dans les divs de champs */
+  .admin-form > div > div > label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--encre-douce);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Checkbox label */
+  .admin-form > label[style*="inline-flex"] {
+    min-height: 44px;
+    display: flex !important;
+    align-items: center;
+  }
+
+  .admin-form > label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-height: 20px;
+  }
+
+  /* Boutons d'actions */
+  .admin-form > div[style*="display: flex"][style*="gap: 8px"] {
+    flex-direction: column;
+  }
+
+  .admin-form > div[style*="display: flex"][style*="gap: 8px"] button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Liste admin */
+  .admin-list {
+    gap: 12px;
+  }
+
+  .admin-item {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .admin-item-info strong {
+    font-size: 15px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .admin-item-info strong > span {
+    font-size: 10px !important;
+  }
+
+  .admin-thumb {
+    width: 100%;
+    height: auto;
+    max-height: 140px;
+    border-radius: 4px;
+  }
+
+  .admin-date-box {
+    align-self: flex-start;
+  }
+
+  /* Actions sous l'item */
+  .admin-item .af-action-btn,
+  .admin-item > div:last-child {
+    margin-top: 8px;
+    align-self: stretch;
+  }
+
+  /* Entete liste avec filtre */
+  div[style*="display: flex"][style*="justifyContent: space-between"][style*="alignItems: center"] {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+
+  div[style*="display: flex"][style*="justifyContent: space-between"] select {
+    align-self: stretch;
+  }
+}
+
+/* ====== Admin Tab - Tablet ====== */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .admin-form {
+    padding: 18px;
+  }
+
+  /* Permettre 2 colonnes sur tablette */
+  .admin-form > div[style*="flex"][style*="gap"] > div,
+  .admin-form > div[style*="flex"][style*="gap"] > input,
+  .admin-form > div[style*="flex"][style*="gap"] > select {
+    min-width: 180px;
+  }
+}
+
+/* ====== Formation - Sous-onglets responsive ====== */
+@media (max-width: 639px) {
+  .af-subtabs {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap;
+  }
+
+  .af-subtabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .af-subtab-btn {
+    padding: 12px 14px;
+    min-height: 44px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .af-subtab-content {
+    padding-top: 16px;
+  }
+
+  /* Inscriptions */
+  .af-inscrip-card {
+    padding: 14px;
+  }
+
+  .af-inscrip-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .af-inscrip-actions {
+    flex-direction: column;
+  }
+
+  .af-inscrip-actions button,
+  .af-inscrip-actions .af-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Toolbar recherche */
+  .af-toolbar {
+    flex-direction: column;
+  }
+
+  .af-search {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .af-toolbar select {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .af-toolbar .af-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Table eleves - en cartes sur mobile */
+  .af-table-wrap {
+    border: none;
+  }
+
+  .af-table {
+    display: block;
+  }
+
+  .af-table thead {
+    display: none;
+  }
+
+  .af-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .af-table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: white;
+    border: 1px solid rgba(200, 134, 10, 0.12);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .af-table td {
+    padding: 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .af-table td::before {
+    content: attr(data-label);
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--encre-douce);
+    flex-shrink: 0;
+    min-width: 70px;
+  }
+
+  .af-table-eleve {
+    flex-wrap: wrap;
+  }
+
+  .af-table-email {
+    max-width: none;
+  }
+
+  .af-prog-wrap {
+    flex: 1;
+  }
+
+  /* Drawer eleve */
+  .af-drawer {
+    width: 100%;
+    max-width: none;
+  }
+
+  .af-drawer-header {
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .af-drawer-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 0.9rem;
+  }
+
+  .af-drawer-name {
+    font-size: 16px;
+  }
+
+  .af-drawer-actions-top {
+    width: 100%;
+    margin-top: 8px;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .af-drawer-close {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  .af-drawer-tabs {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .af-drawer-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .af-drawer-tab {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  .af-drawer-body {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  /* Profil eleve */
+  .af-profil-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .af-profil-val {
+    text-align: left;
+  }
+
+  /* Module row */
+  .af-module-row {
+    flex-wrap: wrap;
+    padding: 14px;
+  }
+
+  .af-module-btns {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .af-module-btns button,
+  .af-module-btns .af-btn {
+    flex: 1;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  /* Eval et paiements */
+  .af-eval-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .af-eval-note {
+    min-width: auto;
+  }
+
+  .af-pay-echeance {
+    flex-wrap: wrap;
+  }
+
+  .af-pay-echeance-info {
+    min-width: 150px;
+  }
+}
+
+/* ====== Formation - Modals responsive ====== */
+@media (max-width: 639px) {
+  .af-modal-backdrop {
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .af-modal {
+    min-height: 100dvh;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  .af-modal-header {
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .af-modal h3,
+  .af-modal-header h3 {
+    font-size: 20px;
+  }
+
+  .af-modal-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .af-modal-body {
+    padding: 16px;
+    flex: 1;
+  }
+
+  .af-modal-footer {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    flex-direction: column;
+    position: sticky;
+    bottom: 0;
+    background: #FFFBF5;
+  }
+
+  .af-modal-footer button {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  .af-modal-btns {
+    flex-direction: column;
+    padding: 0 16px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .af-modal-btns button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  /* Inputs dans modals */
+  .af-modal input,
+  .af-modal select,
+  .af-modal textarea {
+    font-size: 16px !important;
+    min-height: 48px;
+    padding: 12px 14px !important;
+  }
+
+  .af-modal textarea {
+    min-height: 100px;
+  }
+
+  /* Participants grid en liste sur mobile */
+  .af-participant-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .af-participant-item {
+    padding: 14px !important;
+  }
+
+  .af-participant-checkbox {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+/* ====== Boutons tactiles partout ====== */
+@media (max-width: 639px) {
+  .af-btn {
+    min-height: 44px;
+    padding: 12px 16px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .af-btn--sm {
+    min-height: 40px;
+    padding: 10px 14px;
+  }
+
+  /* Admin mini tabs */
+  .admin-mini-tabs {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .admin-mini-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-mini-tabs button {
+    min-height: 44px;
+    padding: 12px 14px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+}
+
+/* ====== Annonces, Cellules, Prieres - Card style mobile ====== */
+@media (max-width: 639px) {
+  .admin-item--inactive {
+    opacity: 0.6;
+  }
+}
