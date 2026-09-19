@@ -23,7 +23,7 @@ import Icon from '../../components/Icon';
 
 /* ── Helpers ── */
 function formatRelative(dateStr) {
-  if (!dateStr) return '—';
+  if (!dateStr) return '-';
   const diff = (Date.now() - new Date(dateStr)) / 1000;
   if (diff < 60) return "à l'instant";
   if (diff < 3600) return `il y a ${Math.floor(diff/60)} min`;
@@ -190,7 +190,7 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
             <div className="af-pay-row" key={p.id}>
               <div className="af-pay-montant">{(p.montant_cents || 0) / 100} EUR</div>
               <div>
-                <div className="af-pay-type">{p.type_paiement} · {p.methode || '—'}</div>
+                <div className="af-pay-type">{p.type_paiement} · {p.methode || '-'}</div>
                 <div className="af-pay-date">
                   {new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </div>
@@ -326,10 +326,10 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
               <div className="af-profil-grid">
                 {[
                   ['Prénom', eleve.prenom], ['Nom', eleve.nom],
-                  ['Email', eleve.email], ['Téléphone', eleve.telephone || '—'],
-                  ['Pays', eleve.pays || '—'], ['Ville', eleve.ville || '—'],
+                  ['Email', eleve.email], ['Téléphone', eleve.telephone || '-'],
+                  ['Pays', eleve.pays || '-'], ['Ville', eleve.ville || '-'],
                   ['Formule', eleve.formule === 'integral' ? 'Paiement intégral' : 'Échelonné'],
-                  ['Inscription', eleve.date_inscription ? new Date(eleve.date_inscription).toLocaleDateString('fr-FR') : '—'],
+                  ['Inscription', eleve.date_inscription ? new Date(eleve.date_inscription).toLocaleDateString('fr-FR') : '-'],
                 ].map(([k, v]) => (
                   <div className="af-profil-row" key={k}>
                     <span className="af-profil-key">{k}</span>
@@ -342,13 +342,13 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
               <div className="af-profil-section-title">Parcours spirituel</div>
               <div className="af-profil-grid">
                 {[
-                  ['Église actuelle', eleve.eglise || '—'],
-                  ['Pasteur référent', eleve.pasteur_referent || '—'],
+                  ['Église actuelle', eleve.eglise || '-'],
+                  ['Pasteur référent', eleve.pasteur_referent || '-'],
                   ['Niveau biblique', eleve.niveau_biblique ? {
                     'debutant': 'Débutant',
                     'intermediaire': 'Intermédiaire',
                     'avance': 'Avancé'
-                  }[eleve.niveau_biblique] || eleve.niveau_biblique : '—'],
+                  }[eleve.niveau_biblique] || eleve.niveau_biblique : '-'],
                 ].map(([k, v]) => (
                   <div className="af-profil-row" key={k}>
                     <span className="af-profil-key">{k}</span>
@@ -375,7 +375,7 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
                       {m.complete ? <Icon name="check" size={14} /> : m.debloque ? <Icon name="play" size={12} /> : <Icon name="lock" size={14} />}
                     </div>
                     <div className="af-module-info">
-                      <div className="af-module-name">Module {m.module.numero} — {m.module.titre}</div>
+                      <div className="af-module-name">Module {m.module.numero} - {m.module.titre}</div>
                       <div className="af-module-dates">
                         {m.debloque ? `Débloqué ${formatRelative(m.date_debloque)}` : 'Verrouillé'}
                         {m.complete && ` · Complété ${formatRelative(m.date_complete)}`}
@@ -578,7 +578,7 @@ function SubTabEleves({ filterPays, onClearFilter }) {
                       <BadgeEmail confirmedAt={e.email_confirmed_at} />
                     </div>
                   </td>
-                  <td data-label="Pays">{e.pays || '—'}</td>
+                  <td data-label="Pays">{e.pays || '-'}</td>
                   <td data-label="Formule"><BadgeFormule formule={e.formule} /></td>
                   <td data-label="Progression">
                     <div className="af-prog-wrap">
@@ -679,7 +679,7 @@ function SubTabCarte({ onSelectPays }) {
               />
               {tooltip && (
                 <div className="af-carte-tooltip" style={{ left: tooltip.x + 10, top: tooltip.y - 40 }}>
-                  {tooltip.pays} — {tooltip.count} élève{tooltip.count > 1 ? 's' : ''}
+                  {tooltip.pays} - {tooltip.count} élève{tooltip.count > 1 ? 's' : ''}
                 </div>
               )}
             </div>
@@ -810,7 +810,7 @@ function SubTabStats() {
         <div className="af-charts-grid">
           {/* Inscriptions par mois */}
           <div className="af-chart-card">
-            <div className="af-chart-title">Inscriptions — 6 derniers mois</div>
+            <div className="af-chart-title">Inscriptions - 6 derniers mois</div>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={stats.inscriptionsParMois}>
                 <XAxis dataKey="mois" tick={{fontSize:11}} />
@@ -965,7 +965,7 @@ function SubTabCours() {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
+    if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
@@ -1003,7 +1003,7 @@ function SubTabCours() {
               </div>
               <div className="af-cours-meta">
                 {s.module_titre && <span className="af-badge af-badge--or" style={{fontSize:'0.68rem'}}>{s.module_titre}</span>}
-                <span><Icon name="calendar" size={13} style={{marginRight:4}} />{s.type_session === 'recurrent' ? `Récurrent — ${JOURS_SEMAINE[s.recurrence_jour_semaine] || ''} ${s.recurrence_heure || ''}` : formatDate(s.date_session)}</span>
+                <span><Icon name="calendar" size={13} style={{marginRight:4}} />{s.type_session === 'recurrent' ? `Récurrent - ${JOURS_SEMAINE[s.recurrence_jour_semaine] || ''} ${s.recurrence_heure || ''}` : formatDate(s.date_session)}</span>
                 <span><Icon name="timer" size={13} style={{marginRight:4}} />{s.duree_minutes} min</span>
               </div>
               <div className="af-cours-zoom">
@@ -1038,7 +1038,7 @@ function SubTabCours() {
               <div className="af-modal-grid">
                 <div className="af-modal-col">
                   <label>Titre *</label>
-                  <input required placeholder="Ex: Introduction à la Bible — Session 1"
+                  <input required placeholder="Ex: Introduction à la Bible - Session 1"
                     value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
 
                   <label>Description</label>
@@ -1050,7 +1050,7 @@ function SubTabCours() {
                     <option value="">Général (pas de module spécifique)</option>
                     {modules.map(m => (
                       <option key={m.id} value={m.id}>
-                        Module {String(m.numero).padStart(2, '0')} — {m.titre}
+                        Module {String(m.numero).padStart(2, '0')} - {m.titre}
                       </option>
                     ))}
                   </select>
@@ -1153,7 +1153,7 @@ function SubTabCours() {
         <div className="af-modal-backdrop" onClick={() => { setModalParticipants(null); setSelectedEleves([]); }}>
           <div className="af-modal" style={{maxWidth: 480}} onClick={e => e.stopPropagation()}>
             <div className="af-modal-header">
-              <span>Participants — {modalParticipants.titre}</span>
+              <span>Participants - {modalParticipants.titre}</span>
               <button type="button" className="af-modal-close" onClick={() => { setModalParticipants(null); setSelectedEleves([]); }}>
                 <Icon name="x" size={14} />
               </button>
@@ -1817,7 +1817,7 @@ function SubTabRessources() {
         <div className="af-modal-backdrop" onClick={() => { setModalModule(null); setFile(null); }}>
           <div className="af-modal" style={{maxWidth: 560}} onClick={e => e.stopPropagation()}>
             <div className="af-modal-header">
-              <span>Ajouter une ressource — Module {String(modalModule?.numero).padStart(2,'0')}</span>
+              <span>Ajouter une ressource - Module {String(modalModule?.numero).padStart(2,'0')}</span>
               <button type="button" className="af-modal-close" onClick={() => { setModalModule(null); setFile(null); }}>
                 <Icon name="x" size={14} />
               </button>
@@ -1897,7 +1897,7 @@ function SubTabFormules() {
   const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
 
   const formatEuros = (cents) => {
-    if (!cents && cents !== 0) return '—';
+    if (!cents && cents !== 0) return '-';
     return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
   };
 
@@ -2036,7 +2036,7 @@ function SubTabFormules() {
       <div className="af-avantages-list">
         {avantages.map((av, i) => (
           <div key={i} className="af-avantage-row">
-            <span className="af-avantage-dash">—</span>
+            <span className="af-avantage-dash">-</span>
             <input
               value={av}
               onChange={e => updateAvantage(i, e.target.value, isCreate)}
@@ -2148,7 +2148,7 @@ function SubTabFormules() {
                   {Array.isArray(f.avantages) && f.avantages.length > 0 && (
                     <ul className="af-formule-avantages">
                       {f.avantages.map((av, i) => (
-                        <li key={i}>— {av}</li>
+                        <li key={i}>- {av}</li>
                       ))}
                     </ul>
                   )}
