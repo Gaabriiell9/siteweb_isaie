@@ -15,11 +15,11 @@
   display: inline-flex; align-items: center; gap: 7px;
   font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 0.15em; text-transform: uppercase;
-  color: #C0392B; font-weight: 600;
+  color: var(--statut-direct); font-weight: 600;
 }
 .live-dot-red {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #C0392B; flex-shrink: 0;
+  background: var(--statut-direct); flex-shrink: 0;
   animation: pulse-red 1.4s ease-in-out infinite;
 }
 @keyframes pulse-red {
@@ -29,15 +29,15 @@
 .live-top-date {
   font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
 }
 .live-titre {
   font-family: var(--font-display); font-size: 36px; font-weight: 400;
-  color: var(--bordeaux-clair); margin: 0 0 6px; line-height: 1.15;
+  color: var(--vert); margin: 0 0 6px; line-height: 1.15;
 }
 .live-titre em { font-style: italic; color: var(--or-clair); }
 .live-sous-titre {
-  font-size: 11px; color: var(--texte-doux);
+  font-size: 11px; color: var(--encre-douce);
   letter-spacing: .5px; margin: 0 0 16px;
 }
 .live-player {
@@ -55,7 +55,7 @@
 .live-footer-item {
   font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
 }
 .live-losange {
   width: 4px; height: 4px;
@@ -87,9 +87,9 @@
   border: 1px solid rgba(200,134,10,0.2);
   padding: 8px 14px;
   font-family: var(--font-ui); font-size: 11px;
-  letter-spacing: 1.5px; color: var(--texte-doux);
+  letter-spacing: 1.5px; color: var(--encre-douce);
 }
-.prog-countdown strong { color: var(--bordeaux-clair); font-weight: 600; }
+.prog-countdown strong { color: var(--vert); font-weight: 600; }
 
 /* En-tête centré */
 .prog-header {
@@ -99,12 +99,12 @@
 .prog-label {
   display: block;
   font-family: var(--font-display); font-size: 64px; font-weight: 400;
-  color: var(--bordeaux-clair); line-height: 1; margin-bottom: 8px;
+  color: var(--vert); line-height: 1; margin-bottom: 8px;
 }
 .prog-meta {
   font-family: var(--font-ui); font-size: 11px;
   letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
 }
 .prog-sep {
   width: 60px; height: 1px;
@@ -135,7 +135,7 @@
 .prog-month {
   font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 2px; text-transform: uppercase;
-  color: var(--texte-doux); margin-top: 2px;
+  color: var(--encre-douce); margin-top: 2px;
 }
 
 .prog-info {
@@ -144,16 +144,16 @@
 }
 .prog-titre {
   font-family: var(--font-heading); font-size: 15px;
-  color: var(--bordeaux-clair); font-weight: 600;
+  color: var(--vert); font-weight: 600;
 }
 .prog-sub {
   font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 1px; color: var(--texte-doux);
+  letter-spacing: 1px; color: var(--encre-douce);
 }
 
 .prog-heure {
   font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 1.5px; color: var(--texte-doux);
+  letter-spacing: 1.5px; color: var(--encre-douce);
   flex-shrink: 0;
 }
 
@@ -168,12 +168,12 @@
   flex-shrink: 0;
 }
 .prog-live-badge--active {
-  color: #C0392B; background: rgba(192,57,43,0.08);
-  border-color: rgba(192,57,43,0.3);
+  color: var(--statut-direct); background: rgba(180,35,24,0.08);
+  border-color: rgba(180,35,24,0.3);
 }
 .prog-live-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: #C0392B;
+  background: var(--statut-direct);
   animation: pulse-red 1.4s ease-in-out infinite;
 }
 
@@ -271,7 +271,7 @@
 }
 
 .prog-empty {
-  text-align: center; color: var(--texte-doux);
+  text-align: center; color: var(--encre-douce);
   font-family: var(--font-sans);
   font-size: 14px; margin-top: 24px;
 }
@@ -281,7 +281,7 @@
 
 .replays-titre {
   font-family: var(--font-display); font-size: 28px; font-weight: 400;
-  color: var(--bordeaux-clair); margin-bottom: 20px;
+  color: var(--vert); margin-bottom: 20px;
 }
 .replays-titre em { font-style: italic; color: var(--or-clair); }
 
@@ -309,7 +309,7 @@
 }
 
 .replay-thumb {
-  position: relative; height: 120px; overflow: hidden; background: var(--bordeaux);
+  position: relative; height: 120px; overflow: hidden; background: var(--vert-nuit);
 }
 .replay-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -340,7 +340,7 @@
 }
 .replay-title {
   font-family: var(--font-heading); font-size: 15px;
-  color: var(--bordeaux-clair); line-height: 1.3;
+  color: var(--vert); line-height: 1.3;
 }
 
 /* ── Modal replay ───────────────────────────────────────────────────────────── */
@@ -361,11 +361,11 @@
 }
 .replay-modal-titre {
   font-family: var(--font-heading); font-size: 16px;
-  color: var(--bordeaux-clair); font-weight: 600;
+  color: var(--vert); font-weight: 600;
 }
 .replay-modal-close {
   background: transparent; border: none;
-  font-size: 20px; color: var(--bordeaux-clair);
+  font-size: 20px; color: var(--vert);
   cursor: pointer; line-height: 1; padding: 0 4px;
   transition: color 0.2s;
 }
@@ -397,7 +397,7 @@
 }
 
 .live-badge--active {
-  color: #b42318;
+  color: var(--statut-direct);
   background: rgba(180,35,24,0.08);
   border: 1px solid rgba(180,35,24,0.25);
 }
@@ -412,7 +412,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #b42318;
+  background: var(--statut-direct);
   animation: pulse-red 1.4s ease-in-out infinite;
 }
 
@@ -420,14 +420,14 @@
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 400;
-  color: var(--bordeaux-clair);
+  color: var(--vert);
   margin: 0 0 8px;
 }
 
 .live-section-theme {
   font-family: var(--font-ui);
   font-size: 13px;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   margin: 0 0 4px;
 }
 
@@ -488,7 +488,7 @@
 .live-external p {
   font-family: var(--font-ui);
   font-size: 13px;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   margin: 0 0 16px;
 }
 
@@ -527,9 +527,9 @@
 }
 
 .prog-status-badge--upcoming {
-  color: var(--texte-doux);
-  background: rgba(100,100,100,0.08);
-  border: 1px solid rgba(100,100,100,0.15);
+  color: var(--encre-douce);
+  background: rgba(74,82,80,0.08);
+  border: 1px solid rgba(74,82,80,0.15);
 }
 
 .prog-status-badge--live-ready {
@@ -539,15 +539,15 @@
 }
 
 .prog-status-badge--live {
-  color: #b42318;
+  color: var(--statut-direct);
   background: rgba(180,35,24,0.08);
   border: 1px solid rgba(180,35,24,0.25);
 }
 
 .prog-status-badge--ended {
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   background: transparent;
-  border: 1px solid rgba(100,100,100,0.12);
+  border: 1px solid rgba(74,82,80,0.12);
 }
 
 /* ── Bouton Revoir dans replays ─────────────────────────────────────────────── */

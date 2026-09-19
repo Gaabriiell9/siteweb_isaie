@@ -1,6 +1,6 @@
 .pasteur-wrap { padding: 0 0 72px; }
 .pasteur-hero {
-  background: linear-gradient(160deg, var(--noir) 0%, var(--bordeaux-clair) 100%);
+  background: linear-gradient(160deg, var(--noir) 0%, var(--vert) 100%);
   padding: 72px 24px 0; position: relative; overflow: hidden;
 }
 .pasteur-hero::before {
@@ -33,7 +33,7 @@
 .pasteur-photo-img { width:100%; display:block; filter:sepia(15%) contrast(1.05); }
 .pasteur-photo-tag {
   position:absolute; bottom:-1px; left:6px; right:6px;
-  background:var(--or); color:var(--bordeaux);
+  background:var(--or); color:var(--vert-nuit);
   font-size:9px; letter-spacing:3px; text-transform:uppercase;
   padding:8px 16px; text-align:center; font-weight:600; font-family:var(--font-ui);
 }
@@ -48,9 +48,9 @@
   font-family:var(--font-display); font-style:italic; font-size:32px; font-weight:400;
   color:var(--or-clair); line-height:1.1;
 }
-.pasteur-vision-texte { font-size:14px; color:var(--texte-doux); line-height:1.85; }
+.pasteur-vision-texte { font-size:14px; color:var(--encre-douce); line-height:1.85; }
 .pasteur-vision-texte p + p { margin-top:14px; }
-.pasteur-contact { background:var(--bordeaux-clair); padding:32px 28px; text-align:center; }
+.pasteur-contact { background:var(--vert); padding:32px 28px; text-align:center; }
 .pasteur-contact h3 { font-family:var(--font-display); font-size:28px; font-weight:400; font-style:italic; color:var(--creme); margin-bottom:18px; }
 .pasteur-contact-btn {
   display:inline-block; border:1px solid rgba(200,134,10,0.4); color:var(--or-clair);

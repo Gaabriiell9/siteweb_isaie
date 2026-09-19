@@ -18,13 +18,13 @@
 
 .dons-landing-text {
   font-family: var(--font-sans);
-  font-size: 15px; color: var(--texte-doux); line-height: 1.8;
+  font-size: 15px; color: var(--encre-douce); line-height: 1.8;
   margin: 0 0 36px;
 }
 
 .dons-landing-btn {
   display: inline-flex; align-items: center; gap: 12px;
-  background: var(--bordeaux);
+  background: var(--vert-nuit);
   color: var(--creme);
   border: none;
   padding: 17px 44px;
@@ -34,7 +34,7 @@
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   margin-bottom: 16px;
 }
-.dons-landing-btn:hover { background: var(--bordeaux-clair); transform: translateY(-2px); }
+.dons-landing-btn:hover { background: var(--vert); transform: translateY(-2px); }
 .dons-landing-btn:active { transform: scale(0.99); }
 
 .dons-landing-note {
@@ -68,11 +68,11 @@
   background: none; border: none;
   font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
-  color: var(--texte-doux); cursor: pointer;
+  color: var(--encre-douce); cursor: pointer;
   padding: 0;
   transition: color 0.2s;
 }
-.dons-back:hover { color: var(--bordeaux-clair); }
+.dons-back:hover { color: var(--vert); }
 
 /* ══════════════════════════════
    ZONE MONTANT
@@ -113,7 +113,7 @@
   font-family: var(--font-display);
   font-size: clamp(64px, 12vw, 96px);
   font-weight: 400;
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
   letter-spacing: -0.03em;
   line-height: 1;
   width: clamp(120px, 18vw, 200px);
@@ -166,18 +166,18 @@
   border: 1px solid rgba(107,26,46,0.15);
   border-radius: 100px;
   font-family: var(--font-ui); font-size: 12px; font-weight: 500;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   cursor: pointer;
   transition: all 0.18s;
 }
 .dons-preset:hover {
-  border-color: var(--bordeaux-clair);
-  color: var(--bordeaux-clair);
+  border-color: var(--vert);
+  color: var(--vert);
   background: rgba(107,26,46,0.04);
 }
 .dons-preset.active {
-  background: var(--bordeaux);
-  border-color: var(--bordeaux);
+  background: var(--vert-nuit);
+  border-color: var(--vert-nuit);
   color: var(--creme);
 }
 
@@ -217,7 +217,7 @@
   font-family: var(--font-ui);
   font-size: 9px; font-weight: 700;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   cursor: default;
 }
 
@@ -232,18 +232,18 @@
   background: transparent;
   border: 1px solid rgba(107,26,46,0.15);
   font-family: var(--font-ui); font-size: 13px; font-weight: 400;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   cursor: pointer;
   transition: all 0.18s;
   letter-spacing: 0.01em;
 }
 .dons-motif:hover {
-  border-color: var(--bordeaux-clair);
-  color: var(--bordeaux-clair);
+  border-color: var(--vert);
+  color: var(--vert);
 }
 .dons-motif.active {
-  background: var(--bordeaux);
-  border-color: var(--bordeaux);
+  background: var(--vert-nuit);
+  border-color: var(--vert-nuit);
   color: var(--creme);
   font-weight: 500;
 }
@@ -260,7 +260,7 @@
   box-sizing: border-box;
 }
 .dons-autre:focus { border-color: var(--or); }
-.dons-autre::placeholder { color: var(--texte-doux); }
+.dons-autre::placeholder { color: var(--encre-douce); }
 
 /* ══════════════════════════════
    SUBMIT
@@ -274,7 +274,7 @@
 
 .dons-submit {
   display: flex; align-items: center; justify-content: center; gap: 12px;
-  background: var(--bordeaux);
+  background: var(--vert-nuit);
   color: var(--creme);
   border: none;
   padding: 18px 28px;
@@ -292,7 +292,7 @@
   line-height: 1;
 }
 .dons-submit:hover:not(:disabled) {
-  background: var(--bordeaux-clair);
+  background: var(--vert);
   transform: translateY(-1px);
 }
 .dons-submit:active:not(:disabled) { transform: scale(0.995); }
@@ -330,7 +330,7 @@
   font-family: var(--font-display);
   font-size: clamp(72px, 14vw, 112px);
   font-weight: 400;
-  color: var(--bordeaux);
+  color: var(--vert-nuit);
   line-height: 1;
   letter-spacing: -0.03em;
 }
@@ -352,14 +352,14 @@
 .dons-done-msg {
   font-family: var(--font-display);
   font-size: 22px; font-weight: 400;
-  color: var(--bordeaux-clair);
+  color: var(--vert);
   margin: 0 0 12px;
   letter-spacing: -0.01em;
 }
 
 .dons-done-sub {
   font-family: var(--font-sans);
-  font-size: 13px; color: var(--texte-doux); line-height: 1.8;
+  font-size: 13px; color: var(--encre-douce); line-height: 1.8;
   max-width: 360px;
   margin: 0 0 36px;
 }
@@ -370,10 +370,10 @@
   padding: 10px 24px;
   font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
-  color: var(--texte-doux);
+  color: var(--encre-douce);
   cursor: pointer; transition: all 0.2s;
 }
-.dons-done-reset:hover { border-color: var(--or); color: var(--bordeaux-clair); }
+.dons-done-reset:hover { border-color: var(--or); color: var(--vert); }
 
 /* ══════════════════════════════
    RESPONSIVE
