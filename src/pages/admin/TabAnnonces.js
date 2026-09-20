@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getAllAnnouncements, addAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../lib/admin';
 import { supabase } from '../../lib/client';
 import AdminActionButtons from '../../components/AdminActionButtons';
 import Icon from '../../components/Icon';
+import {
+  validerFormatImage,
+  compresserImage,
+  genererNomFichier,
+  traduireErreurUpload,
+  estUrlEtcFiles,
+  extraireCheminDepuisUrl
+} from '../../lib/images';
 
 export default function TabAnnonces() {
   const [annonces, setAnnonces] = useState([]);
@@ -20,6 +28,10 @@ export default function TabAnnonces() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [pendingFile, setPendingFile] = useState(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState('');
+  const fileInputRef = useRef(null);
 
   const load = async () => {
     setLoading(true);
@@ -30,9 +42,20 @@ export default function TabAnnonces() {
 
   useEffect(() => { load(); }, []);
 
-  const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 3000); };
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 4000); };
 
   const resetForm = () => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setForm({
       titre: '',
       contenu: '',
@@ -43,32 +66,78 @@ export default function TabAnnonces() {
       date_fin: ''
     });
     setEditingId(null);
+    setPreviewUrl('');
+    setPendingFile(null);
+    setOriginalImageUrl('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleImageUpload = async (e) => {
+  const supprimerFichierBucket = async (url) => {
+    if (!estUrlEtcFiles(url)) return;
+    const path = extraireCheminDepuisUrl(url);
+    if (path) {
+      await supabase.storage.from('etc-files').remove([path]);
+    }
+  };
+
+  const handleImageSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const fileName = `site/annonce-${Date.now()}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from('etc-files')
-      .upload(fileName, file, { upsert: true });
-
-    if (error) {
-      showMsg('Erreur upload: ' + error.message);
-      setUploading(false);
+    const validation = validerFormatImage(file);
+    if (!validation.valide) {
+      showMsg(validation.erreur);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    const { data: urlData } = supabase.storage
-      .from('etc-files')
-      .getPublicUrl(fileName);
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
-    setForm({ ...form, image_url: urlData.publicUrl });
-    setUploading(false);
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
+    setPendingFile(file);
+    setForm(f => ({ ...f, image_url: '' }));
+  };
+
+  const uploadPendingImage = async () => {
+    if (!pendingFile) return { url: form.image_url, uploaded: false };
+
+    setUploading(true);
+
+    try {
+      const { blob, extension } = await compresserImage(pendingFile);
+      const fileName = genererNomFichier('site/annonces', extension);
+
+      const { error } = await supabase.storage
+        .from('etc-files')
+        .upload(fileName, blob);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('etc-files')
+        .getPublicUrl(fileName);
+
+      setUploading(false);
+      return { url: urlData.publicUrl, uploaded: true, path: fileName };
+    } catch (error) {
+      setUploading(false);
+      throw error;
+    }
+  };
+
+  const handleRemoveImage = () => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl('');
+    setPendingFile(null);
+    setForm(f => ({ ...f, image_url: '' }));
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSubmit = async (e) => {
@@ -79,10 +148,25 @@ export default function TabAnnonces() {
     }
 
     setSaving(true);
+    let uploadedUrl = form.image_url;
+    let uploadedPath = null;
+
+    try {
+      if (pendingFile) {
+        const result = await uploadPendingImage();
+        uploadedUrl = result.url;
+        uploadedPath = result.path;
+      }
+    } catch (error) {
+      setSaving(false);
+      showMsg(traduireErreurUpload(error));
+      return;
+    }
+
     const payload = {
       titre: form.titre,
       contenu: form.contenu,
-      image_url: form.image_url || null,
+      image_url: uploadedUrl || null,
       pinned: form.pinned,
       visible: form.visible,
       date_publi: form.date_publi || new Date().toISOString().split('T')[0],
@@ -96,8 +180,11 @@ export default function TabAnnonces() {
       result = await addAnnouncement(payload);
     }
 
-    setSaving(false);
     if (result.error) {
+      if (uploadedPath) {
+        await supabase.storage.from('etc-files').remove([uploadedPath]);
+      }
+      setSaving(false);
       if (result.error.code === '42501') {
         showMsg('Action non autorisee');
       } else {
@@ -106,12 +193,20 @@ export default function TabAnnonces() {
       return;
     }
 
+    if (editingId && originalImageUrl && originalImageUrl !== uploadedUrl) {
+      await supprimerFichierBucket(originalImageUrl);
+    }
+
+    setSaving(false);
     showMsg(editingId ? 'Annonce mise a jour' : 'Annonce ajoutee');
     resetForm();
     load();
   };
 
   const startEdit = (a) => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setEditingId(a.id);
     setForm({
       titre: a.titre || '',
@@ -122,9 +217,14 @@ export default function TabAnnonces() {
       date_publi: a.date_publi || new Date().toISOString().split('T')[0],
       date_fin: a.date_fin || ''
     });
+    setPreviewUrl(a.image_url || '');
+    setPendingFile(null);
+    setOriginalImageUrl(a.image_url || '');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDelete = async (id) => {
+    const annonce = annonces.find(a => a.id === id);
     const { error } = await deleteAnnouncement(id);
     if (error) {
       if (error.code === '42501') {
@@ -133,6 +233,9 @@ export default function TabAnnonces() {
         showMsg('Erreur : ' + error.message);
       }
       return;
+    }
+    if (annonce?.image_url) {
+      await supprimerFichierBucket(annonce.image_url);
     }
     showMsg('Annonce supprimee');
     load();
@@ -156,6 +259,8 @@ export default function TabAnnonces() {
     load();
   };
 
+  const displayImage = previewUrl || form.image_url;
+
   return (
     <div className="admin-tab">
       <h3>{editingId ? 'Modifier l\'annonce' : 'Nouvelle annonce'}</h3>
@@ -176,17 +281,49 @@ export default function TabAnnonces() {
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <label style={{ fontSize: 12, color: 'var(--texte-doux)' }}>
-            Image:
+            Image :
             <input
+              ref={fileInputRef}
               type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
+              accept="image/jpeg,image/png,image/webp,image/svg+xml,.heic,.heif"
+              onChange={handleImageSelect}
+              disabled={uploading || saving}
               style={{ marginLeft: 8 }}
             />
           </label>
-          {uploading && <span style={{ fontSize: 11, color: 'var(--or)' }}>Upload...</span>}
-          {form.image_url && (
-            <img src={form.image_url} alt="" style={{ height: 40, borderRadius: 4 }} />
+          {uploading && (
+            <span style={{ fontSize: 11, color: 'var(--or)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="spinner-small" /> Envoi en cours...
+            </span>
+          )}
+          {displayImage && (
+            <>
+              <img
+                src={displayImage}
+                alt="Apercu"
+                style={{ height: 48, borderRadius: 4, border: '1px solid var(--color-border)' }}
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                disabled={uploading || saving}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-error, #c00)',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                Retirer l'image
+              </button>
+            </>
+          )}
+          {!displayImage && !uploading && (
+            <span style={{ fontSize: 11, color: 'var(--texte-doux)', fontStyle: 'italic' }}>
+              Aucune image
+            </span>
           )}
         </div>
 
@@ -228,14 +365,14 @@ export default function TabAnnonces() {
           </label>
         </div>
 
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') || msg.includes('non autorisee') ? 'err' : 'ok'}`}>{msg}</div>}
+        {msg && <div className={`admin-msg ${msg.includes('Erreur') || msg.includes('non autorise') ? 'err' : 'ok'}`}>{msg}</div>}
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="submit" className="admin-btn-primary" disabled={saving}>
+          <button type="submit" className="admin-btn-primary" disabled={saving || uploading}>
             {saving ? 'Enregistrement...' : editingId ? 'Mettre a jour' : 'Publier'}
           </button>
           {editingId && (
-            <button type="button" className="admin-btn-secondary" onClick={resetForm}>
+            <button type="button" className="admin-btn-secondary" onClick={resetForm} disabled={saving || uploading}>
               Annuler
             </button>
           )}
