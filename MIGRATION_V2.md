@@ -77,6 +77,33 @@ File sizes after gzip:
   [...]
 ```
 
+### Test manuel envoi images (Etape 2-3)
+
+**Procedure de test :**
+
+1. Ouvrir /admin > Annonces
+2. Creer une nouvelle annonce
+3. Tester les cas suivants :
+
+| Fichier | Resultat attendu | Verifie |
+|---------|------------------|---------|
+| Photo JPEG 6 Mo | Compresse en WebP < 800 Ko, apercu local immediat | [ ] |
+| PNG transparent | Upload reussi, conserve transparence si PNG | [ ] |
+| "Capture d'ecran.png" (accents/espaces) | Nom genere: site/annonces/<uuid>.webp | [ ] |
+| Fichier PDF | Refuse avec "Format non accepte : utilise une image JPEG, PNG ou WebP." | [ ] |
+| Image 20 Mo | Refuse avec "Image trop lourde" | [ ] |
+
+**Verification bucket :**
+- Les fichiers sont sous site/annonces/ avec noms UUID
+- Suppression de l'annonce supprime l'image du bucket
+- Remplacement de l'image supprime l'ancienne
+
+**Affichage accueil :**
+- Image principale 16/9 avec object-fit cover
+- Mobile : max-height 180px
+- Si image ne charge pas, retombe sur bloc jour/mois
+- alt = titre de l'annonce
+
 ### Git log
 
 ```
@@ -136,7 +163,7 @@ dab9adf Phase C: Ajout role guards admin (editor vs admin/super_admin)
 
 ### Nouveaux onglets (src/pages/admin/)
 
-- [x] TabAnnonces.js: CRUD announcements (image upload vers etc-files/site/)
+- [x] TabAnnonces.js: CRUD announcements (envoi images robuste vers etc-files/site/annonces/)
 - [x] TabServices.js: CRUD services (type culte/evenement)
 - [x] TabCellules.js: CRUD cell_groups (jour_semaine Lundi-Dimanche)
 - [x] TabSettings.js: site_settings (validation URL https)
@@ -208,6 +235,7 @@ Reduit a 211 lignes (coque: login, navigation, role guards).
 - src/lib/admin.js
 - src/lib/money.js
 - src/lib/dateUtils.js
+- src/lib/images.js
 - src/pages/admin/index.js
 - src/pages/admin/TabAnnonces.js
 - src/pages/admin/TabServices.js
