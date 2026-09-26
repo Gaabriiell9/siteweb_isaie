@@ -61,6 +61,7 @@ function BadgeEmail({ confirmedAt }) {
 /* ── Section Paiements dans le drawer ── */
 function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   const [saving, setSaving] = useState(null);
+  const [filtreStatut, setFiltreStatut] = useState('tous');
 
   // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
   const isEchelonne = eleve?.formule === 'echelonne';
@@ -182,11 +183,26 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
         ))}
       </div>
 
-      {/* Historique des paiements */}
+      {/* Historique des paiements avec filtre */}
       {paiements.length > 0 && (
         <>
-          <div className="af-pay-planning-title" style={{ marginTop: 24 }}>Historique des versements</div>
-          {paiements.map(p => (
+          <div className="af-pay-planning-title" style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Historique des versements</span>
+            <select
+              value={filtreStatut}
+              onChange={(e) => setFiltreStatut(e.target.value)}
+              style={{ fontSize: 11, padding: '4px 8px', borderRadius: 4, border: '1px solid rgba(200,134,10,0.2)' }}
+            >
+              <option value="tous">Tous</option>
+              <option value="reussi">Reussis</option>
+              <option value="en_attente">En attente</option>
+              <option value="echec">Echecs</option>
+              <option value="rembourse">Rembourses</option>
+            </select>
+          </div>
+          {paiements
+            .filter(p => filtreStatut === 'tous' || p.statut === filtreStatut)
+            .map(p => (
             <div className="af-pay-row" key={p.id}>
               <div className="af-pay-montant">{(p.montant_cents || 0) / 100} EUR</div>
               <div>
@@ -198,6 +214,11 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
               <BadgeStatut statut={p.statut} />
             </div>
           ))}
+          {paiements.filter(p => filtreStatut === 'tous' || p.statut === filtreStatut).length === 0 && (
+            <p style={{ fontSize: 12, color: 'var(--texte-doux)', fontStyle: 'italic', padding: 12 }}>
+              Aucun paiement avec ce statut.
+            </p>
+          )}
         </>
       )}
     </div>
@@ -336,6 +357,31 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
                     <span className="af-profil-val">{v}</span>
                   </div>
                 ))}
+              </div>
+
+              {/* Indicateur paiements/modules */}
+              <div className="af-profil-section-title" style={{ marginTop: 16 }}>Suivi</div>
+              <div className="af-pay-summary" style={{ marginBottom: 16 }}>
+                <div className="af-pay-summary-row">
+                  <span>Paiements recus</span>
+                  <strong>{paiements.filter(p => p.statut === 'reussi').length} versement(s)</strong>
+                </div>
+                <div className="af-pay-summary-row">
+                  <span>Modules debloques</span>
+                  <strong>{modules.filter(m => m.debloque).length} / {modules.length}</strong>
+                </div>
+                {eleve.stripe_subscription_id && (
+                  <div className="af-pay-summary-row">
+                    <span>Abonnement Stripe</span>
+                    <span className="af-badge af-badge--bleu">Actif</span>
+                  </div>
+                )}
+                {eleve.stripe_customer_id && !eleve.stripe_subscription_id && eleve.formule === 'echelonne' && (
+                  <div className="af-pay-summary-row">
+                    <span>Abonnement Stripe</span>
+                    <span className="af-badge af-badge--gris">Termine</span>
+                  </div>
+                )}
               </div>
 
               {/* Parcours spirituel */}
