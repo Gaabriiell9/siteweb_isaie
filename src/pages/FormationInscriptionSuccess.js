@@ -1,107 +1,84 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import './FormationInscriptionSuccess.css';
-import Icon from '../components/Icon';
 
 export default function FormationInscriptionSuccess() {
   const navigate = useNavigate();
-  const [info, setInfo] = useState({ email: '', formule: '', prenom: '' });
-  const [formuleData, setFormuleData] = useState(null);
-  const [countdown, setCountdown] = useState(5);
+  const [searchParams] = useSearchParams();
+  const [info, setInfo] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('etc_inscription_success');
-    if (!stored) { navigate('/formation/inscription'); return; }
-    setInfo(JSON.parse(stored));
-    const formule = localStorage.getItem('etc_formule_selectionnee');
-    if (formule) setFormuleData(JSON.parse(formule));
-  }, [navigate]);
+    const sessionId = searchParams.get('session_id');
+    if (!sessionId) {
+      navigate('/formation/inscription');
+      return;
+    }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCountdown(c => {
-        if (c <= 1) { clearInterval(interval); navigate('/eleve/login'); return 0; }
-        return c - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [navigate]);
+    const stored = localStorage.getItem('etc_inscription_pending');
+    if (stored) {
+      setInfo(JSON.parse(stored));
+      localStorage.removeItem('etc_inscription_pending');
+    } else {
+      setInfo({ email: '', prenom: '', formule: '', formule_nom: '' });
+    }
+  }, [navigate, searchParams]);
 
   const formatEuros = (cents) => {
-    if (!cents && cents !== 0) return '—';
-    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+    if (!cents && cents !== 0) return '';
+    return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' euros';
   };
 
-  const getFormuleLabel = () => {
-    if (!formuleData) {
-      return info.formule === 'integral' ? 'Paiement integral' : 'Paiement echelonne';
-    }
-    if (formuleData.type === 'echelonne') {
-      return `${formuleData.nom} - ${formatEuros(formuleData.montant_echeance_cents)}/mois`;
-    }
-    return `${formuleData.nom} - ${formatEuros(formuleData.prix_total_cents)}`;
-  };
+  if (!info) return null;
 
   return (
     <div className="fis-wrap">
       <div className="fis-container">
 
-        {/* Check animé */}
         <div className="fis-check-wrap">
           <svg className="fis-check-svg" viewBox="0 0 80 80" fill="none">
-            <circle className="fis-check-circle" cx="40" cy="40" r="38" stroke="#27ae60" strokeWidth="3" fill="none" />
+            <circle className="fis-check-circle" cx="40" cy="40" r="38" stroke="var(--or)" strokeWidth="3" fill="none" />
             <polyline className="fis-check-mark" points="20,42 34,56 60,26"
-              stroke="#27ae60" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              stroke="var(--or)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
           </svg>
         </div>
 
         <h1 className="fis-title">
-          Bienvenue dans la formation<br />
-          <em>Théologie Biblique !</em>
+          Paiement confirme !
         </h1>
 
-        <p className="fis-subtitle">Votre compte a été créé avec succès.</p>
-
-        {/* Récap */}
-        <div className="fis-recap">
-          <div className="fis-recap-row">
-            <span className="fis-recap-key">Email</span>
-            <span className="fis-recap-val">{info.email}</span>
-          </div>
-          <div className="fis-recap-row">
-            <span className="fis-recap-key">Formule</span>
-            <span className="fis-recap-val">{getFormuleLabel()}</span>
-          </div>
-        </div>
-
-        {/* Email confirmation warning */}
-        <div className="fis-email-warning">
-          <div className="fis-email-warning-icon">📧</div>
-          <div>
-            <strong>Confirmez votre adresse email</strong>
-            <p>Un email de confirmation a été envoyé à <em>{info.email}</em>. Vous devez cliquer sur le lien dans cet email <strong>AVANT</strong> de pouvoir vous connecter à votre Espace Élève.</p>
-          </div>
-        </div>
-
-        {/* Info paiement */}
-        <div className="fis-payment-notice">
-          <div className="fis-payment-icon"><Icon name="envelope" size={32} /></div>
-          <div>
-            <strong>Instructions de paiement</strong>
-            <p>Les instructions de paiement vous seront envoyées par email sous 48h. Vérifiez votre boîte de réception (et vos spams).</p>
-          </div>
-        </div>
-
-        <Link to="/eleve/login" className="fis-btn">
-          Accéder à mon espace élève →
-        </Link>
-
-        <p className="fis-redirect-notice">
-          Redirection automatique dans <strong>{countdown}</strong> seconde{countdown > 1 ? 's' : ''}…
+        <p className="fis-subtitle">
+          {info.prenom ? `Bienvenue ${info.prenom} dans la formation theologique !` : 'Bienvenue dans la formation theologique !'}
         </p>
 
+        <div className="fis-recap">
+          {info.email && (
+            <div className="fis-recap-row">
+              <span className="fis-recap-key">Email</span>
+              <span className="fis-recap-val">{info.email}</span>
+            </div>
+          )}
+          {info.formule_nom && (
+            <div className="fis-recap-row">
+              <span className="fis-recap-key">Formule</span>
+              <span className="fis-recap-val">
+                {info.formule_nom}
+                {info.formule_prix_total_cents ? ` - ${formatEuros(info.formule_prix_total_cents)}` : ''}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="fis-info-box">
+          <p><strong>Verifiez votre boite email</strong></p>
+          <p>Un email vous a ete envoye pour creer votre mot de passe et acceder a votre espace eleve. Pensez a verifier vos spams si vous ne le voyez pas.</p>
+        </div>
+
+        <Link to="/" className="fis-btn">
+          Retour a l'accueil
+        </Link>
+
         <Link to="/formation" className="fis-link-back">
-          ← Retour à la formation
+          Retour a la formation
         </Link>
       </div>
     </div>

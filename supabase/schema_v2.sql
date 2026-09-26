@@ -344,6 +344,23 @@ CREATE TABLE IF NOT EXISTS public.messages (
 );
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- inscriptions_pending
+-- Stocke les donnees d'inscription en attente de paiement Stripe
+-- RLS active sans policy = invisible cote client, inscriptible par cle service
+-- Expire apres 24h (nettoyage via cron ou manuel)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.inscriptions_pending (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_session_id text UNIQUE NOT NULL,
+  email text NOT NULL,
+  password_hash text NOT NULL,
+  donnees jsonb NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  expires_at timestamptz DEFAULT (now() + interval '24 hours')
+);
+ALTER TABLE public.inscriptions_pending ENABLE ROW LEVEL SECURITY;
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- stripe_webhook_events (idempotence)
 -- RLS active sans policy = invisible et inscriptible seulement par cle service
 -- ─────────────────────────────────────────────────────────────────────────────

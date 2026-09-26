@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { finalizeInscription } from '../lib/auth';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { getFormulesPaiement, getModulesCount } from '../lib/public';
+import { createCheckoutSessionInscription } from '../lib/stripe';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
 import 'flag-icons/css/flag-icons.min.css';
@@ -136,7 +136,6 @@ const EMPTY_FORM = {
   date_naissance: '', pays: '', ville: '',
   eglise: '', pasteur_referent: '',
   niveau_biblique: '', motivation: '',
-  password: '', password_confirm: '',
   accept_conditions: false, accept_engagement: false, communications_ok: false,
 };
 
@@ -179,45 +178,6 @@ function ProgressBar({ step }) {
           </React.Fragment>
         );
       })}
-    </div>
-  );
-}
-
-function PasswordStrength({ password }) {
-  const checks = {
-    length:    password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    digit:     /[0-9]/.test(password),
-    special:   /[^A-Za-z0-9]/.test(password),
-  };
-  const score = Object.values(checks).filter(Boolean).length;
-  const colors = ['', '#e74c3c', '#e67e22', '#f1c40f', '#27ae60'];
-  const levels = ['', 'Faible', 'Moyen', 'Fort', 'Très fort'];
-  return (
-    <div className="fi2-pwd-strength">
-      <div className="fi2-pwd-bars">
-        {[1,2,3,4].map(i => (
-          <div key={i} className="fi2-pwd-bar"
-            style={{ background: i <= score ? colors[score] : '#e0d8ce' }} />
-        ))}
-      </div>
-      {password && (
-        <span className="fi2-pwd-level" style={{ color: colors[score] }}>
-          {levels[score]}
-        </span>
-      )}
-      <div className="fi2-pwd-criteria">
-        {[
-          { key: 'length',    label: '8 caractères min' },
-          { key: 'uppercase', label: '1 majuscule' },
-          { key: 'digit',     label: '1 chiffre' },
-          { key: 'special',   label: '1 caractère spécial' },
-        ].map(c => (
-          <span key={c.key} className={`fi2-pwd-crit ${checks[c.key] ? 'fi2-pwd-crit--ok' : ''}`}>
-            {checks[c.key] ? <Icon name="check" size={14} style={{marginRight:5}} /> : <Icon name="circle" size={14} style={{marginRight:5}} />}{c.label}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -550,73 +510,27 @@ function Step3({ formData, setFormData, onNext, onBack }) {
   );
 }
 
-// ─── Étape 4 — Compte ────────────────────────────────────────────────────────
+// ─── Etape 4 - Confirmation ──────────────────────────────────────────────────
 
 function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
-  const [showPwd, setShowPwd] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-
   const set = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData(d => ({ ...d, [field]: value }));
   };
 
-  const pwdOk = formData.password.length >= 8 &&
-    /[A-Z]/.test(formData.password) &&
-    /[0-9]/.test(formData.password) &&
-    /[^A-Za-z0-9]/.test(formData.password);
-  const pwdMatch = formData.password && formData.password === formData.password_confirm;
-  const canSubmit = pwdOk && pwdMatch && formData.accept_conditions && formData.accept_engagement;
-
-  const EyeIcon = ({ visible }) => visible ? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-      <line x1="1" y1="1" x2="23" y2="23"/>
-    </svg>
-  ) : (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  );
+  const canSubmit = formData.accept_conditions && formData.accept_engagement;
 
   return (
     <div className="fi2-step">
-      <h2 className="fi2-step-title">Créez votre compte</h2>
+      <h2 className="fi2-step-title">Confirmation</h2>
       <div className="fi2-email-recap">
-        Vous êtes sur le point de créer votre compte avec l'email :<br />
+        Votre compte sera cree avec l'adresse :<br />
         <strong>{formData.email}</strong>
       </div>
 
-      <div className="fi2-field fi2-field--full">
-        <label className="fi2-label">Mot de passe *</label>
-        <div className="fi2-pwd-wrap">
-          <input type={showPwd ? 'text' : 'password'} value={formData.password}
-            onChange={set('password')} placeholder="Minimum 8 caractères"
-            autoComplete="new-password" />
-          <button type="button" className="fi2-pwd-toggle" onClick={() => setShowPwd(v => !v)}>
-            <EyeIcon visible={showPwd} />
-          </button>
-        </div>
-        <PasswordStrength password={formData.password} />
-      </div>
-
-      <div className="fi2-field fi2-field--full">
-        <label className="fi2-label">Confirmer le mot de passe *</label>
-        <div className="fi2-pwd-wrap">
-          <input type={showConfirm ? 'text' : 'password'} value={formData.password_confirm}
-            onChange={set('password_confirm')}
-            className={formData.password_confirm && !pwdMatch ? 'fi2-input--error' : ''}
-            placeholder="Répétez votre mot de passe"
-            autoComplete="new-password" />
-          <button type="button" className="fi2-pwd-toggle" onClick={() => setShowConfirm(v => !v)}>
-            <EyeIcon visible={showConfirm} />
-          </button>
-        </div>
-        {formData.password_confirm && !pwdMatch && (
-          <span className="fi2-error">Les mots de passe ne correspondent pas</span>
-        )}
+      <div className="fi2-info-notice">
+        <Icon name="envelope" size={20} />
+        <span>Apres le paiement, vous recevrez un email pour choisir votre mot de passe et acceder a votre espace eleve.</span>
       </div>
 
       <div className="fi2-checkboxes">
@@ -628,12 +542,12 @@ function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
         <label className="fi2-check">
           <input type="checkbox" checked={formData.accept_engagement} onChange={set('accept_engagement')} />
           <span className="fi2-check-box" />
-          <span>Je m'engage à suivre la formation <strong>sérieusement et assidûment</strong> *</span>
+          <span>Je m'engage a suivre la formation <strong>serieusement et assidument</strong> *</span>
         </label>
         <label className="fi2-check">
           <input type="checkbox" checked={formData.communications_ok} onChange={set('communications_ok')} />
           <span className="fi2-check-box" />
-          <span>J'accepte de recevoir les communications de l'église <span className="fi2-optional">(optionnel)</span></span>
+          <span>J'accepte de recevoir les communications de l'eglise <span className="fi2-optional">(optionnel)</span></span>
         </label>
       </div>
 
@@ -642,22 +556,22 @@ function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
       )}
       {error === 'EMAIL_EXISTS' && (
         <div className="fi2-error-box fi2-error-box--email">
-          <strong>Un compte existe déjà avec l'adresse {formData.email}.</strong>
+          <strong>Un compte existe deja avec l'adresse {formData.email}.</strong>
           <br />
           <span>Connectez-vous ou utilisez une autre adresse email.</span>
           <div style={{ marginTop: 10 }}>
-            <a href="/eleve/login" className="fi2-login-link">Se connecter →</a>
+            <a href="/eleve/login" className="fi2-login-link">Se connecter</a>
           </div>
         </div>
       )}
 
       <div className="fi2-step-nav fi2-step-nav--submit">
         <button className="fi2-btn fi2-btn--secondary" onClick={onBack} disabled={submitting}>
-          ← Retour
+          Retour
         </button>
         <button className="fi2-btn fi2-btn--submit" onClick={onSubmit}
           disabled={!canSubmit || submitting}>
-          {submitting ? <><span className="fi2-spinner" /> Création…</> : 'Créer mon compte →'}
+          {submitting ? <><span className="fi2-spinner" /> Redirection...</> : 'Proceder au paiement'}
         </button>
       </div>
     </div>
@@ -669,6 +583,9 @@ function Step4({ formData, setFormData, onSubmit, onBack, submitting, error }) {
 export default function FormationInscription() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const annule = searchParams.get('annule') === '1';
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(() => {
@@ -685,7 +602,6 @@ export default function FormationInscription() {
   const [submitError, setSubmitError] = useState('');
   const [modulesCount, setModulesCount] = useState(null);
 
-  // Vider le draft et charger le nombre de modules
   useEffect(() => {
     localStorage.removeItem(DRAFT_KEY);
     getModulesCount().then(setModulesCount);
@@ -699,18 +615,18 @@ export default function FormationInscription() {
   };
 
   const handleSubmit = async () => {
-    // Guard contre double-clic
     if (submitting) return;
     setSubmitting(true);
     setSubmitError('');
+
     const fullPhone = formData.telephone
       ? `${formData.phone_code} ${formData.telephone}`
       : null;
 
-    const result = await finalizeInscription({
+    const { url, error } = await createCheckoutSessionInscription({
+      email: formData.email,
       prenom: formData.prenom,
       nom: formData.nom,
-      email: formData.email,
       telephone: fullPhone,
       date_naissance: formData.date_naissance || null,
       pays: formData.pays || null,
@@ -719,43 +635,40 @@ export default function FormationInscription() {
       pasteur_referent: formData.pasteur_referent || null,
       niveau_biblique: formData.niveau_biblique || null,
       motivation: formData.motivation || null,
+      communications_ok: formData.communications_ok,
       formule: formData.formule,
       formule_id: formData.formule_id || null,
-      // Donnees de formule figees au moment de l'inscription
       formule_nom: formData.formule_nom || null,
       formule_prix_total_cents: formData.formule_prix_total_cents || null,
       formule_nombre_echeances: formData.formule_nombre_echeances || null,
       formule_montant_echeance_cents: formData.formule_montant_echeance_cents || null,
       formule_avantages: formData.formule_avantages || [],
-      communications_ok: formData.communications_ok,
-      password: formData.password,
     });
 
-    setSubmitting(false);
-
-    if (!result.success) {
-      const error = result.error || {};
-      if (error.code === 'EMAIL_EXISTS') {
+    if (error) {
+      setSubmitting(false);
+      if (error === 'EMAIL_EXISTS') {
         setSubmitError('EMAIL_EXISTS');
       } else {
-        setSubmitError(error.message || 'Une erreur est survenue. Veuillez reessayer.');
+        setSubmitError(error);
       }
       return;
     }
 
-    // Succes
-    localStorage.removeItem(DRAFT_KEY);
-    localStorage.setItem('etc_inscription_success', JSON.stringify({
-      email: formData.email,
-      formule: formData.formule,
-      prenom: formData.prenom,
-      // Donnees figees pour affichage immediat
-      formule_nom: formData.formule_nom,
-      formule_prix_total_cents: formData.formule_prix_total_cents,
-      formule_nombre_echeances: formData.formule_nombre_echeances,
-      formule_montant_echeance_cents: formData.formule_montant_echeance_cents,
-    }));
-    navigate('/formation/paiement');
+    if (url) {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.setItem('etc_inscription_pending', JSON.stringify({
+        email: formData.email,
+        prenom: formData.prenom,
+        formule: formData.formule,
+        formule_nom: formData.formule_nom,
+        formule_prix_total_cents: formData.formule_prix_total_cents,
+      }));
+      window.location.href = url;
+    } else {
+      setSubmitting(false);
+      setSubmitError('URL de paiement non recue');
+    }
   };
 
   const handleReset = () => {
@@ -778,6 +691,13 @@ export default function FormationInscription() {
         </div>
 
         <ProgressBar step={step} />
+
+        {annule && (
+          <div className="fi2-error-box" style={{ marginBottom: 20, background: 'rgba(200,134,10,0.08)', borderColor: 'rgba(200,134,10,0.3)' }}>
+            <strong style={{ color: 'var(--or)' }}>Paiement annule</strong>
+            <p style={{ marginTop: 4 }}>Vous pouvez reprendre l'inscription a tout moment. Vos donnees ont ete conservees.</p>
+          </div>
+        )}
 
         <div className="fi2-card">
           <div className="fi2-step-anim" key={step}>
