@@ -1,11 +1,12 @@
-import React, { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import LiveBanner from './components/LiveBanner';
 import SEO from './components/SEO';
+import { supabase } from './lib/client';
 
 const Home = lazy(() => import('./pages/Home'));
 const Cultes = lazy(() => import('./pages/Cultes'));
@@ -28,12 +29,63 @@ const ElevePaiements = lazy(() => import('./pages/ElevePaiements'));
 const EleveProfil = lazy(() => import('./pages/EleveProfil'));
 const EleveCours = lazy(() => import('./pages/EleveCours'));
 const EleveMessages = lazy(() => import('./pages/EleveMessages'));
+const EleveBienvenue = lazy(() => import('./pages/EleveBienvenue'));
 
 const fallback = (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'var(--font-sans)', color: 'var(--or)' }}>
     Chargement...
   </div>
 );
+
+function AuthListener() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // DEBUG: Logger le hash vu par AuthListener
+    const hashAtAuthListener = window.location.hash;
+    const debugLog = JSON.parse(sessionStorage.getItem('debug_auth_events') || '[]');
+    debugLog.push({
+      time: new Date().toISOString(),
+      source: 'AuthListener mount',
+      hash: hashAtAuthListener,
+      pathname: location.pathname
+    });
+    sessionStorage.setItem('debug_auth_events', JSON.stringify(debugLog.slice(-10)));
+
+    // Detecter les tokens d'invitation dans le hash AVANT que le SDK ne les nettoie
+    const hash = window.location.hash;
+    if (hash && (hash.includes('type=invite') || hash.includes('type=recovery'))) {
+      if (location.pathname !== '/eleve/bienvenue') {
+        navigate('/eleve/bienvenue', { replace: true });
+        return;
+      }
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // DEBUG: Logger chaque evenement auth
+      const events = JSON.parse(sessionStorage.getItem('debug_auth_events') || '[]');
+      events.push({
+        time: new Date().toISOString(),
+        source: 'onAuthStateChange',
+        event: event,
+        hasSession: session ? 'session presente' : 'aucune session',
+        userEmail: session?.user?.email || null
+      });
+      sessionStorage.setItem('debug_auth_events', JSON.stringify(events.slice(-10)));
+
+      if (event === 'PASSWORD_RECOVERY') {
+        if (location.pathname !== '/eleve/bienvenue') {
+          navigate('/eleve/bienvenue', { replace: true });
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, location.pathname]);
+
+  return null;
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -61,13 +113,15 @@ export default function App() {
     <ErrorBoundary>
     <SEO />
     <BrowserRouter>
+      <AuthListener />
       <Suspense fallback={fallback}>
         <Routes>
           {/* Page admin — sans navbar/footer, sans animation */}
           <Route path="/admin" element={<Admin />} />
 
-          {/* Espace élève — sans navbar/footer public */}
+          {/* Espace eleve - sans navbar/footer public */}
           <Route path="/eleve/login" element={<EleveLogin />} />
+          <Route path="/eleve/bienvenue" element={<EleveBienvenue />} />
           <Route path="/eleve" element={<ProtectedRoute><EleveLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard"   element={<EleveDashboard />} />
