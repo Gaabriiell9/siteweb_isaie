@@ -58,10 +58,35 @@ export default function EleveModules() {
     }
   }, []);
 
+  const modulesDebloques = modules.filter(m => m.debloque);
+  const aucunModuleDebloque = modules.length > 0 && modulesDebloques.length === 0;
+
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>modules</em></h1>
-      <p className="eleve-page-sub">Programme · {modulesCount !== null ? `${modulesCount} modules` : '…'} · 12 mois</p>
+      <p className="eleve-page-sub">Programme · {modulesCount !== null ? `${modulesCount} modules` : '...'} · 12 mois</p>
+
+      {/* Message si aucun module debloque */}
+      {aucunModuleDebloque && (
+        <div className="eleve-card" style={{ marginBottom: 24, padding: 24, textAlign: 'center', background: 'var(--or-pale)', borderColor: 'rgba(200,134,10,0.25)' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 18, color: 'var(--bordeaux)', marginBottom: 12 }}>
+            Aucun module n'est encore debloque
+          </p>
+          {eleve?.formule === 'integral' ? (
+            <p style={{ fontSize: 14, color: 'var(--texte-doux)', lineHeight: 1.6 }}>
+              Ton premier module sera debloque automatiquement apres validation de ton paiement.
+              <br />
+              <a href="/eleve/paiements" style={{ color: 'var(--or)', fontWeight: 500 }}>Acceder a mes paiements</a>
+            </p>
+          ) : (
+            <p style={{ fontSize: 14, color: 'var(--texte-doux)', lineHeight: 1.6 }}>
+              Apres ton premier paiement, contacte l'administration pour debloquer ton premier module.
+              <br />
+              <a href="/eleve/paiements" style={{ color: 'var(--or)', fontWeight: 500 }}>Acceder a mes paiements</a>
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="eleve-modules-list">
         {modules.map(m => {
@@ -133,11 +158,10 @@ export default function EleveModules() {
         })}
       </div>
 
-      {eleve?.formule === 'echelonne' && (
+      {eleve?.formule === 'echelonne' && modulesDebloques.length > 0 && (
         <div style={{ marginTop: 28, padding: '16px 20px', background: 'var(--or-pale)', border: '1px solid rgba(200,134,10,0.2)', borderLeft: '3px solid var(--or)' }}>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--vert)', lineHeight: 1.6 }}>
-            <strong>Formule échelonnée</strong> — Les modules se débloquent au fur et à mesure de vos mensualités.
-            Chaque paiement validé débloque le module correspondant.
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--bordeaux)', lineHeight: 1.6 }}>
+            <strong>Formule echelonnee</strong> - Les modules sont debloques par l'administration au fur et a mesure de tes paiements.
           </p>
         </div>
       )}

@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useEleve } from './EleveLayout';
 import { getPaiements } from '../lib/eleve';
 import { formatEuros, centsVersEuros } from '../lib/money';
+import { createCheckoutSession } from '../lib/stripe';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -26,18 +28,64 @@ const TYPE_LABEL = {
 };
 
 export default function ElevePaiements() {
-  const { eleve } = useEleve();
+  const { eleve, refetch } = useEleve();
   const [paiements, setPaiements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const succes = searchParams.get('succes') === '1';
+  const annule = searchParams.get('annule') === '1';
+
+  const loadPaiements = useCallback(async () => {
+    if (!eleve?.id) return;
+    const data = await getPaiements(eleve.id);
+    setPaiements(data || []);
+    setLoading(false);
+  }, [eleve?.id]);
 
   useEffect(() => {
-    if (!eleve || !eleve.id) return;
+    loadPaiements();
+  }, [loadPaiements]);
 
-    getPaiements(eleve.id).then(data => {
-      setPaiements(data || []);
-      setLoading(false);
-    });
-  }, [eleve]);
+  useEffect(() => {
+    if (succes) {
+      const timer = setTimeout(() => {
+        loadPaiements();
+        if (refetch) refetch();
+      }, 2000);
+
+      const clearParams = setTimeout(() => {
+        setSearchParams({});
+      }, 5000);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(clearParams);
+      };
+    }
+  }, [succes, loadPaiements, refetch, setSearchParams]);
+
+  const handlePayer = async () => {
+    setPaymentLoading(true);
+    setPaymentError(null);
+
+    const { url, error } = await createCheckoutSession();
+
+    if (error) {
+      setPaymentError(error);
+      setPaymentLoading(false);
+      return;
+    }
+
+    if (url) {
+      window.location.href = url;
+    } else {
+      setPaymentError('URL de paiement non recue');
+      setPaymentLoading(false);
+    }
+  };
 
   // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
   const isEchelonne = eleve?.formule === 'echelonne';
@@ -118,10 +166,56 @@ export default function ElevePaiements() {
     );
   }
 
+  const peutPayer = restantDuEuros > 0 && (!isEchelonne || !eleve?.stripe_subscription_id);
+
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>paiements</em></h1>
       <p className="eleve-page-sub">{getFormuleLabel()}</p>
+
+      {/* ── Message succes/annulation ── */}
+      {succes && (
+        <div className="eleve-card" style={{ background: 'rgba(29, 131, 72, 0.08)', borderColor: 'rgba(29, 131, 72, 0.3)', marginBottom: 20, padding: 16 }}>
+          <p style={{ color: 'var(--statut-ok)', fontWeight: 500, margin: 0 }}>
+            Paiement recu ! Mise a jour en cours...
+          </p>
+        </div>
+      )}
+
+      {annule && (
+        <div className="eleve-card" style={{ background: 'rgba(200, 134, 10, 0.08)', borderColor: 'rgba(200, 134, 10, 0.3)', marginBottom: 20, padding: 16 }}>
+          <p style={{ color: 'var(--or)', fontWeight: 500, margin: 0 }}>
+            Paiement annule. Vous pouvez reessayer quand vous le souhaitez.
+          </p>
+        </div>
+      )}
+
+      {paymentError && (
+        <div className="eleve-card" style={{ background: 'rgba(192, 57, 43, 0.08)', borderColor: 'rgba(192, 57, 43, 0.3)', marginBottom: 20, padding: 16 }}>
+          <p style={{ color: 'var(--statut-erreur)', fontWeight: 500, margin: 0 }}>
+            Erreur : {paymentError}
+          </p>
+        </div>
+      )}
+
+      {/* ── Bouton Payer ── */}
+      {peutPayer && (
+        <div style={{ marginBottom: 24 }}>
+          <button
+            onClick={handlePayer}
+            disabled={paymentLoading}
+            className="btn-or"
+            style={{ minWidth: 200 }}
+          >
+            {paymentLoading ? 'Redirection...' : `Payer ${isEchelonne ? 'la premiere echeance' : formatEuros(prixTotalCents)}`}
+          </button>
+          {isEchelonne && eleve?.stripe_subscription_id && (
+            <p style={{ fontSize: 13, color: 'var(--texte-doux)', marginTop: 8 }}>
+              Abonnement actif - les echeances suivantes seront prelevees automatiquement.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ── Résumé ── */}
       <div className="eleve-stats-grid" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: 24 }}>

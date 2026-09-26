@@ -1,28 +1,32 @@
-// ─── Stripe integration (préparation — fonctions à brancher ───────
-// Toutes les fonctions sont des stubs. Le vrai Stripe sera activé
-// via Supabase Edge Functions quand la configuration sera prête.
+import { supabase } from './client';
 
-export async function createCheckoutSession(inscriptionId, formule) {
-  // TODO: appeler une Supabase Edge Function qui crée une session Stripe Checkout
-  // et retourne l'URL de redirection
-  return { url: null, error: 'Stripe non configuré' };
-}
+const FUNCTION_URL = process.env.REACT_APP_SUPABASE_URL?.replace('.supabase.co', '.supabase.co/functions/v1');
 
-export async function handleStripeWebhook(event) {
-  // TODO: traiter les événements Stripe (payment_intent.succeeded, etc.)
-}
+export async function createCheckoutSession() {
+  const { data: { session } } = await supabase.auth.getSession();
 
-export async function createSubscription(eleveId, plan) {
-  // TODO: créer un abonnement Stripe pour le paiement échelonné
-  return { subscriptionId: null, error: 'Stripe non configuré' };
-}
+  if (!session?.access_token) {
+    return { url: null, error: 'Non connecte' };
+  }
 
-export async function cancelSubscription(subscriptionId) {
-  // TODO: annuler un abonnement Stripe
-  return { error: 'Stripe non configuré' };
-}
+  try {
+    const response = await fetch(`${FUNCTION_URL}/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-export async function getCustomerPortalUrl(eleveId) {
-  // TODO: obtenir l'URL du portail client Stripe
-  return { url: null, error: 'Stripe non configuré' };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { url: null, error: data.error || 'Erreur serveur' };
+    }
+
+    return { url: data.url, error: null };
+  } catch (err) {
+    console.error('Erreur createCheckoutSession:', err);
+    return { url: null, error: err.message || 'Erreur reseau' };
+  }
 }
