@@ -31,18 +31,17 @@ function getContrastRatio(color1, color2) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// Palette du site (variables de index.css)
+// Palette du site (variables de index.css - palette origine)
 const COLORS = {
-  vert: '#1E4D46',
-  vertNuit: '#122D29',
-  vertDoux: '#F5FAF9',
-  or: '#C89B4A',
-  orTexte: '#D4AD5C',
-  orLabel: '#A07C38',
-  creme: '#FAF7F1',
-  encre: '#1A1F1E',
-  encreDouce: '#4A5250',
-  bord: '#D8E0DC',
+  noir: '#0E0600',
+  bordeaux: '#6B1A2E',
+  bordeauxClair: '#8B2E44',
+  or: '#B87800',
+  orClair: '#E8B84B',
+  orPale: '#FDF3DC',
+  creme: '#FFFBF5',
+  texte: '#2A1200',
+  texteDoux: '#6B5540',
   blanc: '#FFFFFF',
   statutDirect: '#B42318',
   statutOk: '#1D8348',
@@ -54,24 +53,25 @@ const COLORS = {
 // Paires a verifier (labels en majuscules >= 14px sont "grand texte" -> min 3:1)
 const PAIRS = [
   // Textes sur fonds sombres
-  { fg: 'creme', bg: 'vert', name: 'Creme sur vert', minRatio: 4.5 },
-  { fg: 'creme', bg: 'vertNuit', name: 'Creme sur vert nuit', minRatio: 4.5 },
-  { fg: 'orTexte', bg: 'vert', name: 'Or texte sur vert', minRatio: 3 },
-  { fg: 'orTexte', bg: 'vertNuit', name: 'Or texte sur vert nuit', minRatio: 3 },
-  { fg: 'or', bg: 'vertNuit', name: 'Or sur vert nuit', minRatio: 3 },
+  { fg: 'creme', bg: 'noir', name: 'Creme sur noir', minRatio: 4.5 },
+  { fg: 'creme', bg: 'bordeaux', name: 'Creme sur bordeaux', minRatio: 4.5 },
+  { fg: 'orClair', bg: 'noir', name: 'Or clair sur noir', minRatio: 3 },
+  { fg: 'orClair', bg: 'bordeaux', name: 'Or clair sur bordeaux', minRatio: 3 },
+  { fg: 'or', bg: 'noir', name: 'Or sur noir', minRatio: 3 },
 
   // Textes sur fonds clairs
-  { fg: 'vert', bg: 'creme', name: 'Vert sur creme', minRatio: 4.5 },
-  { fg: 'encre', bg: 'creme', name: 'Encre sur creme', minRatio: 4.5 },
-  { fg: 'encreDouce', bg: 'creme', name: 'Encre douce sur creme', minRatio: 4.5 },
-  { fg: 'orLabel', bg: 'creme', name: 'Or label sur creme', minRatio: 3 },
+  { fg: 'bordeaux', bg: 'creme', name: 'Bordeaux sur creme', minRatio: 4.5 },
+  { fg: 'bordeauxClair', bg: 'creme', name: 'Bordeaux clair sur creme', minRatio: 4.5 },
+  { fg: 'texte', bg: 'creme', name: 'Texte sur creme', minRatio: 4.5 },
+  { fg: 'texteDoux', bg: 'creme', name: 'Texte doux sur creme', minRatio: 4.5 },
+  { fg: 'or', bg: 'creme', name: 'Or sur creme', minRatio: 3 },
 
   // Boutons
-  { fg: 'encre', bg: 'or', name: 'Texte bouton (encre sur or)', minRatio: 4.5 },
-  { fg: 'creme', bg: 'vert', name: 'Texte bouton (creme sur vert)', minRatio: 4.5 },
+  { fg: 'texte', bg: 'or', name: 'Texte bouton (texte sur or)', minRatio: 4.5 },
+  { fg: 'creme', bg: 'bordeaux', name: 'Texte bouton (creme sur bordeaux)', minRatio: 4.5 },
 
-  // Liens Footer sur vert nuit
-  { fg: 'creme', bg: 'vertNuit', name: 'Liens footer (creme 50% sur vert nuit)', minRatio: 3 },
+  // Liens Footer sur noir
+  { fg: 'orClair', bg: 'noir', name: 'Liens footer (or clair sur noir)', minRatio: 3 },
 
   // Statuts sur leurs fonds
   { fg: 'statutDirect', bg: 'creme', name: 'Statut direct sur creme', minRatio: 4.5 },
