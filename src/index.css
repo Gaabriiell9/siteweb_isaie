@@ -1,51 +1,51 @@
 /* ============================================================
-   E-T-C Church — Design System Modern
-   Aesthetic: Refined Sacred · Ink & Gold
-   Fonts: Fraunces (display/headings) · Inter (body) · IBM Plex Mono (labels)
+   E-T-C Church — Design System Premium
+   Aesthetic: Luxury Sacred · Art Deco x Heritage Africain
+   Fonts: DM Serif Display (display/headings) · Satoshi (UI)
    ============================================================
-   THEMES DE FOND : fond clair (creme, vert-doux) vs fond sombre (vert, vert-nuit)
-   - Fond clair : titres en --vert, accents em en --or-label, textes en --encre/--encre-douce
-   - Fond sombre : titres en --creme, accents em en --or-texte, textes en creme 85%/70%
-   - Utiliser --or-label (pas --or-texte) pour les accents sur fond clair (contraste 3.6:1)
+   Palette restauree depuis commit 8b74980 (origine)
+   --noir #0E0600, --bordeaux #6B1A2E, --or #C8860A
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Palette principale */
-  --vert:           #1E4D46;                      /* Vert profond - couleur de marque */
-  --vert-nuit:      #122D29;                      /* Vert nuit - 35% plus sombre */
-  --vert-doux:      #F5FAF9;                      /* Vert pale - 6% de vert sur creme */
-  --or:             #C89B4A;                      /* Or principal */
-  --or-texte:       #D4AD5C;                      /* Or clair pour texte sur fond sombre */
-  --or-label:       #A07C38;                      /* Or fonce pour labels sur fond clair */
-  --creme:          #FAF7F1;                      /* Fond principal */
-  --encre:          #1A1F1E;                      /* Texte principal - vert tres fonce */
-  --encre-douce:    #4A5250;                      /* Texte secondaire - gris teinte vert */
-  --bord:           #D8E0DC;                      /* Bordures - teinte vert pale */
+  /* Palette principale - restauree depuis 8b74980 */
+  --noir:           #0E0600;                      /* Noir profond - fond navbar/footer */
+  --bordeaux:       #6B1A2E;                      /* Bordeaux - boutons, accents */
+  --bordeaux-clair: #8B2E44;                      /* Bordeaux clair - titres tuiles */
+  --or:             #C8860A;                      /* Or principal */
+  --or-clair:       #E8B84B;                      /* Or clair - liens actifs */
+  --or-pale:        #FDF3DC;                      /* Or pale - fonds legers */
+  --creme:          #FFFBF5;                      /* Fond principal */
+  --texte:          #2A1200;                      /* Texte principal */
+  --texte-doux:     #6B5540;                      /* Texte secondaire */
   --blanc:          #FFFFFF;
 
-  /* Statuts semantiques (distincts du vert de marque) */
+  /* Statuts semantiques (inchanges) */
   --statut-direct:  #B42318;                      /* Rouge - EN DIRECT */
-  --statut-ok:      #1D8348;                      /* Vert succes (assombri pour contraste) */
-  --statut-alerte:  #B35F00;                      /* Orange alerte (assombri pour contraste) */
+  --statut-ok:      #1D8348;                      /* Vert succes */
+  --statut-alerte:  #B35F00;                      /* Orange alerte */
   --statut-erreur:  #C0392B;                      /* Rouge erreur */
-  --statut-info:    #1F6091;                      /* Bleu info (assombri pour contraste) */
+  --statut-info:    #1F6091;                      /* Bleu info */
 
-  /* Aliases de compatibilite */
-  --color-ink:       var(--encre);
+  /* Aliases de compatibilite (pointe vers palette restauree) */
+  --color-ink:       var(--texte);
   --color-parchment: var(--creme);
   --color-gold:      var(--or);
-  --color-emerald:   var(--vert);
-  --color-text:      var(--encre);
-  --color-border:    var(--bord);
+  --color-emerald:   var(--bordeaux);
+  --color-text:      var(--texte);
+  --color-border:    rgba(200, 134, 10, 0.15);
 
-  /* Anciens aliases (compatibilite) */
-  --noir:           var(--encre);
-  --or-clair:       var(--or-texte);
-  --or-pale:        rgba(200, 155, 74, 0.12);
-  --texte:          var(--encre);
-  --texte-doux:     var(--encre-douce);
+  /* Aliases supprimes de la refonte verte */
+  --encre:          var(--texte);
+  --encre-douce:    var(--texte-doux);
+  --bord:           rgba(200, 134, 10, 0.15);
+  --vert:           var(--bordeaux);
+  --vert-nuit:      var(--noir);
+  --vert-doux:      var(--or-pale);
+  --or-texte:       var(--or-clair);
+  --or-label:       var(--or);
 
   /* Typographie */
   --font-display:  'Fraunces', Georgia, serif;
@@ -72,13 +72,13 @@
 
 /* Selection */
 ::selection {
-  background: var(--vert-nuit);
-  color: var(--or-texte);
+  background: var(--noir);
+  color: var(--or-clair);
 }
 
 /* Accent natif (checkboxes, radios, sliders) */
 :root {
-  accent-color: var(--vert);
+  accent-color: var(--bordeaux);
 }
 
 html { scroll-behavior: smooth; }
@@ -143,12 +143,12 @@ img { max-width: 100%; display: block; }
 
 /* Label de section */
 .section-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--vert);
-  font-weight: 400;
+  color: var(--or);
+  font-weight: 500;
   margin-bottom: 10px;
 }
 
@@ -156,14 +156,14 @@ img { max-width: 100%; display: block; }
 .section-title {
   font-family: var(--font-display);
   font-size: clamp(30px, 4.5vw, 48px);
-  font-weight: 600;
-  color: var(--color-emerald);
+  font-weight: 400;
+  color: var(--bordeaux-clair);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
-.section-title em { font-style: italic; color: var(--or-label); }
-.section-title.light { color: var(--color-parchment); }
-.section-title.light em { color: var(--or-texte); }
+.section-title em { font-style: italic; color: var(--or); }
+.section-title.light { color: var(--creme); }
+.section-title.light em { color: var(--or-clair); }
 
 /* Container */
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
@@ -191,11 +191,11 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 4px 16px rgba(200, 155, 74, 0.35);
 }
 
-/* Bouton secondaire (émeraude) */
+/* Bouton secondaire (bordeaux) */
 .btn-emerald {
   display: inline-block;
-  background: var(--color-emerald);
-  color: var(--color-parchment);
+  background: var(--bordeaux);
+  color: var(--creme);
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
@@ -208,7 +208,7 @@ img { max-width: 100%; display: block; }
   cursor: pointer;
 }
 .btn-emerald:hover {
-  background: #256B61;
+  background: var(--bordeaux-clair);
   transform: translateY(-2px);
 }
 
