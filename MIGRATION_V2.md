@@ -254,3 +254,70 @@ Reduit a 211 lignes (coque: login, navigation, role guards).
 
 - src/lib/supabase.js
 - src/lib/mockData.js
+
+---
+
+## Integration Stripe
+
+### Configuration des secrets (une seule fois)
+
+```bash
+# Se connecter a Supabase
+npx supabase login
+
+# Configurer la cle secrete Stripe (ne jamais committer cette valeur)
+npx supabase secrets set STRIPE_SECRET_KEY=sk_test_...
+
+# Deployer les Edge Functions
+npx supabase functions deploy create-checkout-session
+npx supabase functions deploy stripe-webhook
+
+# L'URL du webhook sera affichee, par exemple:
+# https://azzwmilhqbcoyzqtycpk.supabase.co/functions/v1/stripe-webhook
+
+# Creer le webhook dans Stripe Dashboard > Developers > Webhooks
+# Evenements a cocher:
+# - checkout.session.completed
+# - invoice.paid
+# - invoice.payment_failed
+# - customer.subscription.deleted
+
+# Configurer le secret de signature du webhook
+npx supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+### Tables et colonnes Stripe
+
+```sql
+-- Ajoutees a eleves
+stripe_customer_id text UNIQUE,
+stripe_subscription_id text UNIQUE,
+
+-- Table d'idempotence pour les webhooks
+CREATE TABLE stripe_webhook_events (
+  id text PRIMARY KEY,
+  type text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE stripe_webhook_events ENABLE ROW LEVEL SECURITY;
+```
+
+### Edge Functions
+
+| Fonction | Description |
+|----------|-------------|
+| create-checkout-session | Cree une session Stripe Checkout pour l'eleve connecte |
+| stripe-webhook | Recoit les evenements Stripe et met a jour la base |
+
+### Logique metier
+
+- **Formule integrale** : paiement unique, debloque tous les modules automatiquement
+- **Formule echelonnee** : abonnement mensuel, modules debloques manuellement par l'admin
+- **Echec de paiement** : enregistre le statut echec, n'affecte pas les modules
+- **Fin d'abonnement** : l'abonnement s'arrete apres le nombre d'echeances prevu
+
+### Tests mode test Stripe
+
+Cartes de test :
+- `4242 4242 4242 4242` : paiement reussi
+- `4000 0000 0000 9995` : paiement refuse (fonds insuffisants)
