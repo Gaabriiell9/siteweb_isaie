@@ -194,6 +194,8 @@ CREATE TABLE IF NOT EXISTS public.eleves (
   formule_nombre_echeances integer CHECK (formule_nombre_echeances >= 1),
   formule_montant_echeance_cents integer CHECK (formule_montant_echeance_cents >= 0),
   formule_avantages jsonb DEFAULT '[]',
+  stripe_customer_id text UNIQUE,
+  stripe_subscription_id text UNIQUE,
   statut text DEFAULT 'actif' CHECK (statut IN ('actif', 'suspendu', 'termine')),
   raison_suspension text,
   notes_admin text,
@@ -340,6 +342,17 @@ CREATE TABLE IF NOT EXISTS public.messages (
   date_lu timestamptz,
   created_at timestamptz DEFAULT now()
 );
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- stripe_webhook_events (idempotence)
+-- RLS active sans policy = invisible et inscriptible seulement par cle service
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.stripe_webhook_events (
+  id text PRIMARY KEY,
+  type text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.stripe_webhook_events ENABLE ROW LEVEL SECURITY;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- FONCTIONS RPC
