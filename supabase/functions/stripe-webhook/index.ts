@@ -48,6 +48,7 @@ async function handleNewInscription(
     email,
     {
       data: raw_meta,
+      redirectTo: "https://siteweb-isaie.vercel.app/eleve/bienvenue",
     }
   );
 
@@ -131,7 +132,7 @@ serve(async (req) => {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erreur inconnue";
     console.error("Signature invalide:", message);
@@ -252,14 +253,15 @@ serve(async (req) => {
       case "invoice.paid": {
         const invoice = event.data.object as Stripe.Invoice;
 
-        if (!invoice.subscription) {
+        // Compatible API 2026-03-25.dahlia : subscription dans parent.subscription_details
+        // @ts-ignore - parent.subscription_details peut ne pas exister dans les types
+        const subscriptionId = invoice.parent?.subscription_details?.subscription
+          || (typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id);
+
+        if (!subscriptionId) {
           console.log("invoice.paid sans subscription, ignore");
           break;
         }
-
-        const subscriptionId = typeof invoice.subscription === "string"
-          ? invoice.subscription
-          : invoice.subscription?.id;
 
         const customerId = typeof invoice.customer === "string"
           ? invoice.customer
@@ -310,9 +312,10 @@ serve(async (req) => {
 
         const echeanceNumero = (count || 0) + 1;
 
-        const paymentIntentId = typeof invoice.payment_intent === "string"
+        // Compatible API 2026-03-25.dahlia : payment_intent peut ne plus exister
+        const paymentIntentId = (typeof invoice.payment_intent === "string"
           ? invoice.payment_intent
-          : invoice.payment_intent?.id;
+          : invoice.payment_intent?.id) || invoice.id;
 
         await supabase.from("paiements").insert({
           eleve_id: eleveData.id,
@@ -340,11 +343,12 @@ serve(async (req) => {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
 
-        if (!invoice.subscription) break;
+        // Compatible API 2026-03-25.dahlia : subscription dans parent.subscription_details
+        // @ts-ignore - parent.subscription_details peut ne pas exister dans les types
+        const subscriptionId = invoice.parent?.subscription_details?.subscription
+          || (typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id);
 
-        const subscriptionId = typeof invoice.subscription === "string"
-          ? invoice.subscription
-          : invoice.subscription?.id;
+        if (!subscriptionId) break;
 
         const customerId = typeof invoice.customer === "string"
           ? invoice.customer
@@ -396,9 +400,10 @@ serve(async (req) => {
 
         const echeanceNumero = (count || 0) + 1;
 
-        const paymentIntentId = typeof invoice.payment_intent === "string"
+        // Compatible API 2026-03-25.dahlia : payment_intent peut ne plus exister
+        const paymentIntentId = (typeof invoice.payment_intent === "string"
           ? invoice.payment_intent
-          : invoice.payment_intent?.id;
+          : invoice.payment_intent?.id) || invoice.id;
 
         await supabase.from("paiements").insert({
           eleve_id: typedEleve.id,

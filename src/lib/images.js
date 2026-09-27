@@ -62,9 +62,8 @@ export async function compresserImage(file, { maxSide = 1600, qualite = 0.82 } =
   }
 
   // Creer un bitmap en respectant l'orientation EXIF
-  const bitmap = await createImageBitmap(file, {
-    imageOrientation: 'flipY' in ImageBitmapOptions ? 'from-image' : undefined,
-  }).catch(() => createImageBitmap(file));
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
+    .catch(() => createImageBitmap(file));
 
   let { width, height } = bitmap;
 

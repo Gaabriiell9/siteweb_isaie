@@ -15,12 +15,67 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MINUTES = 60;
+
+function getClientIp(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    return xff.split(",")[0].trim();
+  }
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) {
+    return realIp.trim();
+  }
+  const cfIp = req.headers.get("cf-connecting-ip");
+  if (cfIp) {
+    return cfIp.trim();
+  }
+  return "unknown";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const clientIp = getClientIp(req);
+
   try {
+    // Rate limiting: compter les appels de cette IP dans les 60 dernieres minutes
+    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60 * 1000).toISOString();
+
+    const { count, error: countError } = await supabase
+      .from("inscription_rate_limit")
+      .select("*", { count: "exact", head: true })
+      .eq("ip_address", clientIp)
+      .gte("created_at", windowStart);
+
+    if (countError) {
+      console.error("Erreur verification rate limit:", countError);
+    }
+
+    if (count !== null && count >= RATE_LIMIT_MAX) {
+      console.warn(`Rate limit atteint pour IP ${clientIp}: ${count} appels`);
+      return new Response(
+        JSON.stringify({ error: "Trop de tentatives, réessaie plus tard" }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": "3600"
+          }
+        }
+      );
+    }
+
+    // Enregistrer cet appel pour le rate limiting
+    await supabase
+      .from("inscription_rate_limit")
+      .insert({ ip_address: clientIp });
+
     const body = await req.json();
 
     const {
@@ -52,8 +107,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verifier que la formule existe et est active
     const { data: formule, error: formuleError } = await supabase

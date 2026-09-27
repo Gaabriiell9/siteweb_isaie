@@ -19,6 +19,7 @@ import {
   createFormulePaiement, updateFormulePaiement,
 } from '../../lib/admin';
 import { supabase, getSessionStatut } from '../../lib/client';
+import { checkIsAdmin } from '../../lib/auth';
 import Icon from '../../components/Icon';
 
 /* ── Helpers ── */
@@ -225,10 +226,12 @@ function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   );
 }
 
-/* ── Drawer élève ── */
+/* ── Drawer eleve ── */
 function EleveDrawer({ eleve, onClose, onUpdate }) {
   const [tab, setTab] = useState('profil');
   const [modules, setModules] = useState([]);
+  const [modulesLoading, setModulesLoading] = useState(true);
+  const [totalModulesFormation, setTotalModulesFormation] = useState(0);
   const [evaluations, setEvaluations] = useState([]);
   const [paiements, setPaiements] = useState([]);
   const [notes, setNotes] = useState(eleve?.notes_admin || '');
@@ -236,21 +239,31 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
   const [modalEval, setModalEval] = useState(false);
   const [evalForm, setEvalForm] = useState({ module_id: '', type: 'partiel', titre: '', note: '', commentaire: '' });
   const [msg, setMsg] = useState('');
+  const [adminRole, setAdminRole] = useState(null);
+
+  // Verifier le role de l'admin connecte
+  useEffect(() => {
+    checkIsAdmin().then(result => setAdminRole(result.role));
+  }, []);
+
+  const canManageModules = adminRole === 'admin' || adminRole === 'super_admin';
 
   useEffect(() => {
     if (!eleve) return;
     setNotes(eleve.notes_admin || '');
+    setModulesLoading(true);
     const loadData = async () => {
       const [evals, paies, progRes, modsRes] = await Promise.all([
         getEvaluationsAdmin(eleve.id),
         getPaiementsAdmin(eleve.id),
         supabase.from('progression_eleve').select('*, module:modules_formation(*)').eq('eleve_id', eleve.id).order('module(numero)'),
-        supabase.from('modules_formation').select('*').order('ordre'),
+        supabase.from('modules_formation').select('*').order('numero'),
       ]);
       setEvaluations(evals || []);
       setPaiements(paies || []);
       const mods = modsRes.data || [];
       const progs = progRes.data || [];
+      setTotalModulesFormation(mods.length);
       setModules(mods.map(mod => {
         const prog = progs.find(p => p.module_id === mod.id) || {};
         return {
@@ -263,6 +276,7 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           date_complete: prog.date_complete || null,
         };
       }));
+      setModulesLoading(false);
     };
     loadData().catch(console.error);
   }, [eleve]);
@@ -291,10 +305,29 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
     await ajouterEvaluation(eleve.id, { ...evalForm, note: parseFloat(evalForm.note) });
     setModalEval(false); showMsg('Évaluation ajoutée ✓');
   };
+  const [moduleActionLoading, setModuleActionLoading] = useState(null);
+
   const handleModuleAction = async (mod, action) => {
+    if (action === 'verrouiller' && !window.confirm(`Reverrouiller le module "${mod.module.titre}" ? L'élève perdra l'accès à ce module.`)) {
+      return;
+    }
     const moduleId = mod._moduleId || mod.id;
-    await updateProgressionModule(eleve.id, moduleId, action);
-    showMsg(action === 'debloquer' ? 'Module débloqué ✓' : 'Module complété ✓');
+    setModuleActionLoading(`${moduleId}-${action}`);
+    const { error } = await updateProgressionModule(eleve.id, moduleId, action);
+    setModuleActionLoading(null);
+    if (error) {
+      showMsg(`Erreur : ${error.message || 'Échec de la mise à jour'}`);
+      return;
+    }
+    const msgs = { debloquer: 'Module débloqué ✓', verrouiller: 'Module reverrouillé ✓', completer: 'Module complété ✓' };
+    showMsg(msgs[action] || 'Mise à jour effectuée ✓');
+    setModules(prev => prev.map(m => {
+      if ((m._moduleId || m.id) !== moduleId) return m;
+      if (action === 'debloquer') return { ...m, debloque: true, date_debloque: new Date().toISOString() };
+      if (action === 'verrouiller') return { ...m, debloque: false, date_debloque: null };
+      if (action === 'completer') return { ...m, complete: true, date_complete: new Date().toISOString() };
+      return m;
+    }));
   };
 
   if (!eleve) return null;
@@ -367,8 +400,10 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
                   <strong>{paiements.filter(p => p.statut === 'reussi').length} versement(s)</strong>
                 </div>
                 <div className="af-pay-summary-row">
-                  <span>Modules debloques</span>
-                  <strong>{modules.filter(m => m.debloque).length} / {modules.length}</strong>
+                  <span>Modules débloqués</span>
+                  <strong>
+                    {modulesLoading ? '…' : `${modules.filter(m => m.debloque).length} / ${totalModulesFormation}`}
+                  </strong>
                 </div>
                 {eleve.stripe_subscription_id && (
                   <div className="af-pay-summary-row">
@@ -414,29 +449,73 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
           {/* PROGRESSION */}
           {tab === 'progression' && (
             <div className="af-drawer-section">
+              {modules.length === 0 && <p className="admin-empty">Aucun module dans la formation.</p>}
               <div className="af-modules-list">
-                {modules.map(m => (
-                  <div className="af-module-row" key={m.id}>
-                    <div className={`af-module-status ${m.complete ? 'af-module-status--done' : m.debloque ? 'af-module-status--open' : ''}`}>
-                      {m.complete ? <Icon name="check" size={14} /> : m.debloque ? <Icon name="play" size={12} /> : <Icon name="lock" size={14} />}
-                    </div>
-                    <div className="af-module-info">
-                      <div className="af-module-name">Module {m.module.numero} - {m.module.titre}</div>
-                      <div className="af-module-dates">
-                        {m.debloque ? `Débloqué ${formatRelative(m.date_debloque)}` : 'Verrouillé'}
-                        {m.complete && ` · Complété ${formatRelative(m.date_complete)}`}
+                {modules.map(m => {
+                  const moduleId = m._moduleId || m.id;
+                  return (
+                    <div className="af-module-row" key={m.id}>
+                      <div className={`af-module-status ${m.complete ? 'af-module-status--done' : m.debloque ? 'af-module-status--open' : ''}`}>
+                        {m.complete ? <Icon name="check" size={14} /> : m.debloque ? <Icon name="play" size={12} /> : <Icon name="lock" size={14} />}
+                      </div>
+                      <div className="af-module-info">
+                        <div className="af-module-name">Module {m.module.numero} - {m.module.titre}</div>
+                        <div className="af-module-dates">
+                          {m.debloque ? `Débloqué ${formatRelative(m.date_debloque)}` : 'Verrouillé'}
+                          {m.complete && ` · Complété ${formatRelative(m.date_complete)}`}
+                        </div>
+                      </div>
+                      <div className="af-module-btns">
+                        {!m.debloque && canManageModules && (
+                          <button
+                            className="af-btn af-btn--sm af-btn--or"
+                            style={{ minWidth: 44, minHeight: 44 }}
+                            onClick={() => handleModuleAction(m, 'debloquer')}
+                            disabled={moduleActionLoading === `${moduleId}-debloquer`}
+                          >
+                            {moduleActionLoading === `${moduleId}-debloquer` ? '…' : 'Débloquer'}
+                          </button>
+                        )}
+                        {m.debloque && !m.complete && canManageModules && (
+                          <>
+                            <button
+                              className="af-btn af-btn--sm"
+                              onClick={() => handleModuleAction(m, 'completer')}
+                              disabled={moduleActionLoading === `${moduleId}-completer`}
+                            >
+                              {moduleActionLoading === `${moduleId}-completer` ? '…' : 'Compléter'}
+                            </button>
+                            <button
+                              className="af-btn af-btn--sm af-btn--danger"
+                              style={{ minWidth: 44, minHeight: 44 }}
+                              onClick={() => handleModuleAction(m, 'verrouiller')}
+                              disabled={moduleActionLoading === `${moduleId}-verrouiller`}
+                              title="Reverrouiller ce module"
+                            >
+                              {moduleActionLoading === `${moduleId}-verrouiller` ? '…' : 'Reverrouiller'}
+                            </button>
+                          </>
+                        )}
+                        {m.debloque && m.complete && canManageModules && (
+                          <button
+                            className="af-btn af-btn--sm af-btn--danger"
+                            style={{ minWidth: 44, minHeight: 44 }}
+                            onClick={() => handleModuleAction(m, 'verrouiller')}
+                            disabled={moduleActionLoading === `${moduleId}-verrouiller`}
+                            title="Reverrouiller ce module"
+                          >
+                            {moduleActionLoading === `${moduleId}-verrouiller` ? '…' : 'Reverrouiller'}
+                          </button>
+                        )}
+                        {!canManageModules && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--texte-doux)', fontStyle: 'italic' }}>
+                            Lecture seule
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="af-module-btns">
-                      {!m.debloque && (
-                        <button className="af-btn af-btn--sm af-btn--or" onClick={() => handleModuleAction(m, 'debloquer')}>Débloquer</button>
-                      )}
-                      {m.debloque && !m.complete && (
-                        <button className="af-btn af-btn--sm" onClick={() => handleModuleAction(m, 'completer')}>Compléter</button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1947,6 +2026,20 @@ function SubTabFormules() {
     return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
   };
 
+  const calcNombreEcheances = (prixTotal, montantEcheance) => {
+    const prix = parseFloat(prixTotal);
+    const montant = parseFloat(montantEcheance);
+    if (!prix || !montant || prix <= 0 || montant <= 0) return null;
+    return Math.ceil(prix / montant);
+  };
+
+  const calcTotalReel = (nombreEcheances, montantEcheance) => {
+    const n = parseInt(nombreEcheances);
+    const m = parseFloat(montantEcheance);
+    if (!n || !m || n <= 0 || m <= 0) return null;
+    return n * m;
+  };
+
   const startEdit = (f) => {
     setEditingId(f.id);
     const avantages = Array.isArray(f.avantages) && f.avantages.length > 0 ? f.avantages : [''];
@@ -2009,11 +2102,14 @@ function SubTabFormules() {
     if (saving) return;
     setSaving(true);
     const avantagesFiltered = editForm.avantages.filter(a => a.trim() !== '');
+    const nombreEcheancesValue = editForm.type === 'echelonne'
+      ? calcNombreEcheances(editForm.prix_total, editForm.montant_echeance) || 1
+      : parseInt(editForm.nombre_echeances) || 1;
     const updates = {
       nom: editForm.nom,
       type: editForm.type,
       prix_total_cents: Math.round(parseFloat(editForm.prix_total) * 100),
-      nombre_echeances: parseInt(editForm.nombre_echeances),
+      nombre_echeances: nombreEcheancesValue,
       montant_echeance_cents: Math.round(parseFloat(editForm.montant_echeance) * 100),
       avantages: avantagesFiltered,
       actif: editForm.actif,
@@ -2041,11 +2137,14 @@ function SubTabFormules() {
     if (saving) return;
     setSaving(true);
     const avantagesFiltered = createForm.avantages.filter(a => a.trim() !== '');
+    const nombreEcheancesValue = createForm.type === 'echelonne'
+      ? calcNombreEcheances(createForm.prix_total, createForm.montant_echeance) || 1
+      : parseInt(createForm.nombre_echeances) || 1;
     const { data, error } = await createFormulePaiement({
       nom: createForm.nom,
       type: createForm.type,
       prix_total_cents: Math.round(parseFloat(createForm.prix_total) * 100),
-      nombre_echeances: parseInt(createForm.nombre_echeances),
+      nombre_echeances: nombreEcheancesValue,
       montant_echeance_cents: Math.round(parseFloat(createForm.montant_echeance) * 100),
       avantages: avantagesFiltered,
       actif: true,
@@ -2139,16 +2238,58 @@ function SubTabFormules() {
                       <input type="number" step="0.01" min="0" value={editForm.prix_total}
                         onChange={e => setEditForm({...editForm, prix_total: e.target.value})} />
                     </div>
-                    <div>
-                      <label>Nb échéances</label>
-                      <input type="number" min="1" value={editForm.nombre_echeances}
-                        onChange={e => setEditForm({...editForm, nombre_echeances: e.target.value})} />
-                    </div>
-                    <div>
-                      <label>Montant/échéance (€)</label>
-                      <input type="number" step="0.01" min="0" value={editForm.montant_echeance}
-                        onChange={e => setEditForm({...editForm, montant_echeance: e.target.value})} />
-                    </div>
+                    {editForm.type === 'echelonne' ? (
+                      <>
+                        <div>
+                          <label>Montant/échéance (€)</label>
+                          <input type="number" step="0.01" min="0" value={editForm.montant_echeance}
+                            onChange={e => setEditForm({...editForm, montant_echeance: e.target.value})} />
+                        </div>
+                        <div>
+                          <label>Nb échéances</label>
+                          <input
+                            type="text"
+                            readOnly
+                            value={calcNombreEcheances(editForm.prix_total, editForm.montant_echeance) ?? '-'}
+                            style={{
+                              background: 'rgba(0,0,0,0.04)',
+                              borderStyle: 'dashed',
+                              cursor: 'not-allowed',
+                              color: 'var(--encre)'
+                            }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: 'var(--texte-doux)', marginTop: 2, display: 'block' }}>
+                            Calculé automatiquement
+                          </span>
+                          {(() => {
+                            const nbCalc = calcNombreEcheances(editForm.prix_total, editForm.montant_echeance);
+                            const totalReel = calcTotalReel(nbCalc, editForm.montant_echeance);
+                            const prixTotal = parseFloat(editForm.prix_total);
+                            if (nbCalc && totalReel && prixTotal && Math.abs(totalReel - prixTotal) > 0.01) {
+                              return (
+                                <span style={{ fontSize: '0.72rem', color: 'var(--or)', marginTop: 4, display: 'block' }}>
+                                  Total réellement encaissé : {totalReel.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label>Nb échéances</label>
+                          <input type="number" min="1" value={editForm.nombre_echeances}
+                            onChange={e => setEditForm({...editForm, nombre_echeances: e.target.value})} />
+                        </div>
+                        <div>
+                          <label>Montant/échéance (€)</label>
+                          <input type="number" step="0.01" min="0" value={editForm.montant_echeance}
+                            onChange={e => setEditForm({...editForm, montant_echeance: e.target.value})} />
+                        </div>
+                      </>
+                    )}
                     <div>
                       <label>Ordre</label>
                       <input type="number" min="1" value={editForm.ordre_affichage}
@@ -2243,16 +2384,58 @@ function SubTabFormules() {
                     <input required type="number" step="0.01" min="0" placeholder="450" value={createForm.prix_total}
                       onChange={e => setCreateForm({...createForm, prix_total: e.target.value})} />
                   </div>
-                  <div>
-                    <label>Nb échéances *</label>
-                    <input required type="number" min="1" placeholder="1" value={createForm.nombre_echeances}
-                      onChange={e => setCreateForm({...createForm, nombre_echeances: e.target.value})} />
-                  </div>
-                  <div>
-                    <label>Montant/éch. (€) *</label>
-                    <input required type="number" step="0.01" min="0" placeholder="50" value={createForm.montant_echeance}
-                      onChange={e => setCreateForm({...createForm, montant_echeance: e.target.value})} />
-                  </div>
+                  {createForm.type === 'echelonne' ? (
+                    <>
+                      <div>
+                        <label>Montant/éch. (€) *</label>
+                        <input required type="number" step="0.01" min="0" placeholder="50" value={createForm.montant_echeance}
+                          onChange={e => setCreateForm({...createForm, montant_echeance: e.target.value})} />
+                      </div>
+                      <div>
+                        <label>Nb échéances</label>
+                        <input
+                          type="text"
+                          readOnly
+                          value={calcNombreEcheances(createForm.prix_total, createForm.montant_echeance) ?? '-'}
+                          style={{
+                            background: 'rgba(0,0,0,0.04)',
+                            borderStyle: 'dashed',
+                            cursor: 'not-allowed',
+                            color: 'var(--encre)'
+                          }}
+                        />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--texte-doux)', marginTop: 2, display: 'block' }}>
+                          Calculé automatiquement
+                        </span>
+                        {(() => {
+                          const nbCalc = calcNombreEcheances(createForm.prix_total, createForm.montant_echeance);
+                          const totalReel = calcTotalReel(nbCalc, createForm.montant_echeance);
+                          const prixTotal = parseFloat(createForm.prix_total);
+                          if (nbCalc && totalReel && prixTotal && Math.abs(totalReel - prixTotal) > 0.01) {
+                            return (
+                              <span style={{ fontSize: '0.72rem', color: 'var(--or)', marginTop: 4, display: 'block' }}>
+                                Total réellement encaissé : {totalReel.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} €
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label>Nb échéances *</label>
+                        <input required type="number" min="1" placeholder="1" value={createForm.nombre_echeances}
+                          onChange={e => setCreateForm({...createForm, nombre_echeances: e.target.value})} />
+                      </div>
+                      <div>
+                        <label>Montant/éch. (€) *</label>
+                        <input required type="number" step="0.01" min="0" placeholder="50" value={createForm.montant_echeance}
+                          onChange={e => setCreateForm({...createForm, montant_echeance: e.target.value})} />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <AvantagesEditor avantages={createForm.avantages} isCreate={true} />

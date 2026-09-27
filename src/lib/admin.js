@@ -206,11 +206,26 @@ export async function getProgressionAdmin(eleveId) {
 }
 
 export async function updateProgressionModule(eleveId, moduleId, action) {
-  const updates = action === 'debloquer'
-    ? { debloque: true, date_debloque: new Date().toISOString() }
-    : { complete: true, date_complete: new Date().toISOString() };
-  return supabase.from('progression_eleve').update(updates)
-    .eq('eleve_id', eleveId).eq('module_id', moduleId);
+  let updates;
+  if (action === 'debloquer') {
+    updates = { debloque: true };
+  } else if (action === 'verrouiller') {
+    updates = { debloque: false, date_debloque: null, complete: false, date_complete: null };
+  } else if (action === 'completer') {
+    updates = { complete: true };
+  } else {
+    return { error: { message: 'Action inconnue' } };
+  }
+  const { data, error } = await supabase.from('progression_eleve').update(updates)
+    .eq('eleve_id', eleveId).eq('module_id', moduleId)
+    .select();
+  if (!error && (!data || data.length === 0)) {
+    const { data: inserted, error: insertErr } = await supabase.from('progression_eleve')
+      .insert({ eleve_id: eleveId, module_id: moduleId, ...updates })
+      .select();
+    return { data: inserted, error: insertErr };
+  }
+  return { data, error };
 }
 
 // ─── Modules formation ────────────────────────────────────────────────────
