@@ -4,7 +4,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 64px;
+  padding: 0 36px; height: 88px;
   border-bottom: 1px solid rgba(200, 134, 10, 0.18);
   transition: all 0.3s ease;
 }
@@ -19,7 +19,7 @@
 .navbar-brand { display: flex; align-items: center; gap: 14px; }
 
 .navbar-monogram {
-  width: 46px; height: 46px; border-radius: 50%;
+  width: 54px; height: 54px; border-radius: 50%;
   border: 1.5px solid var(--or);
   overflow: hidden;
   flex-shrink: 0; text-decoration: none;
@@ -37,7 +37,7 @@
 
 .navbar-name {
   font-family: var(--font-sans);
-  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
   color: rgba(255, 248, 240, 0.7); font-weight: 500;
 }
 @media (max-width: 640px) { .navbar-name { display: none; } }
@@ -75,10 +75,11 @@
 
 @media (max-width: 780px) {
   .burger { display: flex; }
-  .navbar { padding: 0 20px; }
+  .navbar { padding: 0 20px; height: 72px; }
+  .navbar-monogram { width: 48px; height: 48px; }
   .navbar-links {
     display: none; position: absolute;
-    top: 64px; left: 0; right: 0;
+    top: 72px; left: 0; right: 0;
     background: rgba(14, 6, 0, 0.98);
     flex-direction: column; align-items: flex-start;
     padding: 16px 24px 20px; gap: 6px;
