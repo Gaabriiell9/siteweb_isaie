@@ -3,8 +3,6 @@ import {
   getAnnouncements,
   getServices,
   getCellGroups,
-  getMessageDuJour,
-  getVideos,
   getSiteSettings,
 } from '../lib/public';
 
@@ -17,8 +15,6 @@ export function useHomeData() {
     annonces: { items: [], loading: true, error: null },
     services: { items: [], loading: true, error: null },
     cellules: { items: [], loading: true, error: null },
-    messageDuJour: { item: null, loading: true, error: null },
-    derniereVideo: { item: null, loading: true, error: null },
     settings: { data: {}, loading: true, error: null },
   });
 
@@ -28,12 +24,10 @@ export function useHomeData() {
         getAnnouncements(),
         getServices('culte'),
         getCellGroups(),
-        getMessageDuJour(),
-        getVideos(),
         getSiteSettings(),
       ]);
 
-      const [annonces, services, cellules, message, videos, settings] = results;
+      const [annonces, services, cellules, settings] = results;
 
       setData({
         annonces: {
@@ -54,18 +48,6 @@ export function useHomeData() {
           items: cellules.status === 'fulfilled' ? (cellules.value || []) : [],
           loading: false,
           error: cellules.status === 'rejected' ? cellules.reason?.message : null,
-        },
-        messageDuJour: {
-          item: message.status === 'fulfilled' ? message.value : null,
-          loading: false,
-          error: message.status === 'rejected' ? message.reason?.message : null,
-        },
-        derniereVideo: {
-          item: videos.status === 'fulfilled' && videos.value?.length > 0
-            ? videos.value[0]
-            : null,
-          loading: false,
-          error: videos.status === 'rejected' ? videos.reason?.message : null,
         },
         settings: {
           data: settings.status === 'fulfilled' ? (settings.value || {}) : {},

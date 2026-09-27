@@ -7,10 +7,6 @@ import {
   Annonces,
   Semaine,
   Activites,
-  DernierePredication,
-  MessageDuJour,
-  BandePasteurs,
-  Rejoindre,
 } from '../components/home';
 import './Home.css';
 
@@ -73,23 +69,6 @@ export default function Home() {
       />
 
       <Activites data={data} loading={data.services.loading} />
-
-      <DernierePredication
-        video={data.derniereVideo.item}
-        loading={data.derniereVideo.loading}
-      />
-
-      <MessageDuJour
-        message={data.messageDuJour.item}
-        loading={data.messageDuJour.loading}
-      />
-
-      <BandePasteurs />
-
-      <Rejoindre
-        settings={data.settings.data}
-        serviceEnCours={serviceEnCours}
-      />
     </main>
   );
 }
