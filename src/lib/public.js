@@ -1,4 +1,4 @@
-import { supabase, getTodayParis } from './client';
+import { supabase, getTodayParis, getNowParis } from './client';
 
 // ─── Videos ───────────────────────────────────────────────────────────────
 
@@ -72,14 +72,26 @@ export async function getCellGroups() {
 
 const JOURS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
+export function getSemaineDuMois() {
+  const now = getNowParis();
+  const jourDuMois = now.getDate();
+  return Math.min(4, Math.ceil(jourDuMois / 7));
+}
+
+export function getJourSemaine() {
+  const now = getNowParis();
+  return JOURS[now.getDay()];
+}
+
 export async function getMessageDuJour() {
-  const jour = JOURS[new Date().getDay()];
+  const jour = getJourSemaine();
+  const semaine = getSemaineDuMois();
   const { data, error } = await supabase
     .from('messages_priere')
     .select('id, famille, jour_semaine, semaine, titre, contenu, verset')
     .eq('visible', true)
     .eq('jour_semaine', jour)
-    .limit(1)
+    .eq('semaine', semaine)
     .maybeSingle();
   if (error) console.error('[getMessageDuJour]', error);
   return data;

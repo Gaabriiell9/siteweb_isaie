@@ -12,14 +12,13 @@ export default function TabCellules() {
   const [form, setForm] = useState({
     nom: '',
     lieu: '',
-    adresse: '',
+    lien_reunion: '',
     jour_semaine: 'Mercredi',
     heure_debut: '19:00',
     heure_fin: '21:00',
     responsable_nom: '',
     responsable_contact: '',
     description: '',
-    capacite: '',
     visible: true
   });
   const [saving, setSaving] = useState(false);
@@ -40,17 +39,26 @@ export default function TabCellules() {
     setForm({
       nom: '',
       lieu: '',
-      adresse: '',
+      lien_reunion: '',
       jour_semaine: 'Mercredi',
       heure_debut: '19:00',
       heure_fin: '21:00',
       responsable_nom: '',
       responsable_contact: '',
       description: '',
-      capacite: '',
       visible: true
     });
     setEditingId(null);
+  };
+
+  const isValidUrl = (str) => {
+    if (!str) return true;
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -59,19 +67,22 @@ export default function TabCellules() {
       showMsg('Le nom est requis');
       return;
     }
+    if (form.lien_reunion && !isValidUrl(form.lien_reunion)) {
+      showMsg('Le lien de reunion doit etre une URL valide');
+      return;
+    }
 
     setSaving(true);
     const payload = {
       nom: form.nom,
       lieu: form.lieu || null,
-      adresse: form.adresse || null,
+      lien_reunion: form.lien_reunion || null,
       jour_semaine: form.jour_semaine,
       heure_debut: form.heure_debut || null,
       heure_fin: form.heure_fin || null,
       responsable_nom: form.responsable_nom || null,
       responsable_contact: form.responsable_contact || null,
       description: form.description || null,
-      capacite: form.capacite ? parseInt(form.capacite) : null,
       visible: form.visible
     };
 
@@ -102,14 +113,13 @@ export default function TabCellules() {
     setForm({
       nom: c.nom || '',
       lieu: c.lieu || '',
-      adresse: c.adresse || '',
+      lien_reunion: c.lien_reunion || '',
       jour_semaine: c.jour_semaine || 'Mercredi',
       heure_debut: c.heure_debut || '19:00',
       heure_fin: c.heure_fin || '21:00',
       responsable_nom: c.responsable_nom || '',
       responsable_contact: c.responsable_contact || '',
       description: c.description || '',
-      capacite: c.capacite?.toString() || '',
       visible: c.visible !== false
     });
   };
@@ -149,20 +159,18 @@ export default function TabCellules() {
           onChange={e => setForm({ ...form, nom: e.target.value })}
         />
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <input
-            placeholder="Lieu (ex: Maison, Église...)"
-            value={form.lieu}
-            onChange={e => setForm({ ...form, lieu: e.target.value })}
-            style={{ flex: 1 }}
-          />
-          <input
-            placeholder="Adresse"
-            value={form.adresse}
-            onChange={e => setForm({ ...form, adresse: e.target.value })}
-            style={{ flex: 2 }}
-          />
-        </div>
+        <input
+          placeholder="Lieu (ex: En ligne)"
+          value={form.lieu}
+          onChange={e => setForm({ ...form, lieu: e.target.value })}
+        />
+
+        <input
+          type="url"
+          placeholder="Lien de reunion (Zoom, WhatsApp...)"
+          value={form.lien_reunion}
+          onChange={e => setForm({ ...form, lien_reunion: e.target.value })}
+        />
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <div>
@@ -190,17 +198,6 @@ export default function TabCellules() {
               type="time"
               value={form.heure_fin}
               onChange={e => setForm({ ...form, heure_fin: e.target.value })}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: 'var(--texte-doux)' }}>Capacite</label>
-            <input
-              type="number"
-              min="1"
-              placeholder="10"
-              value={form.capacite}
-              onChange={e => setForm({ ...form, capacite: e.target.value })}
-              style={{ width: 70 }}
             />
           </div>
         </div>
@@ -268,7 +265,7 @@ export default function TabCellules() {
                 </span>
                 <span className="admin-date">
                   {c.jour_semaine} {c.heure_debut?.slice(0, 5)} - {c.heure_fin?.slice(0, 5)}
-                  {c.capacite && ` (${c.capacite} places)`}
+                  {c.lien_reunion && ' (en ligne)'}
                   {!c.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masquee)</span>}
                 </span>
               </div>

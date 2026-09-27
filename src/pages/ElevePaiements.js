@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useEleve } from './EleveLayout';
 import { getPaiements } from '../lib/eleve';
 import { formatEuros, centsVersEuros } from '../lib/money';
-import { createCheckoutSession } from '../lib/stripe';
 
 const STATUT_CSS = {
   reussi:      'eleve-badge--green',
@@ -31,8 +30,6 @@ export default function ElevePaiements() {
   const { eleve, refetch } = useEleve();
   const [paiements, setPaiements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentError, setPaymentError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const succes = searchParams.get('succes') === '1';
@@ -66,26 +63,6 @@ export default function ElevePaiements() {
       };
     }
   }, [succes, loadPaiements, refetch, setSearchParams]);
-
-  const handlePayer = async () => {
-    setPaymentLoading(true);
-    setPaymentError(null);
-
-    const { url, error } = await createCheckoutSession();
-
-    if (error) {
-      setPaymentError(error);
-      setPaymentLoading(false);
-      return;
-    }
-
-    if (url) {
-      window.location.href = url;
-    } else {
-      setPaymentError('URL de paiement non recue');
-      setPaymentLoading(false);
-    }
-  };
 
   // Utiliser les donnees FIGEES sur l'eleve (pas de requete vers formules_paiement)
   const isEchelonne = eleve?.formule === 'echelonne';
@@ -166,8 +143,6 @@ export default function ElevePaiements() {
     );
   }
 
-  const peutPayer = restantDuEuros > 0 && (!isEchelonne || !eleve?.stripe_subscription_id);
-
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>paiements</em></h1>
@@ -190,30 +165,12 @@ export default function ElevePaiements() {
         </div>
       )}
 
-      {paymentError && (
-        <div className="eleve-card" style={{ background: 'rgba(192, 57, 43, 0.08)', borderColor: 'rgba(192, 57, 43, 0.3)', marginBottom: 20, padding: 16 }}>
-          <p style={{ color: 'var(--statut-erreur)', fontWeight: 500, margin: 0 }}>
-            Erreur : {paymentError}
+      {/* Info abonnement actif pour formule échelonnée */}
+      {isEchelonne && eleve?.stripe_subscription_id && (
+        <div className="eleve-card" style={{ background: 'rgba(29, 131, 72, 0.06)', borderColor: 'rgba(29, 131, 72, 0.2)', marginBottom: 20, padding: 16 }}>
+          <p style={{ color: 'var(--statut-ok)', fontWeight: 500, margin: 0 }}>
+            Abonnement actif — les échéances sont prélevées automatiquement chaque mois.
           </p>
-        </div>
-      )}
-
-      {/* ── Bouton Payer ── */}
-      {peutPayer && (
-        <div style={{ marginBottom: 24 }}>
-          <button
-            onClick={handlePayer}
-            disabled={paymentLoading}
-            className="btn-or"
-            style={{ minWidth: 200 }}
-          >
-            {paymentLoading ? 'Redirection...' : `Payer ${isEchelonne ? 'la premiere echeance' : formatEuros(prixTotalCents)}`}
-          </button>
-          {isEchelonne && eleve?.stripe_subscription_id && (
-            <p style={{ fontSize: 13, color: 'var(--texte-doux)', marginTop: 8 }}>
-              Abonnement actif - les echeances suivantes seront prelevees automatiquement.
-            </p>
-          )}
         </div>
       )}
 

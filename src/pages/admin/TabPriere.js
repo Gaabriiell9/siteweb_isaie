@@ -69,6 +69,8 @@ export default function TabPriere() {
           <select value={form.semaine} onChange={e => setForm({...form, semaine: parseInt(e.target.value)})}>
             <option value={1}>Semaine 1</option>
             <option value={2}>Semaine 2</option>
+            <option value={3}>Semaine 3</option>
+            <option value={4}>Semaine 4</option>
           </select>
         </div>
         <input required placeholder="Titre du message *" value={form.titre} onChange={e => setForm({...form, titre: e.target.value})} />
@@ -81,38 +83,50 @@ export default function TabPriere() {
         </div>
       </form>
 
-      <h3 style={{ marginTop: 24 }}>Messages publiés ({messages.length})</h3>
-      <div className="admin-list">
-        {messages.map(m => (
-          <div className="admin-item" key={m.id}>
-            <div className="admin-famille-badge">{m.famille[0]}</div>
-            <div className="admin-item-info">
-              <strong>{m.famille} - {m.jour_semaine}</strong>
-              <span>{m.titre}</span>
-              <span className="admin-date">{m.verset}</span>
-            </div>
-            <div className="admin-actions">
-              <button
-                className="admin-action-btn"
-                onClick={() => handleEdit(m)}
-                title="Modifier"
-                aria-label="Modifier"
-              >
-                <Icon name="pencil" size={16} />
-              </button>
-              <button
-                className="admin-action-btn admin-action-btn--delete"
-                onClick={() => handleDelete(m.id)}
-                title="Supprimer"
-                aria-label="Supprimer"
-              >
-                <Icon name="trash" size={16} />
-              </button>
+      <h3 style={{ marginTop: 24 }}>Messages publies ({messages.length}/28)</h3>
+      {[1, 2, 3, 4].map(sem => {
+        const msgSemaine = messages.filter(m => m.semaine === sem);
+        return (
+          <div key={sem} style={{ marginBottom: 24 }}>
+            <h4 style={{ fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--or)', marginBottom: 8 }}>
+              Semaine {sem} ({msgSemaine.length}/7)
+            </h4>
+            <div className="admin-list">
+              {msgSemaine.map(m => (
+                <div className="admin-item" key={m.id}>
+                  <div className="admin-famille-badge">{m.famille[0]}</div>
+                  <div className="admin-item-info">
+                    <strong>{m.famille} - {m.jour_semaine}</strong>
+                    <span>{m.titre}</span>
+                    <span className="admin-date">{m.verset}</span>
+                  </div>
+                  <div className="admin-actions">
+                    <button
+                      className="admin-action-btn"
+                      onClick={() => handleEdit(m)}
+                      title="Modifier"
+                      aria-label="Modifier"
+                    >
+                      <Icon name="pencil" size={16} />
+                    </button>
+                    <button
+                      className="admin-action-btn admin-action-btn--delete"
+                      onClick={() => handleDelete(m.id)}
+                      title="Supprimer"
+                      aria-label="Supprimer"
+                    >
+                      <Icon name="trash" size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {msgSemaine.length === 0 && (
+                <p className="admin-empty">Aucun message pour la semaine {sem}.</p>
+              )}
             </div>
           </div>
-        ))}
-        {messages.length === 0 && <p className="admin-empty">Aucun message de prière pour l'instant.</p>}
-      </div>
+        );
+      })}
     </div>
   );
 }

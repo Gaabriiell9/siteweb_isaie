@@ -7,6 +7,7 @@ import {
   Annonces,
   Semaine,
   Activites,
+  CelluleBanner,
 } from '../components/home';
 import './Home.css';
 
@@ -54,6 +55,7 @@ export default function Home() {
 
   return (
     <main className="home">
+      <CelluleBanner cellules={data.cellules.items} />
       <Hero serviceEnCours={serviceEnCours} prochainService={prochainService} />
 
       <Annonces

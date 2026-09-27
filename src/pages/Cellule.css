@@ -57,6 +57,27 @@
   border: 1px solid var(--color-border);
   border-radius: var(--r-sm);
 }
+.cellule-join-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 10px 18px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blanc);
+  background: var(--bordeaux);
+  border: 1px solid var(--or);
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+.cellule-join-btn:hover {
+  background: var(--or);
+  color: var(--bordeaux);
+}
 .prog-list { display:flex; flex-direction:column; gap:0; }
 .prog-item { display:flex; gap:16px; padding-bottom:24px; position:relative; }
 .prog-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:36px; width:1px; height:calc(100% - 12px); background:rgba(200,134,10,0.2); }

@@ -1,76 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
-import { getAllMessagesPriere, getMessageDuJour } from '../lib/public';
+import { getMessageDuJour, getJourSemaine, getSemaineDuMois } from '../lib/public';
 import './MontagnePriere.css';
 
-
 export default function MontagnePriere() {
-  const [messages, setMessages] = useState([]);
-  const [today, setToday] = useState(null);
-  const [selected, setSelected] = useState(null);
+  const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllMessagesPriere(), getMessageDuJour()]).then(([all, t]) => {
-      const valides = Array.isArray(all) ? all.filter(m => m && m.famille) : [];
-      setMessages(valides); setToday(t); setLoading(false);
+    getMessageDuJour().then(m => {
+      setMessage(m);
+      setLoading(false);
     });
   }, []);
 
+  const jour = getJourSemaine();
+  const semaine = getSemaineDuMois();
+
   return (
     <div>
-      <SectionHeader dark label="Prière" title="Montagne de" titleEm="Prière" subtitle="Les 12 familles des fils de Jacob · Un message chaque jour" />
+      <SectionHeader
+        dark
+        label="Priere"
+        title="Montagne de"
+        titleEm="Priere"
+        subtitle="Les 12 familles des fils de Jacob"
+      />
       <div className="mp-wrap">
         <div className="container">
-          {loading && <p style={{color:'var(--texte-doux)',padding:'20px 0'}}>Chargement…</p>}
-
-          {/* Message du jour */}
-          {today && (
-            <div className="mp-today">
-              <p className="mp-today-eyebrow">✦ Message du jour ✦</p>
-              <div className="mp-today-famille">{today.famille}</div>
-              {today.verset && <p className="mp-today-verset">{today.verset}</p>}
-              {today.titre && <h3 className="mp-today-titre">{today.titre}</h3>}
-              <p className="mp-today-contenu">{today.contenu}</p>
-            </div>
-          )}
-          {!loading && !today && (
-            <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--texte-doux)', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: '20px' }}>
-              Le message du jour sera publié bientôt.
-            </div>
+          {loading && (
+            <div className="mp-loading">Chargement...</div>
           )}
 
-          {/* Grille familles */}
-          {messages.length > 0 && (
-            <>
-              <h3 className="mp-grid-title">Les 12 <em>familles</em></h3>
-              <div className="mp-grid">
-                {messages.map((m, i) => (
-                  <div key={m.id}
-                    className={`mp-tile ${today?.id === m.id ? 'today' : ''}`}
-                    onClick={() => setSelected(selected === m.id ? null : m.id)}
-                  >
-                    {today?.id === m.id && <div className="mp-badge-today">Aujourd'hui</div>}
-                    <div className="mp-tile-initial">{m.famille[0]}</div>
-                    <div className="mp-tile-nom">{m.famille}</div>
-                    <div className="mp-tile-jour">{m.jour_semaine}</div>
-                  </div>
-                ))}
+          {!loading && message && (
+            <article className="mp-message">
+              <div className="mp-message-meta">
+                <span className="mp-message-jour">{jour}</span>
+                <span className="mp-message-sep"></span>
+                <span className="mp-message-semaine">Semaine {semaine}</span>
               </div>
 
-              {selected && messages.find(m => m.id === selected) && (
-                <div className="mp-expanded">
-                  <p className="mp-exp-verset">{messages.find(m=>m.id===selected).verset}</p>
-                  <h4 className="mp-exp-titre">{messages.find(m=>m.id===selected).titre}</h4>
-                  <p className="mp-exp-contenu">{messages.find(m=>m.id===selected).contenu}</p>
-                </div>
+              <div className="mp-message-famille">{message.famille}</div>
+
+              {message.verset && (
+                <blockquote className="mp-message-verset">
+                  {message.verset}
+                </blockquote>
               )}
-            </>
+
+              {message.titre && (
+                <h2 className="mp-message-titre">{message.titre}</h2>
+              )}
+
+              <div className="mp-message-contenu">
+                {message.contenu}
+              </div>
+            </article>
           )}
 
-          <div className="encart-or" style={{marginTop:24}}>
-            <span>✦</span>
-            Les messages de prière sont préparés par le service de prédication de l'Église Temple de la Célébration.
+          {!loading && !message && (
+            <div className="mp-empty">
+              <div className="mp-empty-icon">&#10022;</div>
+              <p className="mp-empty-text">Aucun message pour aujourd'hui</p>
+              <p className="mp-empty-sub">
+                {jour}, semaine {semaine} du mois
+              </p>
+            </div>
+          )}
+
+          <div className="encart-or mp-footer">
+            <span>&#10022;</span>
+            Les messages de priere sont prepares par le service de predication de l'Eglise Temple de la Celebration.
           </div>
         </div>
       </div>
