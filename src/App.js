@@ -42,18 +42,6 @@ function AuthListener() {
   const location = useLocation();
 
   useEffect(() => {
-    // DEBUG: Logger le hash vu par AuthListener
-    const hashAtAuthListener = window.location.hash;
-    const debugLog = JSON.parse(sessionStorage.getItem('debug_auth_events') || '[]');
-    debugLog.push({
-      time: new Date().toISOString(),
-      source: 'AuthListener mount',
-      hash: hashAtAuthListener,
-      pathname: location.pathname
-    });
-    sessionStorage.setItem('debug_auth_events', JSON.stringify(debugLog.slice(-10)));
-
-    // Detecter les tokens d'invitation dans le hash AVANT que le SDK ne les nettoie
     const hash = window.location.hash;
     if (hash && (hash.includes('type=invite') || hash.includes('type=recovery'))) {
       if (location.pathname !== '/eleve/bienvenue') {
@@ -63,17 +51,6 @@ function AuthListener() {
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // DEBUG: Logger chaque evenement auth
-      const events = JSON.parse(sessionStorage.getItem('debug_auth_events') || '[]');
-      events.push({
-        time: new Date().toISOString(),
-        source: 'onAuthStateChange',
-        event: event,
-        hasSession: session ? 'session presente' : 'aucune session',
-        userEmail: session?.user?.email || null
-      });
-      sessionStorage.setItem('debug_auth_events', JSON.stringify(events.slice(-10)));
-
       if (event === 'PASSWORD_RECOVERY') {
         if (location.pathname !== '/eleve/bienvenue') {
           navigate('/eleve/bienvenue', { replace: true });
