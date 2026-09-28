@@ -23,9 +23,11 @@ export default function TabServices() {
     predicateur: '',
     theme: '',
     lien_live: '',
+    facebook_live_url: '',
     replay_url: '',
     visible: true
   });
+  const [fbError, setFbError] = useState('');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [filterType, setFilterType] = useState('');
@@ -53,10 +55,12 @@ export default function TabServices() {
       predicateur: '',
       theme: '',
       lien_live: '',
+      facebook_live_url: '',
       replay_url: '',
       visible: true
     });
     setEditingId(null);
+    setFbError('');
   };
 
   const handleSubmit = async (e) => {
@@ -65,6 +69,12 @@ export default function TabServices() {
       showMsg('Titre et date requis');
       return;
     }
+
+    if (form.facebook_live_url && !form.facebook_live_url.startsWith('https://')) {
+      setFbError('Le lien Facebook doit commencer par https://');
+      return;
+    }
+    setFbError('');
 
     setSaving(true);
     const payload = {
@@ -78,6 +88,7 @@ export default function TabServices() {
       predicateur: form.predicateur || null,
       theme: form.theme || null,
       lien_live: form.lien_live || null,
+      facebook_live_url: form.facebook_live_url || null,
       replay_url: form.replay_url || null,
       visible: form.visible
     };
@@ -117,9 +128,11 @@ export default function TabServices() {
       predicateur: s.predicateur || '',
       theme: s.theme || '',
       lien_live: s.lien_live || '',
+      facebook_live_url: s.facebook_live_url || '',
       replay_url: s.replay_url || '',
       visible: s.visible !== false
     });
+    setFbError('');
   };
 
   const handleDelete = async (id) => {
@@ -231,7 +244,7 @@ export default function TabServices() {
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <input
-            placeholder="Lien live (YouTube, Zoom...)"
+            placeholder="Lien live YouTube (optionnel)"
             value={form.lien_live}
             onChange={e => setForm({ ...form, lien_live: e.target.value })}
             style={{ flex: 1 }}
@@ -242,6 +255,20 @@ export default function TabServices() {
             onChange={e => setForm({ ...form, replay_url: e.target.value })}
             style={{ flex: 1 }}
           />
+        </div>
+
+        <div>
+          <label style={{ fontSize: 11, color: 'var(--texte-doux)' }}>Lien du live Facebook (optionnel)</label>
+          <input
+            type="url"
+            placeholder="https://www.facebook.com/..."
+            value={form.facebook_live_url}
+            onChange={e => setForm({ ...form, facebook_live_url: e.target.value })}
+          />
+          <p style={{ fontSize: 11, color: 'var(--texte-doux)', marginTop: 4 }}>
+            Colle ici le lien du direct Facebook. Les fidèles seront invités à le rejoindre.
+          </p>
+          {fbError && <p style={{ fontSize: 11, color: 'var(--statut-erreur)', marginTop: 4 }}>{fbError}</p>}
         </div>
 
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
@@ -290,6 +317,7 @@ export default function TabServices() {
           {filteredServices.map(s => {
             const statut = getServiceStatut(s);
             const hasLive = s.lien_live && s.lien_live.trim();
+            const hasFbLive = s.facebook_live_url && s.facebook_live_url.trim();
             return (
               <div className={`admin-item ${!s.visible ? 'admin-item--inactive' : ''}`} key={s.id}>
                 <div className="admin-item-info">
@@ -340,7 +368,16 @@ export default function TabServices() {
                         borderRadius: 3,
                         background: 'rgba(39,174,96,0.1)',
                         color: 'var(--statut-ok)',
-                      }}>Live pret</span>
+                      }}>Live prêt</span>
+                    )}
+                    {hasFbLive && (
+                      <span style={{
+                        fontSize: 9,
+                        padding: '2px 8px',
+                        borderRadius: 3,
+                        background: 'rgba(24,119,242,0.1)',
+                        color: 'var(--facebook)',
+                      }}>Facebook prêt</span>
                     )}
                   </strong>
                   <span style={{ fontSize: 12, color: 'var(--texte-doux)' }}>

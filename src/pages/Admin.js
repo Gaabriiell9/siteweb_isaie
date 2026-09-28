@@ -41,7 +41,7 @@ function LoginForm({ onLogin }) {
       <div className="admin-login-card">
         <div className="admin-login-logo">E-T-C</div>
         <h2>Espace Administration</h2>
-        <p>Eglise Temple de la Celebration</p>
+        <p>Église Temple de la Célébration</p>
         <form onSubmit={handleSubmit} className="admin-login-form">
           <div className="admin-login-field">
             <label className="admin-login-label" htmlFor="admin-email">Email</label>

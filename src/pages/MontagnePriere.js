@@ -70,7 +70,7 @@ export default function MontagnePriere() {
 
           <div className="encart-or mp-footer">
             <span>&#10022;</span>
-            Les messages de priere sont prepares par le service de predication de l'Eglise Temple de la Celebration.
+            Les messages de prière sont préparés par le service de prédication de l'Église Temple de la Célébration.
           </div>
         </div>
       </div>

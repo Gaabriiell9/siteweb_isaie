@@ -568,3 +568,39 @@
   background: rgba(200,134,10,0.15);
   border-color: var(--or);
 }
+
+/* ── Bouton Facebook Live ─────────────────────────────────────────────────── */
+.live-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.live-fb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--blanc);
+  background: var(--facebook);
+  border: none;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.live-fb-btn:hover {
+  background: var(--facebook-hover);
+  transform: translateY(-1px);
+}
+
+.live-external-btn--fb {
+  background: var(--facebook);
+}
+
+.live-external-btn--fb:hover {
+  background: var(--facebook-hover);
+}

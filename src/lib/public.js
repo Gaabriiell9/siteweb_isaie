@@ -18,7 +18,7 @@ export async function getServices(type = 'culte') {
   const todayParis = getTodayParis();
   const { data, error } = await supabase
     .from('services')
-    .select('id, type, titre, description, date_service, heure_debut, heure_fin, lieu, predicateur, theme, lien_live, replay_url')
+    .select('id, type, titre, description, date_service, heure_debut, heure_fin, lieu, predicateur, theme, lien_live, facebook_live_url, replay_url')
     .eq('visible', true)
     .eq('type', type)
     .gte('date_service', todayParis)
@@ -45,7 +45,7 @@ export async function getProchainService() {
   const todayParis = getTodayParis();
   const { data, error } = await supabase
     .from('services')
-    .select('id, type, titre, date_service, heure_debut, heure_fin, lien_live')
+    .select('id, type, titre, date_service, heure_debut, heure_fin, lien_live, facebook_live_url')
     .eq('visible', true)
     .eq('type', 'culte')
     .gte('date_service', todayParis)

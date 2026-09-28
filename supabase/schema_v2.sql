@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.services (
   predicateur text,
   theme text,
   lien_live text,
+  facebook_live_url text,
   replay_url text,
   visible boolean DEFAULT true,
   author_id uuid REFERENCES auth.users(id),

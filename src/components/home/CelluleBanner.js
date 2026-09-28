@@ -49,7 +49,7 @@ export default function CelluleBanner({ cellules }) {
       <div className="cellule-banner-content">
         <Icon name="users" size={18} className="cellule-banner-icon" />
         <div className="cellule-banner-text">
-          <span className="cellule-banner-label">Cellule Bethel aujourd'hui</span>
+          <span className="cellule-banner-label">Cellule Béthel aujourd'hui</span>
           <strong>{celluleDuJour.nom}</strong>
           <span className="cellule-banner-time">
             {celluleDuJour.heure_debut?.slice(0, 5)} - {celluleDuJour.heure_fin?.slice(0, 5)}

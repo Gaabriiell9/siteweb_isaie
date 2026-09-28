@@ -61,6 +61,8 @@ export default function LiveBanner() {
 
   const isLive = statut === 'en_cours';
   const hasLive = service.lien_live && service.lien_live.trim();
+  const hasFbLive = service.facebook_live_url && service.facebook_live_url.trim();
+  const hasAnyLive = hasLive || hasFbLive;
 
   // Formater la date
   const dateFormatted = formatInTimezone(startTime, 'Europe/Paris', {
@@ -79,7 +81,7 @@ export default function LiveBanner() {
             <span className="live-banner-dot" />
             <span className="live-banner-label">EN DIRECT</span>
             <span className="live-banner-title">{service.titre}</span>
-            {hasLive && <span className="live-banner-cta">Regarder</span>}
+            {hasAnyLive && <span className="live-banner-cta">Regarder</span>}
           </>
         ) : (
           <>

@@ -47,7 +47,7 @@ export default function Cellule() {
       <SectionHeader
         label="Communauté"
         title="Cellule"
-        titleEm="Bethel"
+        titleEm="Béthel"
         subtitle="Réunions hebdomadaires par groupe"
       />
       <div className="cellule-wrap">

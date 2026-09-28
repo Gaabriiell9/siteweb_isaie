@@ -28,6 +28,8 @@
   --statut-alerte:  #B35F00;                      /* Orange alerte */
   --statut-erreur:  #C0392B;                      /* Rouge erreur */
   --statut-info:    #1F6091;                      /* Bleu info */
+  --facebook:       #1877F2;                      /* Bleu Facebook */
+  --facebook-hover: #166FE5;                      /* Bleu Facebook hover */
 
   /* Aliases de compatibilite (pointe vers palette restauree) */
   --color-ink:       var(--texte);

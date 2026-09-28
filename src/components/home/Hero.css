@@ -25,9 +25,9 @@
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(10, 5, 0, 0.72) 0%,
-    rgba(10, 5, 0, 0.35) 50%,
-    rgba(10, 5, 0, 0.05) 100%
+    rgba(10, 5, 0, 0.58) 0%,
+    rgba(10, 5, 0, 0.25) 40%,
+    transparent 70%
   );
   display: flex;
   align-items: center;
@@ -42,28 +42,31 @@
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--or);
   margin-bottom: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .hero-pasteur-nom {
   font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 46px);
   font-weight: 400;
-  color: #FFFBF5;
+  color: var(--creme);
   line-height: 1.15;
   margin-bottom: 16px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .hero-pasteur-devise {
   font-family: var(--font-display);
   font-style: italic;
   font-size: clamp(14px, 1.8vw, 18px);
-  color: rgba(255, 248, 240, 0.75);
+  color: rgba(255, 248, 240, 0.85);
   line-height: 1.6;
   margin-bottom: 28px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 /* ── Boutons ── */
@@ -82,7 +85,7 @@
   font-weight: 500;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #FFFBF5;
+  color: var(--creme);
   background: var(--bordeaux);
   border: 1px solid var(--or);
   padding: 12px 28px;
@@ -108,21 +111,21 @@
 }
 
 .hero-pasteur-btn--live {
-  background: #B42318;
-  border-color: #B42318;
+  background: var(--statut-direct);
+  border-color: var(--statut-direct);
 }
 
 .hero-pasteur-btn--live:hover {
-  background: #9a1f15;
-  border-color: #9a1f15;
-  color: #fff;
+  background: var(--statut-erreur);
+  border-color: var(--statut-erreur);
+  color: var(--blanc);
 }
 
 .hero-btn-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--blanc);
   animation: pulse 1.5s infinite;
 }
 
@@ -164,9 +167,9 @@
   .hero-pasteur-overlay {
     background: linear-gradient(
       to top,
-      rgba(10, 5, 0, 0.85) 0%,
-      rgba(10, 5, 0, 0.3) 60%,
-      transparent 100%
+      rgba(10, 5, 0, 0.72) 0%,
+      rgba(10, 5, 0, 0.2) 55%,
+      transparent 85%
     );
     align-items: flex-end;
     padding-bottom: 40px;
@@ -183,4 +186,27 @@
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .hero-btn-dot { animation: none; }
+}
+
+/* ── Bouton Facebook ── */
+.hero-pasteur-btn--fb {
+  background: var(--facebook);
+  border-color: var(--facebook);
+}
+
+.hero-pasteur-btn--fb:hover {
+  background: var(--facebook-hover);
+  border-color: var(--facebook-hover);
+  color: var(--blanc);
+}
+
+.hero-pasteur-btn--fb-primary {
+  background: var(--facebook);
+  border-color: var(--facebook);
+}
+
+.hero-pasteur-btn--fb-primary:hover {
+  background: var(--facebook-hover);
+  border-color: var(--facebook-hover);
+  color: var(--blanc);
 }

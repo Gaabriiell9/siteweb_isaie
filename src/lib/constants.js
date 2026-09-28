@@ -3,6 +3,6 @@
  */
 
 export const LABELS = {
-  CELLULE_BETHEL: 'Cellule Bethel',
-  MONTAGNE_PRIERE: 'Montagne de priere',
+  CELLULE_BETHEL: 'Cellule Béthel',
+  MONTAGNE_PRIERE: 'Montagne de prière',
 };

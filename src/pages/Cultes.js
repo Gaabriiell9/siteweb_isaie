@@ -96,6 +96,7 @@ export default function Cultes() {
   const showLiveSection = prochainStatut === 'en_cours' || (prochainStatut === 'a_venir' && timeToStart <= FIFTEEN_MIN_MS && timeToStart > 0);
 
   const hasLiveLink = prochainService?.lien_live?.trim();
+  const hasFacebookLink = prochainService?.facebook_live_url?.trim();
   const embedUrl = hasLiveLink ? getYoutubeEmbedUrl(prochainService.lien_live) : null;
 
   return (
@@ -125,25 +126,52 @@ export default function Cultes() {
             </div>
 
             {embedUrl ? (
-              <div className="live-player">
-                <iframe
-                  ref={livePlayerRef}
-                  src={`${embedUrl}&autoplay=1`}
-                  title={prochainService.titre}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-                {!isPlaying && prochainStatut !== 'en_cours' && (
-                  <div className="live-player-overlay" onClick={handlePlayClick}>
-                    <span className="live-player-play-btn"><Icon name="play" size={32} /></span>
-                    <span className="live-player-text">Salle d'attente YouTube</span>
+              <>
+                <div className="live-player">
+                  <iframe
+                    ref={livePlayerRef}
+                    src={`${embedUrl}&autoplay=1`}
+                    title={prochainService.titre}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  {!isPlaying && prochainStatut !== 'en_cours' && (
+                    <div className="live-player-overlay" onClick={handlePlayClick}>
+                      <span className="live-player-play-btn"><Icon name="play" size={32} /></span>
+                      <span className="live-player-text">Salle d'attente YouTube</span>
+                    </div>
+                  )}
+                </div>
+                {hasFacebookLink && (
+                  <div className="live-actions">
+                    <a
+                      href={prochainService.facebook_live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="live-fb-btn"
+                    >
+                      <Icon name="external-link" size={14} />
+                      Regarder sur Facebook
+                    </a>
                   </div>
                 )}
+              </>
+            ) : hasFacebookLink ? (
+              <div className="live-external">
+                <a
+                  href={prochainService.facebook_live_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="live-external-btn live-external-btn--fb"
+                >
+                  <Icon name="external-link" size={16} />
+                  Regarder le direct sur Facebook
+                </a>
               </div>
             ) : hasLiveLink ? (
               <div className="live-external">
-                <p>Ce culte est diffuse sur une plateforme externe.</p>
+                <p>Ce culte est diffusé sur une plateforme externe.</p>
                 <a
                   href={prochainService.lien_live}
                   target="_blank"

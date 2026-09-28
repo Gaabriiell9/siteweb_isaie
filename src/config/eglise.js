@@ -4,8 +4,8 @@
  */
 
 export const EGLISE = {
-  nom: 'Temple de la Celebration',
-  nomComplet: 'Eglise Temple de la Celebration',
+  nom: 'Temple de la Célébration',
+  nomComplet: 'Église Temple de la Célébration',
   sigle: 'E.T.C',
   devise: 'Dieu par l\'adoration et la louange',
 

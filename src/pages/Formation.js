@@ -124,7 +124,7 @@ export default function Formation() {
     },
     {
       q: 'Recevrai-je un certificat a la fin ?',
-      a: `Oui. Un certificat de formation en Theologie Biblique delivre par l'Eglise Temple de la Celebration est remis a tout etudiant ayant complete les ${n} ${modulesLabel}.`,
+      a: `Oui. Un certificat de formation en Théologie Biblique délivré par l'Église Temple de la Célébration est remis à tout étudiant ayant complété les ${n} ${modulesLabel}.`,
     },
   ];
 

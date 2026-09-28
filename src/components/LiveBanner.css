@@ -1,6 +1,6 @@
 .live-banner {
-  background: #b42318;
-  color: white;
+  background: var(--statut-direct);
+  color: var(--blanc);
   height: 36px;
   display: flex;
   align-items: center;
@@ -20,7 +20,7 @@
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  color: white;
+  color: var(--blanc);
   font-family: var(--font-sans);
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -77,7 +77,7 @@
 .live-banner-dot {
   width: 8px;
   height: 8px;
-  background: white;
+  background: var(--blanc);
   border-radius: 50%;
   animation: livePulse 1.5s ease-in-out infinite;
 }
@@ -94,7 +94,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: white;
+  color: var(--blanc);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
