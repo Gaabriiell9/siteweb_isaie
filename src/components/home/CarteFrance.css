@@ -1,0 +1,142 @@
+.carte-france {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.carte-france-svg {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+}
+
+.carte-france-contour {
+  stroke: var(--or);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+
+.carte-france-point {
+  fill: var(--or);
+}
+
+.carte-france-point-pulse {
+  fill: var(--or);
+  opacity: 0.3;
+  animation: cartePulse 2s ease-in-out infinite;
+}
+
+@keyframes cartePulse {
+  0%, 100% {
+    r: 4;
+    opacity: 0.4;
+  }
+  50% {
+    r: 8;
+    opacity: 0.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte-france-point-pulse {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+
+.carte-france-label {
+  font-family: var(--font-sans);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  fill: var(--or-clair);
+  text-transform: uppercase;
+}
+
+.carte-france-texte {
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--or-clair);
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* ── Hero placement (grand écran) ── */
+.carte-france--hero {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 540px;
+  width: 100px;
+  opacity: 0.75;
+}
+
+.carte-france--hero .carte-france-contour {
+  stroke: var(--or-clair);
+  opacity: 0.8;
+}
+
+.carte-france--hero .carte-france-point {
+  fill: var(--or-clair);
+}
+
+.carte-france--hero .carte-france-point-pulse {
+  fill: var(--or-clair);
+}
+
+.carte-france--hero .carte-france-label {
+  fill: var(--creme);
+  opacity: 0.9;
+}
+
+.carte-france--hero .carte-france-texte {
+  color: var(--creme);
+  opacity: 0.8;
+  font-size: 9px;
+}
+
+@media (max-width: 1400px) {
+  .carte-france--hero {
+    left: 500px;
+    width: 90px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .carte-france--hero {
+    display: none;
+  }
+}
+
+/* ── Bandeau mobile (sous le hero) ── */
+.carte-france-bandeau {
+  display: none;
+  background: var(--vert-nuit);
+  padding: 16px 24px;
+  justify-content: center;
+}
+
+@media (max-width: 1200px) {
+  .carte-france-bandeau {
+    display: flex;
+  }
+}
+
+.carte-france-bandeau .carte-france {
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+}
+
+.carte-france-bandeau .carte-france-svg {
+  max-width: 60px;
+}
+
+.carte-france-bandeau .carte-france-texte {
+  margin-top: 0;
+  font-size: 11px;
+}

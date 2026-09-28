@@ -16,4 +16,10 @@ export const EGLISE = {
   },
 
   citationPasteurs: 'Instruments de Dieu pour transformer des vies',
+
+  // A VALIDER AVEC LE DR : texte de localisation
+  localisation: {
+    ville: 'Bordeaux',
+    texte: 'Église en ligne, depuis Bordeaux',
+  },
 };

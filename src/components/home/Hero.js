@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import CarteFrance from './CarteFrance';
 import './Hero.css';
 
 export default function Hero({ serviceEnCours, prochainService }) {
@@ -11,6 +12,7 @@ export default function Hero({ serviceEnCours, prochainService }) {
     <section className="hero-pasteur">
       <img src="/pr_img.png" alt="Dr. Asa Esaie et Prophétesse Déborah Alice" className="hero-pasteur-img" />
       <div className="hero-pasteur-overlay">
+        <CarteFrance className="carte-france--hero" />
         <div className="hero-pasteur-content">
           <p className="hero-pasteur-label">Temple de la Célébration, Temple Béthel</p>
           <h2 className="hero-pasteur-nom">Dr. Asa Esaie<br />Prophétesse Déborah Alice</h2>

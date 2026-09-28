@@ -8,6 +8,7 @@ import {
   Semaine,
   Activites,
   CelluleBanner,
+  CarteFrance,
 } from '../components/home';
 import './Home.css';
 
@@ -57,6 +58,10 @@ export default function Home() {
     <main className="home">
       <CelluleBanner cellules={data.cellules.items} />
       <Hero serviceEnCours={serviceEnCours} prochainService={prochainService} />
+
+      <div className="carte-france-bandeau">
+        <CarteFrance />
+      </div>
 
       <Annonces
         annonces={data.annonces.items}
