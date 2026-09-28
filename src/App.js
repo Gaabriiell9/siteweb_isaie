@@ -18,6 +18,7 @@ const FormationInscription = lazy(() => import('./pages/FormationInscription'));
 const FormationInscriptionSuccess = lazy(() => import('./pages/FormationInscriptionSuccess'));
 const FormationPaiement = lazy(() => import('./pages/FormationPaiement'));
 const Dons = lazy(() => import('./pages/Dons'));
+const DonsMerci = lazy(() => import('./pages/DonsMerci'));
 const Pasteur = lazy(() => import('./pages/Pasteur'));
 const Admin = lazy(() => import('./pages/Admin'));
 const EleveLogin = lazy(() => import('./pages/EleveLogin'));
@@ -79,6 +80,7 @@ function AnimatedRoutes() {
         <Route path="/formation/inscription/success" element={<FormationInscriptionSuccess />} />
         <Route path="/formation/paiement" element={<FormationPaiement />} />
         <Route path="/dons" element={<Dons />} />
+        <Route path="/dons/merci" element={<DonsMerci />} />
         <Route path="/pasteur" element={<Pasteur />} />
       </Routes>
     </div>

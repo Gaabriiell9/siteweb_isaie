@@ -4,7 +4,7 @@
  */
 
 import { LABELS } from '../../lib/constants';
-import { TabServices, TabPriere, TabCellules, TabVideos, TabAnnonces, TabFormation, TabSettings } from './index';
+import { TabServices, TabPriere, TabCellules, TabVideos, TabAnnonces, TabFormation, TabDons, TabSettings } from './index';
 
 export const ADMIN_NAV = [
   {
@@ -27,6 +27,15 @@ export const ADMIN_NAV = [
     roles: ['admin', 'super_admin'],
     items: [
       { id: 'formation', label: 'Formation', icon: 'graduation', component: TabFormation },
+    ],
+  },
+  {
+    id: 'finances',
+    label: 'Finances',
+    icon: 'credit-card',
+    roles: ['admin', 'super_admin'],
+    items: [
+      { id: 'dons', label: 'Dons', icon: 'heart', component: TabDons },
     ],
   },
   {

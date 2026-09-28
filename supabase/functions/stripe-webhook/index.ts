@@ -158,6 +158,46 @@ serve(async (req) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // ─── Branche DON ───────────────────────────────────────────────────
+        if (session.metadata?.type === "don") {
+          if (session.payment_status !== "paid") {
+            console.log(`Don session ${session.id} pas encore paye (status: ${session.payment_status})`);
+            break;
+          }
+
+          const paymentIntentId = typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent?.id || null;
+
+          const nomDonateur = session.metadata?.nom || session.customer_details?.name || null;
+          const emailDonateur = session.customer_details?.email || session.customer_email || null;
+          const messageDon = session.metadata?.message || null;
+          const devise = (session.currency || "eur").toUpperCase();
+
+          const { error: insertError } = await supabase
+            .from("donations")
+            .upsert({
+              nom_donateur: nomDonateur,
+              email: emailDonateur,
+              montant_cents: session.amount_total,
+              devise,
+              stripe_payment_intent_id: paymentIntentId,
+              stripe_session_id: session.id,
+              statut: "succeeded",
+              message: messageDon,
+              date_don: new Date().toISOString(),
+            }, { onConflict: "stripe_session_id", ignoreDuplicates: true });
+
+          if (insertError) {
+            console.error(`Erreur insertion don pour session ${session.id}:`, insertError);
+          } else {
+            console.log(`Don enregistre: ${session.amount_total} cents, session ${session.id}`);
+          }
+
+          break;
+        }
+
+        // ─── Branche INSCRIPTION ───────────────────────────────────────────
         const isInscription = session.metadata?.type === "inscription";
 
         if (isInscription) {

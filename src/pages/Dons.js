@@ -1,70 +1,99 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
+import { createCheckoutSessionDon } from '../lib/stripe';
 import './Dons.css';
 
+const MONTANTS_SUGGERES = [10, 20, 50, 100];
+const MONTANT_MIN = 1;
+const MONTANT_MAX = 5000;
+const MESSAGE_MAX = 280;
+
 export default function Dons() {
-  const [step, setStep]     = useState('landing'); // landing | form | done
-  const [valeur, setValeur] = useState('');
+  const [searchParams] = useSearchParams();
+  const annule = searchParams.get('annule') === '1';
+
+  const [montantSuggere, setMontantSuggere] = useState(null);
+  const [montantLibre, setMontantLibre] = useState('');
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   const inputRef = useRef(null);
 
-  // Fallback silencieux pour le backend/Stripe
-  const motif = 'general';
-
-  const montantNum  = parseFloat(valeur) || 0;
-  const valide      = montantNum >= 1;
-
-  const handleInput = (e) => {
-    const v = e.target.value.replace(/[^0-9]/g, '');
-    setValeur(v);
+  // Montant final en euros
+  const getMontant = () => {
+    if (montantSuggere !== null) return montantSuggere;
+    const parsed = parseFloat(montantLibre.replace(',', '.'));
+    return isNaN(parsed) ? 0 : parsed;
   };
 
-  const handleSubmit = (e) => { e.preventDefault(); if (valide) setStep('done'); };
+  const montant = getMontant();
+  const valide = montant >= MONTANT_MIN && montant <= MONTANT_MAX;
 
-  const reset = () => { setStep('landing'); setValeur(''); };
+  const handleSuggereClick = (val) => {
+    setMontantSuggere(val);
+    setMontantLibre('');
+    setError('');
+  };
 
-  if (step === 'done') return (
-    <div>
-      <SectionHeader label="Soutien" title="Faire un" titleEm="don" />
-      <div className="dons-done-page">
-        <div className="dons-done-amount">
-          <span>{montantNum}</span>
-          <sup>€</sup>
-        </div>
-        <div className="dons-done-sep" />
-        <p className="dons-done-msg">Merci pour votre générosité.</p>
-        <p className="dons-done-sub">
-          Le paiement en ligne est en cours de mise en place.
-          Contactez l'église pour les modalités actuelles.
-        </p>
-        <button className="dons-done-reset" onClick={reset}>Nouveau don</button>
-      </div>
-    </div>
-  );
+  const handleLibreChange = (e) => {
+    const v = e.target.value;
+    // Accepter chiffres, virgule et point
+    if (/^[0-9]*[.,]?[0-9]{0,2}$/.test(v) || v === '') {
+      setMontantLibre(v);
+      setMontantSuggere(null);
+      setError('');
+    }
+  };
 
-  if (step === 'landing') return (
-    <div>
-      <SectionHeader
-        label="Soutien"
-        title="Faire un"
-        titleEm="don"
-        subtitle="Participez à l'avancement de notre mission"
-      />
-      <div className="dons-landing-page">
-        <div className="dons-landing-inner">
-          <p className="dons-landing-text">
-            Vos dons soutiennent la vie et le ministère<br />de l'Église Temple de la Célébration.
-          </p>
-          <button className="dons-landing-btn" onClick={() => setStep('form')}>
-            Faire un don
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-          <p className="dons-landing-note">Paiement sécurisé · Reçu sur demande</p>
-        </div>
-      </div>
-    </div>
-  );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!valide || loading) return;
+
+    setLoading(true);
+    setError('');
+
+    const donData = {
+      montant_euros: montant,
+    };
+
+    if (nom.trim()) donData.nom = nom.trim().slice(0, 100);
+    if (email.trim()) donData.email = email.trim();
+    if (message.trim()) donData.message = message.trim().slice(0, MESSAGE_MAX);
+
+    const result = await createCheckoutSessionDon(donData);
+
+    if (result.error) {
+      if (result.status === 429) {
+        setError('Trop de tentatives, reessaie dans quelques minutes.');
+      } else if (result.status === 400) {
+        setError(result.error);
+      } else {
+        setError('Une erreur est survenue. Reessaie plus tard.');
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (result.url) {
+      window.location.href = result.url;
+    } else {
+      setError('Impossible de demarrer le paiement. Reessaie plus tard.');
+      setLoading(false);
+    }
+  };
+
+  // Reset annule flag apres affichage
+  useEffect(() => {
+    if (annule) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('annule');
+      window.history.replaceState({}, '', url.pathname);
+    }
+  }, [annule]);
 
   return (
     <div>
@@ -72,52 +101,115 @@ export default function Dons() {
         label="Soutien"
         title="Faire un"
         titleEm="don"
-        subtitle="Participez à l'avancement de notre mission"
+        subtitle="Participez a l'avancement de notre mission"
       />
 
-      <form className="dons-page" onSubmit={handleSubmit}>
-
-        <div className="dons-form-topbar">
-          <button type="button" className="dons-back" onClick={reset}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-            Retour
-          </button>
-        </div>
-
-        {/* ── Zone montant (simplifiée) ── */}
-        <div className="dons-amount-zone dons-amount-zone--compact">
-          <label className="dons-amount-eyebrow">Montant de votre don</label>
-          <div className="dons-amount-display" onClick={() => inputRef.current?.focus()}>
-            <input
-              ref={inputRef}
-              className="dons-amount-input"
-              type="text"
-              inputMode="numeric"
-              value={valeur}
-              onChange={handleInput}
-              placeholder="0"
-              maxLength={6}
-              autoFocus
-            />
-            <span className="dons-amount-currency">€</span>
+      <div className="dons-page">
+        {annule && (
+          <div className="dons-annule-banner">
+            Don annule, tu peux reessayer quand tu veux.
           </div>
-        </div>
+        )}
 
-        {/* ── Submit ── */}
-        <div className="dons-submit-zone">
-          <button type="submit" className="dons-submit" disabled={!valide}>
-            <span>Confirmer</span>
-            {valide && <strong>{montantNum} €</strong>}
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+        <form className="dons-form" onSubmit={handleSubmit}>
+          {/* Intro */}
+          <p className="dons-intro">
+            Vos dons soutiennent la vie et le ministere de l'Eglise Temple de la Celebration.
+          </p>
+
+          {/* Montants suggeres */}
+          <div className="dons-section">
+            <label className="dons-label">Montant du don</label>
+            <div className="dons-presets">
+              {MONTANTS_SUGGERES.map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  className={`dons-preset ${montantSuggere === val ? 'active' : ''}`}
+                  onClick={() => handleSuggereClick(val)}
+                >
+                  {val} EUR
+                </button>
+              ))}
+            </div>
+
+            {/* Montant libre */}
+            <div className="dons-libre-wrap">
+              <input
+                ref={inputRef}
+                type="text"
+                inputMode="decimal"
+                className={`dons-libre-input ${montantSuggere === null && montantLibre ? 'active' : ''}`}
+                placeholder="Autre montant"
+                value={montantLibre}
+                onChange={handleLibreChange}
+                maxLength={7}
+                aria-label="Montant libre en euros"
+              />
+              <span className="dons-libre-currency">EUR</span>
+            </div>
+            <p className="dons-hint">Minimum 1 EUR, maximum 5 000 EUR</p>
+          </div>
+
+          {/* Champs facultatifs */}
+          <div className="dons-section">
+            <label className="dons-label">Informations (facultatif)</label>
+
+            <input
+              type="text"
+              className="dons-input"
+              placeholder="Ton nom"
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              maxLength={100}
+            />
+
+            <input
+              type="email"
+              className="dons-input"
+              placeholder="Ton email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <p className="dons-hint">Pour recevoir un recu de Stripe</p>
+
+            <div className="dons-textarea-wrap">
+              <textarea
+                className="dons-textarea"
+                placeholder="Un message (facultatif)"
+                value={message}
+                onChange={(e) => setMessage(e.target.value.slice(0, MESSAGE_MAX))}
+                maxLength={MESSAGE_MAX}
+                rows={3}
+              />
+              <span className="dons-textarea-count">{message.length}/{MESSAGE_MAX}</span>
+            </div>
+          </div>
+
+          {/* Erreur */}
+          {error && <div className="dons-error">{error}</div>}
+
+          {/* Bouton */}
+          <button
+            type="submit"
+            className="dons-submit"
+            disabled={!valide || loading}
+          >
+            {loading ? (
+              'Redirection...'
+            ) : (
+              <>
+                <span>Faire un don de</span>
+                <strong>{montant.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} EUR</strong>
+              </>
+            )}
           </button>
-          <p className="dons-submit-note">Paiement sécurisé · Reçu sur demande</p>
-        </div>
 
-      </form>
+          <p className="dons-secure">
+            Paiement securise par Stripe. Nous ne voyons jamais ton numero de carte.
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

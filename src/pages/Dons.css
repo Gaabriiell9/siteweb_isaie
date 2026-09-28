@@ -1,385 +1,274 @@
 /* ══════════════════════════════
-   LANDING
-══════════════════════════════ */
-.dons-landing-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 24px 100px;
-}
-
-.dons-landing-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0;
-}
-
-.dons-landing-text {
-  font-family: var(--font-sans);
-  font-size: 15px; color: var(--encre-douce); line-height: 1.8;
-  margin: 0 0 36px;
-}
-
-.dons-landing-btn {
-  display: inline-flex; align-items: center; gap: 12px;
-  background: var(--vert-nuit);
-  color: var(--creme);
-  border: none;
-  padding: 17px 44px;
-  font-family: var(--font-ui); font-size: 11px;
-  letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  margin-bottom: 16px;
-}
-.dons-landing-btn:hover { background: var(--vert); transform: translateY(-2px); }
-.dons-landing-btn:active { transform: scale(0.99); }
-
-.dons-landing-note {
-  font-family: var(--font-ui);
-  font-size: 10px; color: var(--encre-douce);
-  letter-spacing: 0.04em;
-  margin: 0;
-}
-
-/* ══════════════════════════════
-   PAGE WRAPPER
+   PAGE DONS
 ══════════════════════════════ */
 .dons-page {
-  max-width: 540px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 64px 32px 100px;
+  padding: 48px 24px 100px;
+}
+
+/* ── Bandeau annulation ── */
+.dons-annule-banner {
+  background: rgba(200, 134, 10, 0.1);
+  border: 1px solid rgba(200, 134, 10, 0.3);
+  color: var(--or);
+  padding: 14px 18px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ── Formulaire ── */
+.dons-form {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-/* ── Topbar retour ── */
-.dons-form-topbar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
+.dons-intro {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--encre-douce);
+  line-height: 1.7;
+  text-align: center;
+  margin: 0 0 40px;
 }
 
-.dons-back {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: none; border: none;
-  font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
-  color: var(--encre-douce); cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-}
-.dons-back:hover { color: var(--vert); }
-
-/* ══════════════════════════════
-   ZONE MONTANT
-══════════════════════════════ */
-.dons-amount-zone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 48px;
-}
-
-.dons-amount-eyebrow {
-  font-family: var(--font-ui);
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--or);
-  margin-bottom: 28px;
-  cursor: default;
-}
-
-/* Gros affichage cliquable */
-.dons-amount-display {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  cursor: text;
-  padding: 12px 24px;
-  border-bottom: 2px solid rgba(107,26,46,0.12);
-  transition: border-color 0.2s;
+/* ── Section ── */
+.dons-section {
   margin-bottom: 32px;
 }
-.dons-amount-display:focus-within {
-  border-color: var(--or);
-}
 
-.dons-amount-input {
-  background: transparent; border: none; outline: none;
-  font-family: var(--font-display);
-  font-size: clamp(64px, 12vw, 96px);
-  font-weight: 400;
-  color: var(--vert-nuit);
-  letter-spacing: -0.03em;
-  line-height: 1;
-  width: clamp(120px, 18vw, 200px);
-  text-align: right;
-  caret-color: var(--or);
-  -moz-appearance: textfield;
-}
-.dons-amount-input::selection { background: rgba(200,134,10,0.18); }
-
-.dons-amount-currency {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 5vw, 40px);
-  font-weight: 400;
+.dons-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--or);
-  line-height: 1;
-  padding-top: 14px;
-  user-select: none;
+  margin-bottom: 16px;
 }
 
-/* Variante compacte */
-.dons-amount-zone--compact {
-  padding-bottom: 32px;
-}
-.dons-amount-zone--compact .dons-amount-display {
-  margin-bottom: 0;
-}
-.dons-amount-zone--compact .dons-amount-input {
-  font-size: clamp(40px, 8vw, 56px);
-  width: clamp(80px, 14vw, 140px);
-}
-.dons-amount-zone--compact .dons-amount-input::placeholder {
-  color: rgba(107,26,46,0.25);
-}
-.dons-amount-zone--compact .dons-amount-currency {
-  font-size: clamp(20px, 4vw, 28px);
-  padding-top: 8px;
-}
-
-/* Presets */
+/* ── Presets montant ── */
 .dons-presets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .dons-preset {
-  padding: 6px 16px;
+  padding: 14px 8px;
   background: transparent;
-  border: 1px solid rgba(107,26,46,0.15);
-  border-radius: 100px;
-  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  border: 1px solid rgba(107, 26, 46, 0.15);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--encre-douce);
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.2s ease;
+  min-height: 48px;
 }
+
 .dons-preset:hover {
   border-color: var(--vert);
   color: var(--vert);
-  background: rgba(107,26,46,0.04);
+  background: rgba(107, 26, 46, 0.03);
 }
+
 .dons-preset.active {
   background: var(--vert-nuit);
   border-color: var(--vert-nuit);
   color: var(--creme);
 }
 
-/* ══════════════════════════════
-   SÉPARATEUR
-══════════════════════════════ */
-.dons-divider {
-  display: flex; align-items: center; gap: 12px;
-  margin: 0 0 40px;
-}
-.dons-divider span:not(.dons-divider-diamond) {
-  flex: 1; height: 1px;
-  background: rgba(200,134,10,0.18);
-  display: block;
-}
-.dons-divider-diamond {
-  width: 6px; height: 6px;
-  border: 1px solid rgba(200,134,10,0.45);
-  transform: rotate(45deg);
-  flex-shrink: 0;
-  display: block !important;
-  flex: unset !important;
-  background: transparent !important;
-}
-
-/* ══════════════════════════════
-   DESTINATION
-══════════════════════════════ */
-.dons-dest-zone {
+/* ── Montant libre ── */
+.dons-libre-wrap {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 48px;
+  align-items: center;
+  border: 1px solid rgba(107, 26, 46, 0.15);
+  transition: border-color 0.2s;
 }
 
-.dons-dest-eyebrow {
+.dons-libre-wrap:focus-within {
+  border-color: var(--or);
+}
+
+.dons-libre-input {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
   font-family: var(--font-ui);
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 0.2em; text-transform: uppercase;
+  font-size: 14px;
+  color: var(--texte);
+  outline: none;
+  min-height: 48px;
+}
+
+.dons-libre-input::placeholder {
   color: var(--encre-douce);
-  cursor: default;
 }
 
-.dons-motifs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.dons-libre-input.active {
+  font-weight: 600;
 }
 
-.dons-motif {
-  padding: 8px 18px;
-  background: transparent;
-  border: 1px solid rgba(107,26,46,0.15);
-  font-family: var(--font-ui); font-size: 13px; font-weight: 400;
+.dons-libre-currency {
+  padding: 0 16px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--encre-douce);
-  cursor: pointer;
-  transition: all 0.18s;
-  letter-spacing: 0.01em;
-}
-.dons-motif:hover {
-  border-color: var(--vert);
-  color: var(--vert);
-}
-.dons-motif.active {
-  background: var(--vert-nuit);
-  border-color: var(--vert-nuit);
-  color: var(--creme);
-  font-weight: 500;
+  user-select: none;
 }
 
-.dons-autre {
+/* ── Inputs ── */
+.dons-input {
   width: 100%;
-  padding: 10px 0;
-  border: none; border-bottom: 1px solid rgba(200,134,10,0.25);
+  padding: 14px 16px;
+  border: 1px solid rgba(107, 26, 46, 0.15);
   background: transparent;
-  font-family: var(--font-ui); font-size: 13px;
+  font-family: var(--font-ui);
+  font-size: 14px;
   color: var(--texte);
   outline: none;
   transition: border-color 0.2s;
+  margin-bottom: 12px;
+  min-height: 48px;
   box-sizing: border-box;
 }
-.dons-autre:focus { border-color: var(--or); }
-.dons-autre::placeholder { color: var(--encre-douce); }
 
-/* ══════════════════════════════
-   SUBMIT
-══════════════════════════════ */
-.dons-submit-zone {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 14px;
+.dons-input:focus {
+  border-color: var(--or);
 }
 
+.dons-input::placeholder {
+  color: var(--encre-douce);
+}
+
+/* ── Textarea ── */
+.dons-textarea-wrap {
+  position: relative;
+}
+
+.dons-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  padding-bottom: 28px;
+  border: 1px solid rgba(107, 26, 46, 0.15);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--texte);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.dons-textarea:focus {
+  border-color: var(--or);
+}
+
+.dons-textarea::placeholder {
+  color: var(--encre-douce);
+}
+
+.dons-textarea-count {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--encre-douce);
+}
+
+/* ── Hint ── */
+.dons-hint {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--encre-douce);
+  margin: 6px 0 0;
+}
+
+/* ── Erreur ── */
+.dons-error {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  color: var(--statut-erreur);
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* ── Submit ── */
 .dons-submit {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   background: var(--vert-nuit);
   color: var(--creme);
   border: none;
   padding: 18px 28px;
-  font-family: var(--font-ui); font-size: 11px;
-  letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  position: relative;
+  min-height: 56px;
+  width: 100%;
 }
+
 .dons-submit strong {
   font-family: var(--font-display);
-  font-size: 18px; font-weight: 400;
-  letter-spacing: 0; text-transform: none;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--or-clair);
-  line-height: 1;
 }
+
 .dons-submit:hover:not(:disabled) {
   background: var(--vert);
   transform: translateY(-1px);
 }
-.dons-submit:active:not(:disabled) { transform: scale(0.995); }
+
+.dons-submit:active:not(:disabled) {
+  transform: scale(0.995);
+}
+
 .dons-submit:disabled {
-  background: rgba(107,26,46,0.25);
+  background: rgba(107, 26, 46, 0.25);
   cursor: not-allowed;
 }
 
-.dons-submit-note {
+/* ── Secure note ── */
+.dons-secure {
   text-align: center;
   font-family: var(--font-ui);
-  font-size: 10px; color: var(--encre-douce);
-  letter-spacing: 0.04em;
-  margin: 0;
-}
-
-/* ══════════════════════════════
-   PAGE DONE
-══════════════════════════════ */
-.dons-done-page {
-  max-width: 540px;
-  margin: 0 auto;
-  padding: 80px 32px 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.dons-done-amount {
-  display: flex; align-items: flex-start; gap: 6px;
-  margin-bottom: 32px;
-}
-.dons-done-amount span {
-  font-family: var(--font-display);
-  font-size: clamp(72px, 14vw, 112px);
-  font-weight: 400;
-  color: var(--vert-nuit);
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-.dons-done-amount sup {
-  font-family: var(--font-display);
-  font-size: clamp(30px, 5vw, 44px);
-  font-weight: 400;
-  color: var(--or);
-  padding-top: 16px;
-  line-height: 1;
-}
-
-.dons-done-sep {
-  width: 40px; height: 1px;
-  background: rgba(200,134,10,0.35);
-  margin: 0 auto 28px;
-}
-
-.dons-done-msg {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 400;
-  color: var(--vert);
-  margin: 0 0 12px;
-  letter-spacing: -0.01em;
-}
-
-.dons-done-sub {
-  font-family: var(--font-sans);
-  font-size: 13px; color: var(--encre-douce); line-height: 1.8;
-  max-width: 360px;
-  margin: 0 0 36px;
-}
-
-.dons-done-reset {
-  background: none;
-  border: 1px solid rgba(107,26,46,0.2);
-  padding: 10px 24px;
-  font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+  font-size: 11px;
   color: var(--encre-douce);
-  cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.02em;
+  margin: 16px 0 0;
 }
-.dons-done-reset:hover { border-color: var(--or); color: var(--vert); }
 
 /* ══════════════════════════════
    RESPONSIVE
 ══════════════════════════════ */
-@media (max-width: 560px) {
-  .dons-page, .dons-done-page { padding: 48px 20px 80px; }
-  .dons-amount-input { font-size: 56px; width: 140px; }
-  .dons-amount-currency { font-size: 26px; padding-top: 10px; }
+@media (max-width: 480px) {
+  .dons-page {
+    padding: 32px 16px 80px;
+  }
+
+  .dons-presets {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
