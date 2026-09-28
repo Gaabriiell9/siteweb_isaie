@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useEleve } from './EleveLayout';
 import { getModulesAvecProgression, getRessourcesEleve, getSignedUrlRessource } from '../lib/eleve';
-import { getModulesCount } from '../lib/public';
 import Icon from '../components/Icon';
 
 const IcoLock = () => (
@@ -28,7 +27,6 @@ export default function EleveModules() {
   const [modules, setModules] = useState([]);
   const [ressourcesMap, setRessourcesMap] = useState({});
   const [openRessources, setOpenRessources] = useState({});
-  const [modulesCount, setModulesCount] = useState(null);
   const [loadingUrl, setLoadingUrl] = useState({});
 
   useEffect(() => {
@@ -43,7 +41,6 @@ export default function EleveModules() {
       });
       setRessourcesMap(map);
     });
-    getModulesCount().then(setModulesCount);
   }, [eleve]);
 
   const handleRessourceClick = useCallback(async (e, ressource) => {
@@ -64,7 +61,7 @@ export default function EleveModules() {
   return (
     <div>
       <h1 className="eleve-page-title">Mes <em>modules</em></h1>
-      <p className="eleve-page-sub">Programme · {modulesCount !== null ? `${modulesCount} modules` : '...'} · 12 mois</p>
+      <p className="eleve-page-sub">Programme de formation — Institut TIEDO</p>
 
       {/* Message si aucun module debloque */}
       {aucunModuleDebloque && (

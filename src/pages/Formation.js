@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
-import { getModulesCount } from '../lib/public';
 import couplePng from '../assets/photo-couple.png';
 import {
   drAsaEsaie,
@@ -100,31 +99,23 @@ function FadeSection({ children, className = '' }) {
 export default function Formation() {
   const [openFaq, setOpenFaq] = useState(null);
   const [openExigence, setOpenExigence] = useState(null);
-  const [modulesCount, setModulesCount] = useState(null);
-
-  useEffect(() => {
-    getModulesCount().then(setModulesCount);
-  }, []);
-
-  const n = modulesCount !== null ? modulesCount : 0;
-  const modulesLabel = n <= 1 ? 'module' : 'modules';
 
   const FAQ = [
     {
       q: "Comment se passe l'inscription ?",
-      a: "Remplissez le formulaire en ligne, choisissez votre formule de paiement, puis notre equipe vous contacte sous 48 h pour confirmer votre place et vous donner acces a l'espace de formation.",
+      a: "Remplissez le formulaire en ligne, choisissez votre formule de paiement, puis notre équipe vous contacte sous 48 h pour confirmer votre place et vous donner accès à l'espace de formation.",
     },
     {
       q: 'Puis-je changer de formule en cours de route ?',
-      a: "Oui. Si vous avez opte pour le paiement echelonne, vous pouvez a tout moment regler le solde restant pour basculer sur la formule integrale et acceder immediatement a tous les modules.",
+      a: "Oui. Si vous avez opté pour le paiement échelonné, vous pouvez à tout moment régler le solde restant pour basculer sur la formule intégrale et accéder immédiatement à tous les contenus.",
     },
     {
-      q: "Que se passe-t-il si j'arrete en cours de formation ?",
-      a: "En cas d'arret, les mensualites deja reglees ne sont pas remboursees. Les modules debloques restent accessibles. Notre equipe pastorale reste disponible pour vous accompagner.",
+      q: "Que se passe-t-il si j'arrête en cours de formation ?",
+      a: "En cas d'arrêt, les mensualités déjà réglées ne sont pas remboursées. Les contenus débloqués restent accessibles. Notre équipe pastorale reste disponible pour vous accompagner.",
     },
     {
-      q: 'Recevrai-je un certificat a la fin ?',
-      a: `Oui. Un certificat de formation en Théologie Biblique délivré par l'Église Temple de la Célébration est remis à tout étudiant ayant complété les ${n} ${modulesLabel}.`,
+      q: 'Recevrai-je un certificat à la fin ?',
+      a: "Oui. Un certificat de formation en Théologie Biblique délivré par l'Église Temple de la Célébration est remis à tout étudiant ayant complété la formation.",
     },
   ];
 
@@ -139,15 +130,15 @@ export default function Formation() {
       <SectionHeader
         dark
         label="Formation"
-        title="Theologie"
+        title="Théologie"
         titleEm="Biblique"
-        subtitle={`3 ans · ${n} ${modulesLabel} · Certificat final`}
+        subtitle="Institut TIEDO · Certificat final"
         actions={<>
           <Link to="/eleve/login" className="fsh-btn fsh-btn--outline">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
             </svg>
-            Espace eleve
+            Espace élève
           </Link>
           <Link to="/formation/inscription" className="fsh-btn fsh-btn--primary">
             S'inscrire
@@ -177,7 +168,7 @@ export default function Formation() {
                 <p className="form-dr-titre">{drAsaEsaie.titre}</p>
                 <p className="form-dr-institut">{drAsaEsaie.institut}</p>
                 <Link to="/pasteur" className="form-dr-link">
-                  Decouvrir le couple pastoral
+                  Découvrir le couple pastoral
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
@@ -208,40 +199,7 @@ export default function Formation() {
             <h2 className="form-section-titre">Le <em>parcours</em></h2>
             <p className="form-pres-p">{parcours.description}</p>
 
-            <div className="form-frise">
-              <div className="form-frise-ligne" />
-              {parcours.niveaux.map((niv, i) => (
-                <div
-                  key={niv.nom}
-                  className="form-frise-point"
-                  style={{ left: `${niv.position}%` }}
-                >
-                  <span className="form-frise-dot" />
-                  <span className="form-frise-label">{niv.nom}</span>
-                </div>
-              ))}
-              <span className="form-frise-duree">{parcours.dureeTotale}</span>
-            </div>
-
-            <div className="form-cards form-cards--3">
-              <div className="form-card">
-                <span className="form-card-icone">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                </span>
-                <span className="form-card-valeur">6 mois a 1 an</span>
-                <span className="form-card-label">par niveau</span>
-              </div>
-              <div className="form-card">
-                <span className="form-card-icone">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                  </svg>
-                </span>
-                <span className="form-card-valeur">4h30</span>
-                <span className="form-card-label">par semaine</span>
-              </div>
+            <div className="form-cards form-cards--2">
               <div className="form-card">
                 <span className="form-card-icone">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -249,7 +207,16 @@ export default function Formation() {
                   </svg>
                 </span>
                 <span className="form-card-valeur">Stages</span>
-                <span className="form-card-label">en eglise locale</span>
+                <span className="form-card-label">en église locale</span>
+              </div>
+              <div className="form-card">
+                <span className="form-card-icone">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                </span>
+                <span className="form-card-valeur">Manuels</span>
+                <span className="form-card-label">de cours fournis</span>
               </div>
             </div>
 
@@ -284,23 +251,27 @@ export default function Formation() {
 
           <div className="form-sep"><span className="form-sep-line" /><span className="form-sep-diamond" /><span className="form-sep-line" /></div>
 
-          {/* ── Exigences (accordeon) ── */}
-          <FadeSection>
-            <h2 className="form-section-titre">Nos <em>exigences</em></h2>
-            <div className="form-faq">
-              {exigences.map((ex, i) => (
-                <div className={`form-faq-item${openExigence === i ? ' open' : ''}`} key={i}>
-                  <button className="form-faq-q" onClick={() => setOpenExigence(openExigence === i ? null : i)}>
-                    <span>{ex.titre}</span>
-                    <IconChevron open={openExigence === i} />
-                  </button>
-                  {openExigence === i && <div className="form-faq-a">{ex.contenu}</div>}
-                </div>
-              ))}
-            </div>
-          </FadeSection>
+          {/* ── Exigences (accordéon) ── */}
+          {exigences.length > 0 && (
+            <FadeSection>
+              <h2 className="form-section-titre">Nos <em>exigences</em></h2>
+              <div className="form-faq">
+                {exigences.map((ex, i) => (
+                  <div className={`form-faq-item${openExigence === i ? ' open' : ''}`} key={i}>
+                    <button className="form-faq-q" onClick={() => setOpenExigence(openExigence === i ? null : i)}>
+                      <span>{ex.titre}</span>
+                      <IconChevron open={openExigence === i} />
+                    </button>
+                    {openExigence === i && <div className="form-faq-a">{ex.contenu}</div>}
+                  </div>
+                ))}
+              </div>
+            </FadeSection>
+          )}
 
-          <div className="form-sep"><span className="form-sep-line" /><span className="form-sep-diamond" /><span className="form-sep-line" /></div>
+          {exigences.length > 0 && (
+            <div className="form-sep"><span className="form-sep-line" /><span className="form-sep-diamond" /><span className="form-sep-line" /></div>
+          )}
 
           {/* ── Ce que la formation permet ── */}
           <FadeSection>
@@ -322,7 +293,7 @@ export default function Formation() {
 
           {/* ── FAQ ── */}
           <FadeSection className="form-section--last">
-            <h2 className="form-section-titre">Questions <em>frequentes</em></h2>
+            <h2 className="form-section-titre">Questions <em>fréquentes</em></h2>
             <div className="form-faq">
               {FAQ.map((item, i) => (
                 <div className={`form-faq-item${openFaq === i ? ' open' : ''}`} key={i}>

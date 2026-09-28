@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import './FormationPaiement.css';
 import Icon from '../components/Icon';
-import { getModulesCount } from '../lib/public';
 
 export default function FormationPaiement() {
-  const [modulesCount, setModulesCount] = useState(null);
-
-  useEffect(() => {
-    getModulesCount().then(setModulesCount);
-  }, []);
 
   const successData = JSON.parse(localStorage.getItem('etc_inscription_success') || '{}');
   const draft = JSON.parse(localStorage.getItem('etc_inscription_draft') || '{}');
@@ -66,7 +60,7 @@ export default function FormationPaiement() {
             <div className="fp-recap-row">
               <span className="fp-recap-key">Formation</span>
               <span className="fp-recap-val">
-                Théologie Biblique — {modulesCount !== null ? `${modulesCount} modules` : '…'}
+                Théologie Biblique — Institut TIEDO
               </span>
             </div>
             <div className="fp-recap-row">

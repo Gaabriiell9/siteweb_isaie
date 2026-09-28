@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { getFormulesPaiement, getModulesCount } from '../lib/public';
+import { getFormulesPaiement } from '../lib/public';
 import { createCheckoutSessionInscription } from '../lib/stripe';
 import './FormationInscription.css';
 import Icon from '../components/Icon';
@@ -600,11 +600,9 @@ export default function FormationInscription() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [modulesCount, setModulesCount] = useState(null);
 
   useEffect(() => {
     localStorage.removeItem(DRAFT_KEY);
-    getModulesCount().then(setModulesCount);
   }, []);
 
   const goTo = (s) => {
@@ -684,7 +682,7 @@ export default function FormationInscription() {
           <h1 className="fi2-main-title">
             Inscription à la <em>Formation</em>
           </h1>
-          <p className="fi2-main-sub">Théologie Biblique — {modulesCount !== null ? `${modulesCount} modules` : '…'} · 12 mois</p>
+          <p className="fi2-main-sub">Théologie Biblique — Institut TIEDO</p>
           <button className="fi2-reset-btn" onClick={handleReset} title="Recommencer l'inscription">
             Recommencer
           </button>
