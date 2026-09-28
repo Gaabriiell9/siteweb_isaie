@@ -8,7 +8,6 @@ import {
   getEvaluationsAdmin, getPaiementsAdmin, ajouterPaiement,
   updateProgressionModule, updateNotesAdmin,
   getStatistiquesFormation, getElevesParPays,
-  exportElevesCSV,
   getModulesFormation,
   getSessionsLive, createSessionLive, updateSessionLive, deleteSessionLive,
   inviteParticipantsToSession, getParticipantsSession,
@@ -53,12 +52,6 @@ function BadgeStatut({ statut }) {
     </span>
   );
 }
-function BadgeEmail({ confirmedAt }) {
-  return confirmedAt
-    ? <span className="af-badge af-badge--vert" title={`Confirmé le ${new Date(confirmedAt).toLocaleDateString('fr-FR')}`}>✓ Email confirmé</span>
-    : <span className="af-badge af-badge--rouge">✗ Email non confirmé</span>;
-}
-
 /* ── Section Paiements dans le drawer ── */
 function PaiementsSection({ eleve, paiements, onPaiementAdded }) {
   const [saving, setSaving] = useState(null);
@@ -353,7 +346,6 @@ function EleveDrawer({ eleve, onClose, onUpdate }) {
             <div className="af-drawer-meta">{eleve.email}</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
               <BadgeStatut statut={eleve.statut} />
-              <BadgeEmail confirmedAt={eleve.email_confirmed_at} />
             </div>
           </div>
           <div className="af-drawer-actions-top">
@@ -668,9 +660,6 @@ function SubTabEleves({ filterPays, onClearFilter }) {
             × {filterPays}
           </button>
         )}
-        <button className="af-btn af-btn--sm af-btn--or" onClick={exportElevesCSV}>
-          ↓ Export CSV
-        </button>
       </div>
 
       {loading ? <p className="admin-empty">Chargement…</p> : (
@@ -697,12 +686,7 @@ function SubTabEleves({ filterPays, onClearFilter }) {
                       <span>{e.prenom} {e.nom}</span>
                     </div>
                   </td>
-                  <td data-label="Email" className="af-table-email">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <span>{e.email}</span>
-                      <BadgeEmail confirmedAt={e.email_confirmed_at} />
-                    </div>
-                  </td>
+                  <td data-label="Email" className="af-table-email">{e.email}</td>
                   <td data-label="Pays">{e.pays || '-'}</td>
                   <td data-label="Formule"><BadgeFormule formule={e.formule} /></td>
                   <td data-label="Progression">

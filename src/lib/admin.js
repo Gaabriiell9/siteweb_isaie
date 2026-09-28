@@ -526,25 +526,5 @@ export async function getElevesParPays() {
     .sort((a, b) => b.count - a.count);
 }
 
-export async function exportElevesCSV() {
-  const { data } = await supabase.from('eleves')
-    .select('prenom, nom, email, pays, ville, formule, statut, progression_pct, date_inscription')
-    .order('date_inscription', { ascending: false });
-  if (!data) return;
-  const headers = 'Prenom,Nom,Email,Pays,Ville,Formule,Statut,Progression,Date inscription';
-  const rows = data.map(e =>
-    `${e.prenom || ''},${e.nom},${e.email},${e.pays || ''},${e.ville || ''},${e.formule},${e.statut},${e.progression_pct}%,${e.date_inscription?.split('T')[0] || ''}`
-  );
-  downloadCSV([headers, ...rows].join('\n'), 'eleves-formation.csv');
-}
-
-function downloadCSV(csv, filename) {
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
-
 // Re-export money utils for admin convenience
 export { formatEuros, eurosVersCents, centsVersEuros };

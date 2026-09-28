@@ -68,7 +68,7 @@ export default function TabCellules() {
       return;
     }
     if (form.lien_reunion && !isValidUrl(form.lien_reunion)) {
-      showMsg('Le lien de reunion doit etre une URL valide');
+      showMsg('Le lien de réunion doit être une URL valide');
       return;
     }
 
@@ -96,14 +96,14 @@ export default function TabCellules() {
     setSaving(false);
     if (result.error) {
       if (result.error.code === '42501') {
-        showMsg('Action non autorisee');
+        showMsg('Action non autorisée');
       } else {
         showMsg('Erreur : ' + result.error.message);
       }
       return;
     }
 
-    showMsg(editingId ? 'Cellule mise a jour' : 'Cellule ajoutee');
+    showMsg(editingId ? 'Cellule mise à jour' : 'Cellule ajoutée');
     resetForm();
     load();
   };
@@ -128,13 +128,13 @@ export default function TabCellules() {
     const { error } = await deleteCellGroup(id);
     if (error) {
       if (error.code === '42501') {
-        showMsg('Action non autorisee');
+        showMsg('Action non autorisée');
       } else {
         showMsg('Erreur : ' + error.message);
       }
       return;
     }
-    showMsg('Cellule supprimee');
+    showMsg('Cellule supprimée');
     load();
   };
 
@@ -165,12 +165,17 @@ export default function TabCellules() {
           onChange={e => setForm({ ...form, lieu: e.target.value })}
         />
 
-        <input
-          type="url"
-          placeholder="Lien de reunion (Zoom, WhatsApp...)"
-          value={form.lien_reunion}
-          onChange={e => setForm({ ...form, lien_reunion: e.target.value })}
-        />
+        <div>
+          <input
+            type="url"
+            placeholder="https://zoom.us/j/... ou https://chat.whatsapp.com/..."
+            value={form.lien_reunion}
+            onChange={e => setForm({ ...form, lien_reunion: e.target.value })}
+          />
+          <span style={{ fontSize: 11, color: 'var(--encre-douce)', marginTop: 4, display: 'block' }}>
+            Les fidèles utiliseront ce lien pour rejoindre la cellule.
+          </span>
+        </div>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <div>
@@ -233,11 +238,11 @@ export default function TabCellules() {
           Visible sur le site
         </label>
 
-        {msg && <div className={`admin-msg ${msg.includes('Erreur') || msg.includes('non autorisee') ? 'err' : 'ok'}`}>{msg}</div>}
+        {msg && <div className={`admin-msg ${msg.includes('Erreur') || msg.includes('non autorisée') ? 'err' : 'ok'}`}>{msg}</div>}
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="submit" className="admin-btn-primary" disabled={saving}>
-            {saving ? 'Enregistrement...' : editingId ? 'Mettre a jour' : 'Ajouter'}
+            {saving ? 'Enregistrement...' : editingId ? 'Mettre à jour' : 'Ajouter'}
           </button>
           {editingId && (
             <button type="button" className="admin-btn-secondary" onClick={resetForm}>
@@ -266,7 +271,7 @@ export default function TabCellules() {
                 <span className="admin-date">
                   {c.jour_semaine} {c.heure_debut?.slice(0, 5)} - {c.heure_fin?.slice(0, 5)}
                   {c.lien_reunion && ' (en ligne)'}
-                  {!c.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masquee)</span>}
+                  {!c.visible && <span style={{ marginLeft: 8, color: 'var(--encre-douce)' }}>(masquée)</span>}
                 </span>
               </div>
               <AdminActionButtons

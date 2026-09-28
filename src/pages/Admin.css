@@ -31,7 +31,7 @@
     background: linear-gradient(90deg, var(--or), var(--or-clair));
 }
 
-.admin-form input,
+.admin-form input:not([type="checkbox"]):not([type="radio"]),
 .admin-form textarea,
 .admin-form select {
     width: 100%;
@@ -47,8 +47,18 @@
     box-sizing: border-box;
 }
 
+.admin-form input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    flex-shrink: 0;
+    accent-color: var(--bordeaux);
+    cursor: pointer;
+}
+
 @media (min-width: 640px) {
-    .admin-form input,
+    .admin-form input:not([type="checkbox"]):not([type="radio"]),
     .admin-form textarea,
     .admin-form select {
         font-size: 14px;
@@ -816,7 +826,7 @@
 
 .af-modal-body input[type="radio"],
 .af-modal-body input[type="checkbox"] {
-  accent-color: var(--vert-nuit);
+  accent-color: var(--bordeaux);
   margin-right: 6px;
 }
 
@@ -946,7 +956,7 @@
   height: 18px !important;
   margin: 0 !important;
   padding: 0 !important;
-  accent-color: var(--vert-nuit);
+  accent-color: var(--bordeaux);
   cursor: pointer;
   flex-shrink: 0;
 }
