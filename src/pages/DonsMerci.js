@@ -15,12 +15,12 @@ export default function DonsMerci() {
       <div className="dons-merci-page">
         <div className="dons-merci-content">
           <p className="dons-merci-text">
-            Ton soutien contribue a la vie et au ministere de l'Eglise Temple de la Celebration.
-            Que Dieu te benisse pour ta generosite.
+            Ton soutien contribue à la vie et au ministère de l'Église Temple de la Célébration.
+            Que Dieu te bénisse pour ta générosité.
           </p>
 
           <Link to="/" className="dons-merci-link">
-            Retour a l'accueil
+            Retour à l'accueil
           </Link>
         </div>
       </div>
