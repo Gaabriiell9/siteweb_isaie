@@ -183,8 +183,8 @@ function AnnonceModal({ annonces, currentIndex, onClose, onNavigate }) {
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
-            <span className="annonce-modal-counter">
-              {currentIndex + 1} / {annonces.length}
+            <span className="annonce-modal-counter" aria-live="polite" aria-atomic="true">
+              {currentIndex + 1} sur {annonces.length}
             </span>
             <button
               type="button"
