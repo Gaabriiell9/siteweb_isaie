@@ -526,5 +526,32 @@ export async function getElevesParPays() {
     .sort((a, b) => b.count - a.count);
 }
 
+// ─── Ressources : URL signee ──────────────────────────────────────────────
+
+/**
+ * Genere une URL signee pour une ressource du bucket prive
+ * @param storagePath chemin dans le bucket ressources
+ * @param download si true, ajoute l'option download avec le nom du fichier
+ * @returns { signedUrl, error }
+ */
+export async function getSignedUrlRessourceAdmin(storagePath, download = false) {
+  if (!storagePath) {
+    return { signedUrl: null, error: { message: 'Chemin de fichier manquant' } };
+  }
+
+  const options = download ? { download: storagePath.split('/').pop() || 'fichier' } : {};
+
+  const { data, error } = await supabase.storage
+    .from('ressources')
+    .createSignedUrl(storagePath, 3600, options);
+
+  if (error) {
+    console.error('[getSignedUrlRessourceAdmin]', error);
+    return { signedUrl: null, error };
+  }
+
+  return { signedUrl: data?.signedUrl || null, error: null };
+}
+
 // Re-export money utils for admin convenience
 export { formatEuros, eurosVersCents, centsVersEuros };

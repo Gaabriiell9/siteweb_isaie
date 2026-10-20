@@ -16,6 +16,7 @@ import {
   getAllRessourcesParModule, createRessource, deleteRessource, uploadRessourceFile,
   updateModuleFormation, swapModuleOrdre, createModuleFormation, deleteModuleFormation,
   createFormulePaiement, updateFormulePaiement,
+  getSignedUrlRessourceAdmin,
 } from '../../lib/admin';
 import { supabase, getSessionStatut } from '../../lib/client';
 import { checkIsAdmin } from '../../lib/auth';

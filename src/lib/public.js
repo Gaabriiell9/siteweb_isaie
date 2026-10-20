@@ -61,7 +61,7 @@ export async function getProchainService() {
 export async function getCellGroups() {
   const { data, error } = await supabase
     .from('cell_groups')
-    .select('id, nom, lieu, adresse, jour_semaine, heure_debut, heure_fin, responsable_nom, responsable_contact, description, capacite')
+    .select('id, nom, lieu, adresse, jour_semaine, heure_debut, heure_fin, responsable_nom, responsable_contact, description, capacite, lien_reunion')
     .eq('visible', true)
     .order('jour_semaine');
   if (error) console.error('[getCellGroups]', error);
