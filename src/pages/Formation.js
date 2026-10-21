@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
-import couplePng from '../assets/photo-couple.png';
 import {
   drAsaEsaie,
   vision,
@@ -156,9 +155,8 @@ export default function Formation() {
           <FadeSection>
             <div className="form-dr">
               <div className="form-dr-photo">
-                {/* TODO: remplacer par un portrait solo du Dr */}
                 <img
-                  src={couplePng}
+                  src="/pr_img.png"
                   alt={drAsaEsaie.nom}
                   className="form-dr-img"
                 />
