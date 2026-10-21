@@ -266,11 +266,13 @@
 }
 
 .annonce-modal {
+  position: relative;
   background: var(--blanc);
   border-radius: var(--r-lg);
   max-width: 720px;
   width: 100%;
-  max-height: 90vh;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -323,13 +325,13 @@
 .annonce-modal-content {
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 /* Zone image modale */
 .annonce-modal-visual {
   position: relative;
-  min-height: 200px;
-  max-height: 50vh;
+  max-height: 40vh;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -357,7 +359,7 @@
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 50vh;
+  max-height: 40vh;
   object-fit: contain;
   z-index: 1;
 }
@@ -505,36 +507,26 @@
     font-size: 56px;
   }
 
-  /* Modal plein écran mobile */
+  /* Modal mobile avec marges */
   .annonce-modal-backdrop {
-    padding: 0;
+    padding: 16px;
   }
 
   .annonce-modal {
-    border-radius: 0;
-    max-height: 100vh;
-    height: 100%;
-  }
-
-  .annonce-modal-header {
-    position: sticky;
-    top: 0;
-    background: var(--blanc);
-    z-index: 10;
+    border-radius: var(--r-md);
+    max-height: calc(100dvh - 32px);
   }
 
   .annonce-modal-visual {
-    max-height: 40vh;
+    max-height: 35vh;
+  }
+
+  .annonce-modal-img {
+    max-height: 35vh;
   }
 
   .annonce-modal-body {
     padding: 20px 16px;
-  }
-
-  .annonce-modal-nav {
-    position: sticky;
-    bottom: 0;
-    background: var(--blanc);
   }
 }
 

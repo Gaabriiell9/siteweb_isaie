@@ -168,11 +168,17 @@
     background: linear-gradient(
       to top,
       rgba(10, 5, 0, 0.72) 0%,
-      rgba(10, 5, 0, 0.2) 55%,
-      transparent 85%
+      rgba(10, 5, 0, 0.35) 60%,
+      rgba(10, 5, 0, 0.15) 100%
     );
     align-items: flex-end;
     padding-bottom: 40px;
+  }
+  .hero-pasteur-label {
+    background: rgba(10, 5, 0, 0.5);
+    padding: 6px 12px;
+    border-radius: var(--r-sm);
+    display: inline-block;
   }
   .hero-pasteur-btns {
     flex-direction: column;

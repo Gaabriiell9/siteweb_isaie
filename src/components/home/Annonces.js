@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './Annonces.css';
 
 function formatDate(dateStr) {
@@ -329,13 +330,14 @@ export default function Annonces({ annonces = [], loading = false }) {
         )}
       </div>
 
-      {modalIndex !== null && (
+      {modalIndex !== null && createPortal(
         <AnnonceModal
           annonces={annonces}
           currentIndex={modalIndex}
           onClose={closeModal}
           onNavigate={setModalIndex}
-        />
+        />,
+        document.body
       )}
     </section>
   );
