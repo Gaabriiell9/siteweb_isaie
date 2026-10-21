@@ -11,8 +11,7 @@ export const SHOW_DUREE_ET_MODULES = false;
 
 export const drAsaEsaie = {
   nom: 'Dr. Asa Esaie',
-  // A VALIDER AVEC LE DR : orthographe exacte du nom
-  titre: 'Doctorat en théologie biblique, option Exégèse Ancien et Nouveau Testament',
+  titre: 'Dr enseignant en théologie biblique',
   institut: 'Institut de théologie biblique TIEDO',
   // A VALIDER AVEC LE DR : lien du Dr avec TIEDO (fondateur, directeur, enseignant ?)
   // A VALIDER AVEC LE DR : parcours et ministère
