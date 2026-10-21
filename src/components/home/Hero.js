@@ -9,7 +9,7 @@ export default function Hero({ serviceEnCours, prochainService }) {
 
   return (
     <section className="hero-pasteur">
-      <img src="/pr_img.png" alt="Dr. Asa Esaie" className="hero-pasteur-img" />
+      <img src="/pr_img1.png" alt="Dr. Asa Esaie" className="hero-pasteur-img" />
       <div className="hero-pasteur-overlay">
         <div className="hero-pasteur-content">
           <p className="hero-pasteur-label">Temple de la Célébration, Temple Béthel</p>
