@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../Icon';
+import { getJoinLabel } from '../../lib/joinLabel';
 import './CelluleBanner.css';
 
 const JOURS_FR = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const STORAGE_KEY = 'celluleBannerDismissed';
-
-function getJoinLabel(url) {
-  if (!url) return 'Rejoindre';
-  try {
-    const hostname = new URL(url).hostname.toLowerCase();
-    if (hostname.includes('zoom')) return 'Rejoindre sur Zoom';
-    if (hostname.includes('whatsapp') || hostname.includes('wa.me')) return 'Rejoindre sur WhatsApp';
-    if (hostname.includes('meet.google')) return 'Rejoindre sur Google Meet';
-    if (hostname.includes('teams')) return 'Rejoindre sur Teams';
-    return 'Rejoindre';
-  } catch {
-    return 'Rejoindre';
-  }
-}
 
 export default function CelluleBanner({ cellules }) {
   const [dismissed, setDismissed] = useState(false);

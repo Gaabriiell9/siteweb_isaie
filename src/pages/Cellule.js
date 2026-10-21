@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { getCellGroups } from '../lib/public';
+import { getJoinLabel } from '../lib/joinLabel';
 import Icon from '../components/Icon';
 import './Cellule.css';
 
@@ -12,20 +13,6 @@ const PROG = [
 ];
 
 const JOURS_ORDRE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-
-function getJoinLabel(url) {
-  if (!url) return null;
-  try {
-    const hostname = new URL(url).hostname.toLowerCase();
-    if (hostname.includes('zoom')) return 'Rejoindre sur Zoom';
-    if (hostname.includes('whatsapp') || hostname.includes('wa.me')) return 'Rejoindre sur WhatsApp';
-    if (hostname.includes('meet.google')) return 'Rejoindre sur Google Meet';
-    if (hostname.includes('teams')) return 'Rejoindre sur Teams';
-    return 'Rejoindre la reunion';
-  } catch {
-    return 'Rejoindre la reunion';
-  }
-}
 
 export default function Cellule() {
   const [cellGroups, setCellGroups] = useState([]);
@@ -108,7 +95,7 @@ export default function Cellule() {
                         className="cellule-join-btn"
                       >
                         <Icon name="video" size={14} />
-                        {getJoinLabel(group.lien_reunion)}
+                        {getJoinLabel(group.lien_reunion, 'Rejoindre la reunion')}
                       </a>
                     )}
                   </div>
